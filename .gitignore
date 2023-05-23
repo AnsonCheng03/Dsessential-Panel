@@ -1,0 +1,7 @@
+# package manager
+*/package-lock.json
+*/yarn.lock
+
+# OS generated files
+.DS_Store
+._*
