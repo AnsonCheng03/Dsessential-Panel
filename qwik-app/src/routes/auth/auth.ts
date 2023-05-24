@@ -1,34 +1,36 @@
 import type { User } from "@auth/core/types";
 
 interface Credentials {
-    username: 'string';
-    password: 'string';
+  username: string;
+  password: string;
 }
 
 export const authorizeFunction = async (credentials: Credentials) => {
-  const users = [
-    {
-      username: "123",
-      password: "123",
-    },
-    {
-      username: "OCamp",
-      password: "OCamp",
-    },
-  ];
+  const loginBody = {
+    username: credentials.username,
+    password: credentials.password,
+  };
 
-    console.log("credentials", credentials);
-  const user = users.find(
-    (user) =>
-      user.username === credentials.username &&
-      user.password === credentials.password
-  );
+  try {
+    const loginURL = "http://localhost:4000/auth/login";
 
-  if (user) {
+    const loginResponse = await fetch(loginURL, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(loginBody),
+    });
+
+    if (loginResponse.status !== 200) return null;
+
+    const user = await loginResponse.json();
+
     return {
       id: user.username,
     } as User;
-  } else {
+  } catch (err) {
+    console.error("authorizeFunction error", err);
     return null;
   }
 };

@@ -20,7 +20,7 @@ export const { onRequest, useAuthSession, useAuthSignin, useAuthSignout } =
           password: { label: "Password", type: "password" },
         },
         async authorize(
-          credentials: Partial<Record<"username" | "password", unknown>>
+          credentials: Partial<Record<"username" | "password", unknown>>,
         ): Promise<User | null> {
           return await authorizeFunction(credentials as Credentials);
         },
