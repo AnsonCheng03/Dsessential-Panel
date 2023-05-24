@@ -8,3 +8,8 @@
 
 # Environment variables
 .env
+
+# Keys
+*.pem
+*.crt
+*.key
