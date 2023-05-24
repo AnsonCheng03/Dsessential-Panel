@@ -1,13 +1,33 @@
 import { component$ } from "@builder.io/qwik";
+import { DocumentHead } from "@builder.io/qwik-city";
 import {
-  Link,
-  type DocumentHead,
-  type RequestHandler,
-} from "@builder.io/qwik-city";
-import style from "./index.module.css";
+  useAuthSession,
+  useAuthSignin,
+  useAuthSignout,
+} from "~/routes/plugin@auth";
 
 export default component$(() => {
-  return <div class={style.center}></div>;
+  const signIn = useAuthSignin();
+  const signOut = useAuthSignout();
+  const session = useAuthSession();
+
+  return (
+    <div class="userAuth">
+      {session.value?.user ? (
+        <button onClick$={() => signOut.submit({})}>Sign Out</button>
+      ) : (
+        <button
+          onClick$={() =>
+            signIn.submit({
+              options: {},
+            })
+          }
+        >
+          Sign In
+        </button>
+      )}
+    </div>
+  );
 });
 
 export const head: DocumentHead = {
