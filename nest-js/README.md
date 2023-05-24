@@ -32,6 +32,9 @@
 $ yarn install
 ```
 
+## Remark
+Please rename the ```.env.dev``` file to ```.env``` and change the values.
+
 ## Running the app
 
 ```bash
