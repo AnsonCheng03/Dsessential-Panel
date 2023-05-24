@@ -8,7 +8,7 @@ export class AuthController {
   // NOTE: endpoint for login: http://localhost:3000/auth/login
   @HttpCode(HttpStatus.OK)
   @Post('login')
-  signIn(@Body() signInDto: Record<string, any>) {
-    return this.authService.signIn(signInDto.username, signInDto.password);
+  signIn(@Body() signInDto: Record<string, string>) {
+    return this.authService.signIn(signInDto.role, signInDto.ID, signInDto.password);
   }
 }

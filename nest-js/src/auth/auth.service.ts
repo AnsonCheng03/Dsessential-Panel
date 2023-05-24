@@ -10,15 +10,13 @@ export class AuthService {
     private jwtService: JwtService
   ) {}
 
-  async signIn(username, pass) {
-    const user = await this.usersService.findOne(username);
+  async signIn(role, username, pass) {
+    const user = role === 'admin' ?
+      await this.usersService.adminLogin(username, pass) : 
+      await this.usersService.userLogin(username);
 
-    if (
-      !user ||
-      !await compare(pass, user.password)
-    ) {
-      throw new UnauthorizedException();
-    }
+    if (!user) throw new UnauthorizedException();
+    if (role !== 'admin' && !await compare(pass, user.password)) throw new UnauthorizedException();
 
     const payload = { sub: user.userId, username: user.userId };
     return {

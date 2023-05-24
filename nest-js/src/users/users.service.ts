@@ -1,4 +1,5 @@
 import { Injectable } from '@nestjs/common';
+import * as ldap from 'ldapjs';
 import { createPool } from 'mysql2/promise';
 
 // This should be a real class/interface representing a user entity
@@ -21,11 +22,52 @@ export class UsersService {
     queueLimit: 0,
   });
 
-  async findOne(username: string): Promise<User | undefined> {
+  // private readonly LDAPclient = ldap.createClient({
+  //   url: process.env.LDAP_URL || 'ldaps://localhost',
+  //   tlsOptions: {
+  //     rejectUnauthorized: false,
+  //   },
+  // });
+
+  async adminLogin(username: string, password: string): Promise<User | undefined> {
+
+    const LDAPclient = ldap.createClient({
+      url: process.env.LDAP_URL || 'ldaps://localhost',
+      tlsOptions: {
+        rejectUnauthorized: false,
+      },
+    });
+
+    try {
+      await new Promise<void>((resolve, reject) => {
+        const loginName = `NAS\\${username}`
+        LDAPclient.bind(loginName, password, (error) => {
+          if (error) {
+            reject(error);
+          } else {
+            resolve();
+          }
+        });
+      });
+      const user = {
+        role: 'admin',
+        userId: parseInt(username),
+        password: password,
+      };
+      return user;
+    } catch (error) {
+      console.error(error);
+      return undefined;
+    } finally {
+      LDAPclient.unbind();
+    }
+  }
+
+  async userLogin(username: string): Promise<User | undefined> {
     const connection = await this.pool.getConnection();
     try {
       const [TotalAcc] = await connection.execute(
-        'SELECT `SID` as Username FROM`Student` \
+        'SELECT `SID` as Username FROM `Student` \
         WHERE ? IN(`SID`, `卡內號碼`, `卡號`, `補發卡卡號`, `姓名`, `學生電話`, `家長電話`) LIMIT 1',
         [username]
       );
