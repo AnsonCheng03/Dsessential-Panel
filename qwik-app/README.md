@@ -39,7 +39,8 @@ npm run qwik add # or `yarn qwik add`
 ```
 
 ## Remark
-Please rename the ```.env.dev``` file to ```.env``` and change the values.
+
+Please rename the `.env.dev` file to `.env` and change the values.
 
 ## Development
 
