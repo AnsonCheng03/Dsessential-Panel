@@ -5,8 +5,9 @@ import type { User } from "@auth/core/types";
 import { authorizeFunction } from "./auth/auth";
 
 interface Credentials {
-    username: 'string';
-    password: 'string';
+    role: string;
+    username: string;
+    password: string;
 }
 
 export const { onRequest, useAuthSession, useAuthSignin, useAuthSignout } =
@@ -16,6 +17,7 @@ export const { onRequest, useAuthSession, useAuthSignin, useAuthSignout } =
     providers: [
       Credentials({
         credentials: {
+          role: { label: "Role", type: "select", options: ["admin", "user"] },
           username: { label: "Username" },
           password: { label: "Password", type: "password" },
         },
