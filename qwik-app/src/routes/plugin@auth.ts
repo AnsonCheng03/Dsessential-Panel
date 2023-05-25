@@ -24,6 +24,7 @@ export const { onRequest, useAuthSession, useAuthSignin, useAuthSignout } =
         async authorize(
           credentials: Partial<Record<"username" | "password", unknown>>,
         ): Promise<User | null> {
+          console.log("credentials", credentials);
           return await authorizeFunction(credentials as Credentials);
         },
       }),

@@ -1,15 +1,10 @@
-import { component$, useSignal } from "@builder.io/qwik";
-import { Form, type DocumentHead, useNavigate } from "@builder.io/qwik-city";
-import {
-  useAuthSession,
-  useAuthSignin,
-  useAuthSignout,
-} from "~/routes/plugin@auth";
+import { component$, useSignal, $ } from "@builder.io/qwik";
+import { type DocumentHead, useNavigate, Form } from "@builder.io/qwik-city";
+import { useAuthSession, useAuthSignin } from "~/routes/plugin@auth";
 import style from "./index.module.css";
 
 export default component$(() => {
   const signIn = useAuthSignin();
-  const signOut = useAuthSignout();
   const session = useAuthSession();
   const nav = useNavigate();
   const adminRole = useSignal(false);
@@ -22,12 +17,13 @@ export default component$(() => {
           <br />
           登入分區
         </h1>
-        <Form>
+        <Form action={signIn}>
+          <input type="hidden" name="providerId" value="credentials" />
           <div class={style.switchToggle}>
             <input
               class={style.input}
               id="student"
-              name="role"
+              name="options.role"
               type="radio"
               value="student"
               checked={!adminRole.value}
@@ -41,7 +37,7 @@ export default component$(() => {
             <input
               class={style.input}
               id="admin"
-              name="role"
+              name="options.role"
               type="radio"
               value="admin"
               bind:checked={adminRole}
@@ -55,27 +51,19 @@ export default component$(() => {
             placeholder={
               adminRole.value ? "職員名稱" : "卡號/電話號碼/中文姓名"
             }
-            id="ID"
-            name="ID"
+            name="options.username"
             type="text"
-            autoComplete={"username"}
+            autoComplete="username"
           />
           <input
             class={[style.input, style.loginInput]}
             placeholder="密碼"
-            name="password"
+            name="options.password"
             type="password"
-            autoComplete={"current-password"}
+            autoComplete="current-password"
           />
           <br />
-          <button
-            class={style.button}
-            type="submit"
-            name="requestmode"
-            value="login"
-          >
-            登入
-          </button>
+          <button class={style.button}>登入</button>
           <div
             class={style.resetPasswordContainer}
             onClick$={() => {
