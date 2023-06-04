@@ -1,5 +1,5 @@
-import { component$ } from "@builder.io/qwik";
-import { Link, type DocumentHead } from "@builder.io/qwik-city";
+import { component$, useVisibleTask$ } from "@builder.io/qwik";
+import { type DocumentHead, useNavigate } from "@builder.io/qwik-city";
 import {
   useAuthSession,
   useAuthSignin,
@@ -7,28 +7,15 @@ import {
 } from "~/routes/plugin@auth";
 
 export default component$(() => {
-  const signIn = useAuthSignin();
-  const signOut = useAuthSignout();
   const session = useAuthSession();
+  const nav = useNavigate();
 
-  return (
-    <div class="userAuth">
-      {session.value?.user ? (
-        <button onClick$={() => signOut.submit({})}>Sign Out</button>
-      ) : (
-        <button
-          onClick$={() =>
-            signIn.submit({
-              options: {},
-            })
-          }
-        >
-          Sign In
-        </button>
-      )}
-      <Link href="auth">Home</Link>
-    </div>
-  );
+  useVisibleTask$(async () => {
+    if (session.value) {
+      nav("/Dsessential");
+    }
+  });
+  return null;
 });
 
 export const head: DocumentHead = {
