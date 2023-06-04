@@ -1,4 +1,4 @@
-import { component$, useSignal } from "@builder.io/qwik";
+import { type Signal, component$, useSignal, useStore } from "@builder.io/qwik";
 import { type DocumentHead } from "@builder.io/qwik-city";
 import { useAuthSession } from "~/routes/plugin@auth";
 import SignIn from "./(signIn)";
@@ -8,18 +8,28 @@ import style from "./index.module.css";
 export default component$(() => {
   const session = useAuthSession();
   const formState = useSignal<"signIn" | "resetPassword">("signIn");
+  const adminRole = useSignal(false);
+  const userName = useSignal<string | undefined>(undefined);
 
   if (session.value) return null;
 
   return (
     <div class={style.center}>
-      <div class={style.content}>
-        {formState.value === "resetPassword" ? (
-          <ResetPassword formState={formState} />
-        ) : (
-          <SignIn formState={formState} />
-        )}
-      </div>
+      {formState.value === "resetPassword" ? (
+        <ResetPassword
+          formState={formState}
+          adminRole={adminRole}
+          style={style}
+          userName={userName}
+        />
+      ) : (
+        <SignIn
+          formState={formState}
+          adminRole={adminRole}
+          style={style}
+          userName={userName}
+        />
+      )}
     </div>
   );
 });
