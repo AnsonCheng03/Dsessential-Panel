@@ -1,10 +1,6 @@
 import { component$, useVisibleTask$ } from "@builder.io/qwik";
 import { type DocumentHead, useNavigate } from "@builder.io/qwik-city";
-import {
-  useAuthSession,
-  useAuthSignin,
-  useAuthSignout,
-} from "~/routes/plugin@auth";
+import { useAuthSession } from "~/routes/plugin@auth";
 
 export default component$(() => {
   const session = useAuthSession();
