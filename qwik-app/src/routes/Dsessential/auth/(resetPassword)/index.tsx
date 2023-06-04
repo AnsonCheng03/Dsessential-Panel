@@ -1,5 +1,9 @@
 import { type Signal, component$, useSignal } from "@builder.io/qwik";
 import LocateUser from "./(locateUser)";
+import ResetPassword from "./(resetPassword)";
+import UpdatePassword from "./(updatePassword)";
+import SecurityCheck from "./(securityCheck)";
+
 interface Props {
   formState: Signal<"signIn" | "resetPassword">;
   adminRole: Signal<boolean>;
@@ -32,13 +36,41 @@ export default component$(
     return (
       <div class={style.content}>
         <h1 class={style.h1}>重置密碼</h1>
-        <LocateUser
-          formState={formState}
-          resetState={resetState}
-          style={style}
-          userName={userName}
-          adminRole={adminRole}
-        />
+        {(resetState.value === "updatePassword" && (
+          <UpdatePassword
+            formState={formState}
+            resetState={resetState}
+            style={style}
+            userName={userName}
+            adminRole={adminRole}
+          />
+        )) ||
+          (resetState.value === "resetPassword" && (
+            <ResetPassword
+              formState={formState}
+              resetState={resetState}
+              style={style}
+              userName={userName}
+              adminRole={adminRole}
+            />
+          )) ||
+          (resetState.value === "securityCheck" && (
+            <SecurityCheck
+              formState={formState}
+              resetState={resetState}
+              style={style}
+              userName={userName}
+              adminRole={adminRole}
+            />
+          )) || (
+            <LocateUser
+              formState={formState}
+              resetState={resetState}
+              style={style}
+              userName={userName}
+              adminRole={adminRole}
+            />
+          )}
       </div>
     );
   }
