@@ -1,13 +1,5 @@
-import {
-  type Signal,
-  component$,
-  useSignal,
-  useVisibleTask$,
-  useStore,
-} from "@builder.io/qwik";
-import { useNavigate, Form, Link } from "@builder.io/qwik-city";
-import { useAuthSignin } from "~/routes/plugin@auth";
-
+import { type Signal, component$, useVisibleTask$ } from "@builder.io/qwik";
+import { Form } from "@builder.io/qwik-city";
 interface Props {
   formState: Signal<"signIn" | "resetPassword">;
   adminRole: Signal<boolean>;
@@ -16,20 +8,17 @@ interface Props {
 }
 
 export default component$(
-  ({ formState, adminRole, style, userName, password }: Props) => {
-    const nav = useNavigate();
-    const signIn = useAuthSignin();
-
+  ({ formState, adminRole, style, userName }: Props) => {
     /* Todo: Add token to prevent brute force attack */
 
-    if (adminRole.value) {
-      useVisibleTask$(() => {
-        // go back to sign in page after 5 seconds
+    useVisibleTask$(() => {
+      if (adminRole.value)
         setTimeout(() => {
           formState.value = "signIn";
         }, 3000);
-      });
+    });
 
+    if (adminRole.value) {
       return (
         <div class={style.content}>
           <p>Admin password reset is not implemented yet.</p>
@@ -82,9 +71,7 @@ export default component$(
             bind:value={userName}
           />
           <br />
-
           <button
-            type="button"
             onClick$={() => {
               formState.value = "signIn";
             }}
@@ -92,7 +79,8 @@ export default component$(
           >
             返回
           </button>
-          {/* <button type="submit" name="resetpw" value="login">下一步</button> */}
+
+          <button class={style.button}>下一步</button>
         </Form>
       </div>
     );

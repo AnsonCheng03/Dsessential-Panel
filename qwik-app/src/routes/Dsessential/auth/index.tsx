@@ -1,4 +1,4 @@
-import { type Signal, component$, useSignal, useStore } from "@builder.io/qwik";
+import { component$, useSignal } from "@builder.io/qwik";
 import { type DocumentHead } from "@builder.io/qwik-city";
 import { useAuthSession } from "~/routes/plugin@auth";
 import SignIn from "./(signIn)";

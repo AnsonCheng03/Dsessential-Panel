@@ -1,4 +1,4 @@
-import { type Signal, component$, useSignal, useStore } from "@builder.io/qwik";
+import { type Signal, component$ } from "@builder.io/qwik";
 import { Form } from "@builder.io/qwik-city";
 import { useAuthSignin } from "~/routes/plugin@auth";
 
@@ -10,13 +10,8 @@ interface Props {
 }
 
 export default component$(
-  ({ formState, adminRole, style, userName, password }: Props) => {
+  ({ formState, adminRole, style, userName }: Props) => {
     const signIn = useAuthSignin();
-
-    const formValue = useStore({
-      userName: undefined,
-      password: undefined,
-    });
 
     return (
       <div class={style.content}>
