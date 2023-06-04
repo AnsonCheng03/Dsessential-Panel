@@ -12,7 +12,9 @@ export default component$(() => {
 
   useVisibleTask$(async () => {
     if (session.value) {
-      nav("/Dsessential");
+      nav("/Dsessential/panel");
+    } else {
+      nav("/Dsessential/auth");
     }
   });
   return null;
