@@ -22,15 +22,37 @@ export class UsersService {
     queueLimit: 0,
   });
 
-  // private readonly LDAPclient = ldap.createClient({
-  //   url: process.env.LDAP_URL || 'ldaps://localhost',
-  //   tlsOptions: {
-  //     rejectUnauthorized: false,
-  //   },
-  // });
+  async userLogin(username: string): Promise<User | undefined> {
+    const connection = await this.pool.getConnection();
+    try {
+      const [TotalAcc] = await connection.execute(
+        'SELECT `SID` as Username FROM `Student` \
+        WHERE ? IN(`SID`, `卡內號碼`, `卡號`, `補發卡卡號`, `姓名`, `學生電話`, `家長電話`) LIMIT 1',
+        [username],
+      );
 
-  async adminLogin(username: string, password: string): Promise<User | undefined> {
+      const [rows] = await connection.execute(
+        'SELECT `Password` FROM `Login` WHERE `SID` = ? LIMIT 1',
+        [TotalAcc[0].Username],
+      );
 
+      const user = {
+        role: 'user',
+        userId: TotalAcc[0].Username,
+        password: rows[0].Password.replace(/^\$2y(.+)$/i, '$2a$1'),
+      };
+      return user;
+    } catch (err) {
+      return undefined;
+    } finally {
+      connection.release();
+    }
+  }
+
+  async adminLogin(
+    username: string,
+    password: string,
+  ): Promise<User | undefined> {
     const LDAPclient = ldap.createClient({
       url: process.env.LDAP_URL || 'ldaps://localhost',
       tlsOptions: {
@@ -40,7 +62,7 @@ export class UsersService {
 
     try {
       await new Promise<void>((resolve, reject) => {
-        const loginName = `NAS\\${username}`
+        const loginName = `NAS\\${username}`;
         LDAPclient.bind(loginName, password, (error) => {
           if (error) {
             reject(error);
@@ -62,30 +84,4 @@ export class UsersService {
       LDAPclient.unbind();
     }
   }
-
-  async userLogin(username: string): Promise<User | undefined> {
-    const connection = await this.pool.getConnection();
-    try {
-      const [TotalAcc] = await connection.execute(
-        'SELECT `SID` as Username FROM `Student` \
-        WHERE ? IN(`SID`, `卡內號碼`, `卡號`, `補發卡卡號`, `姓名`, `學生電話`, `家長電話`) LIMIT 1',
-        [username]
-      );
-
-      const [rows] = await connection.execute(
-        'SELECT `Password` FROM `Login` WHERE `SID` = ? LIMIT 1'
-        , [TotalAcc[0].Username]);
-      
-      const user = {
-        role: 'user',
-        userId: TotalAcc[0].Username,
-        password: rows[0].Password.replace(/^\$2y(.+)$/i, '$2a$1'),
-      };
-      return user;
-    } catch (err) {
-      return undefined;
-    } finally {
-      connection.release();
-    }
-  } 
 }

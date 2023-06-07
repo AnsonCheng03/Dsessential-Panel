@@ -7,16 +7,18 @@ import { JwtService } from '@nestjs/jwt';
 export class AuthService {
   constructor(
     private usersService: UsersService,
-    private jwtService: JwtService
+    private jwtService: JwtService,
   ) {}
 
   async signIn(role, username, pass) {
-    const user = role === 'admin' ?
-      await this.usersService.adminLogin(username, pass) : 
-      await this.usersService.userLogin(username);
+    const user =
+      role === 'admin'
+        ? await this.usersService.adminLogin(username, pass)
+        : await this.usersService.userLogin(username);
 
     if (!user) throw new UnauthorizedException();
-    if (role !== 'admin' && !await compare(pass, user.password)) throw new UnauthorizedException();
+    if (role !== 'admin' && !(await compare(pass, user.password)))
+      throw new UnauthorizedException();
 
     const payload = { sub: user.userId, username: user.userId };
     return {
