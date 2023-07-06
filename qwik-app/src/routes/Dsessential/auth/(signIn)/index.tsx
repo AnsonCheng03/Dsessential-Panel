@@ -77,5 +77,5 @@ export default component$(
         </Form>
       </div>
     );
-  }
+  },
 );

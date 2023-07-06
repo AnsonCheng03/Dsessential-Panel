@@ -5,9 +5,9 @@ import type { User } from "@auth/core/types";
 import { authorizeFunction } from "./auth/auth";
 
 interface Credentials {
-    role: string;
-    username: string;
-    password: string;
+  role: string;
+  username: string;
+  password: string;
 }
 
 export const { onRequest, useAuthSession, useAuthSignin, useAuthSignout } =
@@ -29,6 +29,6 @@ export const { onRequest, useAuthSession, useAuthSignin, useAuthSignout } =
       }),
     ] as Provider[],
     pages: {
-      signIn: "/Dsessential/auth/"
-    }
+      signIn: "/Dsessential/auth/",
+    },
   }));
