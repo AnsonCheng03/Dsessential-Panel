@@ -1,4 +1,3 @@
-import { compare } from 'bcrypt';
 import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { UsersService } from '../users/users.service';
 import { JwtService } from '@nestjs/jwt';
@@ -14,13 +13,15 @@ export class AuthService {
     const user =
       role === 'admin'
         ? await this.usersService.adminLogin(username, pass)
-        : await this.usersService.userLogin(username);
+        : await this.usersService.userLogin(username, pass);
 
     if (!user) throw new UnauthorizedException();
-    if (role !== 'admin' && !(await compare(pass, user.password)))
-      throw new UnauthorizedException();
 
-    const payload = { sub: user.userId, username: user.userId };
+    const payload = {
+      sub: user.userId,
+      username: user.userId,
+      role: role,
+    };
     return {
       access_token: await this.jwtService.signAsync(payload),
     };

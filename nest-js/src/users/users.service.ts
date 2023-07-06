@@ -1,4 +1,5 @@
 import { Injectable } from '@nestjs/common';
+import { compare } from 'bcrypt';
 import * as ldap from 'ldapjs';
 import { createPool } from 'mysql2/promise';
 
@@ -6,7 +7,6 @@ import { createPool } from 'mysql2/promise';
 export type User = {
   role: string;
   userId: number;
-  password: string;
 };
 
 @Injectable()
@@ -22,7 +22,10 @@ export class UsersService {
     queueLimit: 0,
   });
 
-  async userLogin(username: string): Promise<User | undefined> {
+  async userLogin(
+    username: string,
+    password: string,
+  ): Promise<User | undefined> {
     const connection = await this.pool.getConnection();
     try {
       const [TotalAcc] = await connection.execute(
@@ -36,10 +39,17 @@ export class UsersService {
         [TotalAcc[0].Username],
       );
 
+      if (
+        !(await compare(
+          password,
+          rows[0].Password.replace(/^\$2y(.+)$/i, '$2a$1'),
+        ))
+      )
+        throw new Error('Password not match');
+
       const user = {
         role: 'user',
         userId: TotalAcc[0].Username,
-        password: rows[0].Password.replace(/^\$2y(.+)$/i, '$2a$1'),
       };
       return user;
     } catch (err) {
@@ -74,7 +84,6 @@ export class UsersService {
       const user = {
         role: 'admin',
         userId: parseInt(username),
-        password: password,
       };
       return user;
     } catch (error) {
