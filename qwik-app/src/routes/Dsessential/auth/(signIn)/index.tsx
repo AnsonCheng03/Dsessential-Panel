@@ -67,7 +67,8 @@ export default component$(
           <div
             class={style.resetPasswordContainer}
             onClick$={() => {
-              formState.value = "resetPassword";
+              window.alert("重設密碼暫時停用，請聯絡尚研閱文憑試支援中心。");
+              // formState.value = "resetPassword";
             }}
           >
             <div class={style.resetPassword}>
@@ -77,5 +78,5 @@ export default component$(
         </Form>
       </div>
     );
-  },
+  }
 );
