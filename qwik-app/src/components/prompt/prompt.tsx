@@ -1,14 +1,8 @@
-import { Signal, component$ } from "@builder.io/qwik";
+import { type QRL, component$ } from "@builder.io/qwik";
 import style from "./prompt.module.css";
 
 export default component$(
-  ({
-    message,
-    removedBox,
-  }: {
-    message: string;
-    removedBox?: Signal<boolean>;
-  }) => {
+  ({ message, onClose }: { message: string; onClose?: QRL<() => void> }) => {
     return (
       <div class={style.promptBox}>
         <div class={style.prompt}>
@@ -21,8 +15,8 @@ export default component$(
             <button
               class={style.button}
               onClick$={() => {
+                if (onClose) onClose();
                 document.querySelector(`.${style.promptBox}`)?.remove();
-                if (removedBox) removedBox.value = true;
               }}
             >
               確定
