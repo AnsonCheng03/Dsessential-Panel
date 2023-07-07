@@ -1,5 +1,3 @@
-import type { User } from "@auth/core/types";
-
 interface Credentials {
   role: string;
   username: string;
@@ -28,13 +26,12 @@ export const authorizeFunction = async (credentials: Credentials) => {
 
     const user = await loginResponse.json();
 
-    console.log("user", user);
-
     return {
-      id: user.username,
-    } as User;
+      id: user.id,
+      role: user.role,
+      access_token: user.token,
+    };
   } catch (err) {
-    console.error("authorizeFunction error", err);
     return null;
   }
 };

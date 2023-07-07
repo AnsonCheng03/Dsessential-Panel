@@ -7,8 +7,8 @@ import style from "./index.module.css";
 
 export default component$(() => {
   const session = useAuthSession();
-  const formState = useSignal<"signIn" | "resetPassword">("signIn");
   const adminRole = useSignal(false);
+  const formState = useSignal<"signIn" | "resetPassword">("signIn");
   const userName = useSignal<string | undefined>(undefined);
 
   if (session.value) return null;

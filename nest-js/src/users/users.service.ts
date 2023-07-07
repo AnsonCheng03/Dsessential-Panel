@@ -6,7 +6,7 @@ import { createPool } from 'mysql2/promise';
 // This should be a real class/interface representing a user entity
 export type User = {
   role: string;
-  userId: number;
+  userId: string;
 };
 
 @Injectable()
@@ -83,7 +83,7 @@ export class UsersService {
       });
       const user = {
         role: 'admin',
-        userId: parseInt(username),
+        userId: username,
       };
       return user;
     } catch (error) {

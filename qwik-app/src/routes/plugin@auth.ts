@@ -1,13 +1,18 @@
 import { serverAuth$ } from "@builder.io/qwik-auth";
 import Credentials from "@auth/core/providers/credentials";
 import type { Provider } from "@auth/core/providers";
-import type { User } from "@auth/core/types";
 import { authorizeFunction } from "./auth/auth";
 
 interface Credentials {
   role: string;
   username: string;
   password: string;
+}
+
+interface User {
+  id: string;
+  name: string;
+  email: string;
 }
 
 export const { onRequest, useAuthSession, useAuthSignin, useAuthSignout } =
@@ -24,7 +29,13 @@ export const { onRequest, useAuthSession, useAuthSignin, useAuthSignout } =
         async authorize(
           credentials: Partial<Record<"username" | "password", unknown>>
         ): Promise<User | null> {
-          return await authorizeFunction(credentials as Credentials);
+          const user = await authorizeFunction(credentials as Credentials);
+          if (!user) return null;
+          return {
+            id: user.id,
+            name: user.role,
+            email: user.access_token,
+          };
         },
       }),
     ] as Provider[],
