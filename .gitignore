@@ -5,3 +5,14 @@
 # OS generated files
 .DS_Store
 ._*
+
+# Environment variables
+.env
+
+# Keys
+*.pem
+*.crt
+*.key
+
+# Editor
+.vscode

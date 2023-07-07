@@ -38,6 +38,10 @@ Use the `npm run qwik add` command to add additional integrations. Some examples
 npm run qwik add # or `yarn qwik add`
 ```
 
+## Remark
+
+Please rename the `.env.dev` file to `.env` and change the values.
+
 ## Development
 
 Development mode uses [Vite's development server](https://vitejs.dev/). During development, the `dev` command will server-side render (SSR) the output.

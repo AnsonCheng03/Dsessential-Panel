@@ -32,6 +32,20 @@
 $ yarn install
 ```
 
+## Remark
+Please rename the ```.env.dev``` file to ```.env``` and change the values.
+Generate your server key for ssh by 
+```
+openssl req -x509 -newkey rsa:4096 -sha256 -days 3650 -nodes \
+  -keyout ./cert/cert.key -out ./cert/cert.crt -extensions san -config \
+  <(echo "[req]"; 
+    echo distinguished_name=req; 
+    echo "[san]"; 
+    echo subjectAltName=DNS:localhost,IP:172.0.0.1
+    ) \
+  -subj "/CN= localhost"
+```
+
 ## Running the app
 
 ```bash
