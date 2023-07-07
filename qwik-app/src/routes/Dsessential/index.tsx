@@ -1,19 +1,20 @@
-import { component$, useVisibleTask$ } from "@builder.io/qwik";
-import { type DocumentHead, useNavigate } from "@builder.io/qwik-city";
-import { useAuthSession } from "~/routes/plugin@auth";
+import { component$ } from "@builder.io/qwik";
+import type { DocumentHead, RequestHandler } from "@builder.io/qwik-city";
+import type { Session } from "@auth/core/types";
+
+export const onRequest: RequestHandler = (event) => {
+  const session: Session | null = event.sharedMap.get("session");
+  if (!session || new Date(session.expires) < new Date()) {
+    throw event.redirect(
+      302,
+      `/Dsessential/auth?callbackUrl=${event.url.href}`
+    );
+  }
+  throw event.redirect(302, `/Dsessential/panel`);
+};
 
 export default component$(() => {
-  const session = useAuthSession();
-  const nav = useNavigate();
-
-  useVisibleTask$(async () => {
-    if (session.value) {
-      nav("/Dsessential/panel");
-    } else {
-      nav("/Dsessential/auth");
-    }
-  });
-  return null;
+  return <></>;
 });
 
 export const head: DocumentHead = {
