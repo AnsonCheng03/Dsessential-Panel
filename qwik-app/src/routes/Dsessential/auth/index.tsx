@@ -1,8 +1,8 @@
 import { component$, useSignal } from "@builder.io/qwik";
 import { type DocumentHead } from "@builder.io/qwik-city";
 import { useAuthSession } from "~/routes/plugin@auth";
-import SignIn from "./(signIn)";
-import ResetPassword from "./(resetPassword)";
+import SignIn from "./(signIn)/signIn";
+import ResetPassword from "./(resetPassword)/resetPassword";
 import style from "./index.module.css";
 
 export default component$(() => {

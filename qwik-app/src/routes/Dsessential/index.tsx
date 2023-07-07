@@ -7,7 +7,7 @@ export const onRequest: RequestHandler = (event) => {
   if (!session || new Date(session.expires) < new Date()) {
     throw event.redirect(
       302,
-      `/Dsessential/auth?callbackUrl=${event.url.href}`
+      `/Dsessential/auth?callbackUrl=${event.url.href}`,
     );
   }
   throw event.redirect(302, `/Dsessential/panel`);

@@ -11,6 +11,7 @@ interface Props {
 }
 
 export default component$(
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   ({ formState, resetState, adminRole, style, userName }: Props) => {
     return (
       <Form>

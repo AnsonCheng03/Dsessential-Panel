@@ -1,8 +1,8 @@
 import { type Signal, component$, useSignal } from "@builder.io/qwik";
-import LocateUser from "./(locateUser)";
-import ResetPassword from "./(resetPassword)";
-import UpdatePassword from "./(updatePassword)";
-import SecurityCheck from "./(securityCheck)";
+import LocateUser from "./(locateUser)/locateUser";
+import ResetPassword from "./(resetPassword)/resetPassword";
+import UpdatePassword from "./(updatePassword)/updatePassword";
+import SecurityCheck from "./(securityCheck)/securityCheck";
 
 interface Props {
   formState: Signal<"signIn" | "resetPassword">;
