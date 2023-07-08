@@ -37,6 +37,10 @@
   );
 }
 
+.whiteLink {
+  color: #fff;
+}
+
 .container {
   max-width: 65rem;
   padding: 0 2rem;

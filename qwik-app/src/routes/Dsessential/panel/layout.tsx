@@ -1,6 +1,6 @@
 import { Slot, component$ } from "@builder.io/qwik";
 import type { Session } from "@auth/core/types";
-import type { RequestHandler } from "@builder.io/qwik-city";
+import { Link, type RequestHandler } from "@builder.io/qwik-city";
 import { useAuthSignout } from "~/routes/plugin@auth";
 import styles from "./layout.module.css";
 
@@ -15,10 +15,11 @@ export const onRequest: RequestHandler = (event) => {
 };
 
 export default component$(() => {
+  const baseURL = "/Dsessential";
   const signOut = useAuthSignout();
 
   const navlist = [
-    ["Item", "主頁", "index.php"],
+    ["Item", "主頁", "/"],
     [
       "List",
       "學生資源",
@@ -45,7 +46,9 @@ export default component$(() => {
 
           <div class={styles.logoContainer}>
             <h3 class={styles.logo}>
-              DSE<span>ssential</span>
+              <Link href={baseURL} class={styles.whiteLink}>
+                DSE<span>ssential</span>
+              </Link>
             </h3>
           </div>
 
@@ -56,11 +59,27 @@ export default component$(() => {
                   return (
                     <li class={styles.navLink} key={items[1] as string}>
                       {items[0] == "Item" && (
-                        <a href={items[2] as string}>{items[1]}</a>
+                        <Link
+                          href={
+                            ((items[2].toLowerCase().indexOf("stream") !== -1
+                              ? baseURL
+                              : "") + items[2]) as string
+                          }
+                        >
+                          {items[1]}
+                        </Link>
                       )}
                       {items[0] == "List" && (
                         <>
-                          <a href={items[2] as string}>{items[1]}</a>
+                          <Link
+                            href={
+                              ((items[2].toLowerCase().indexOf("stream") !== -1
+                                ? baseURL
+                                : "") + items[2]) as string
+                            }
+                          >
+                            {items[1]}
+                          </Link>
                           <div class={styles.dropdown}>
                             <ul class={styles.navList}>
                               {items[3].map((items: any) => {
@@ -70,15 +89,31 @@ export default component$(() => {
                                     key={items[1] as string}
                                   >
                                     {items[0] == "Item" && (
-                                      <a href={items[2] as string}>
+                                      <Link
+                                        href={
+                                          ((items[2]
+                                            .toLowerCase()
+                                            .indexOf("stream") !== -1
+                                            ? baseURL
+                                            : "") + items[2]) as string
+                                        }
+                                      >
                                         {items[1]}
-                                      </a>
+                                      </Link>
                                     )}
                                     {items[0] == "List" && (
                                       <>
-                                        <a href={items[2] as string}>
+                                        <Link
+                                          href={
+                                            ((items[2]
+                                              .toLowerCase()
+                                              .indexOf("stream") !== -1
+                                              ? baseURL
+                                              : "") + items[2]) as string
+                                          }
+                                        >
                                           {items[1]}
-                                        </a>
+                                        </Link>
                                         <div
                                           class={[
                                             styles.dropdown,
@@ -93,9 +128,18 @@ export default component$(() => {
                                                     class={styles.dropdownLink}
                                                     key={items[1]}
                                                   >
-                                                    <a href={items[2]}>
+                                                    <Link
+                                                      href={
+                                                        (items[2]
+                                                          .toLowerCase()
+                                                          .indexOf("stream") ===
+                                                        -1
+                                                          ? baseURL
+                                                          : "") + items[2]
+                                                      }
+                                                    >
                                                       {items[1]}
-                                                    </a>
+                                                    </Link>
                                                   </li>
                                                 );
                                               }
