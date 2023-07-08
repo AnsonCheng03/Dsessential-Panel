@@ -61,9 +61,9 @@ export default component$(() => {
                       {items[0] == "Item" && (
                         <Link
                           href={
-                            ((items[2].toLowerCase().indexOf("stream") !== -1
-                              ? baseURL
-                              : "") + items[2]) as string
+                            ((items[2].toLowerCase().startsWith("http")
+                              ? ""
+                              : baseURL) + items[2]) as string
                           }
                         >
                           {items[1]}
@@ -73,9 +73,9 @@ export default component$(() => {
                         <>
                           <Link
                             href={
-                              ((items[2].toLowerCase().indexOf("stream") !== -1
-                                ? baseURL
-                                : "") + items[2]) as string
+                              ((items[2].toLowerCase().startsWith("http")
+                                ? ""
+                                : baseURL) + items[2]) as string
                             }
                           >
                             {items[1]}
@@ -93,9 +93,9 @@ export default component$(() => {
                                         href={
                                           ((items[2]
                                             .toLowerCase()
-                                            .indexOf("stream") !== -1
-                                            ? baseURL
-                                            : "") + items[2]) as string
+                                            .startsWith("http")
+                                            ? ""
+                                            : baseURL) + items[2]) as string
                                         }
                                       >
                                         {items[1]}
@@ -107,9 +107,9 @@ export default component$(() => {
                                           href={
                                             ((items[2]
                                               .toLowerCase()
-                                              .indexOf("stream") !== -1
-                                              ? baseURL
-                                              : "") + items[2]) as string
+                                              .startsWith("http")
+                                              ? ""
+                                              : baseURL) + items[2]) as string
                                           }
                                         >
                                           {items[1]}
@@ -134,8 +134,8 @@ export default component$(() => {
                                                           .toLowerCase()
                                                           .indexOf("stream") ===
                                                         -1
-                                                          ? baseURL
-                                                          : "") + items[2]
+                                                          ? ""
+                                                          : baseURL) + items[2]
                                                       }
                                                     >
                                                       {items[1]}
