@@ -33,6 +33,19 @@ html {
     "Segoe UI Emoji",
     "Segoe UI Symbol",
     "Noto Color Emoji";
+  min-height: 650px;
+  min-width: 320px;
+  margin: 0;
+  padding: 0;
+  text-align: center;
+  height: 100%;
+  width: 100%;
+  box-sizing: border-box;
+  background: linear-gradient(
+    45deg,
+    rgba(66, 180, 250, 0.5) 0%,
+    rgba(60, 250, 200, 0.5) 100%
+  );
 }
 
 body {
@@ -40,6 +53,36 @@ body {
   margin: 0;
   line-height: inherit;
   overscroll-behavior: none;
+}
+
+h1 {
+  font-size: 1.75rem;
+  margin-bottom: 50px;
+}
+
+p {
+  margin: 0;
+  padding: 0;
+  color: #4285f4;
+}
+
+a {
+  text-decoration: none;
+  color: #000;
+}
+
+input,
+button {
+  font-size: 14px;
+}
+
+input:focus::placeholder {
+  color: transparent;
+}
+
+::placeholder {
+  color: #000;
+  opacity: 0.7;
 }
 
 ::-webkit-credentials-auto-fill-button {
