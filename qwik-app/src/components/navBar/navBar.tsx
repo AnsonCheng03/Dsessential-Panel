@@ -1,4 +1,4 @@
-import { type QRL, component$ } from "@builder.io/qwik";
+import { component$ } from "@builder.io/qwik";
 import styles from "./navBar.module.css";
 import { Link } from "@builder.io/qwik-city";
 import { useAuthSignout } from "~/routes/plugin@auth";
