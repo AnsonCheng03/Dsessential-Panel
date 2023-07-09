@@ -29,16 +29,16 @@ async function bootstrap() {
 
     await app.init();
 
-    https.createServer(httpsOptions, server).listen(4000);
-    console.log('NestJS server started on port 4000 (https).');
+    https.createServer(httpsOptions, server).listen(3500);
+    console.log('NestJS server started on port 3500 (https).');
   } catch (err) {
     console.error('Start https server failed: ', err);
 
     const app = await NestFactory.create(AppModule);
     app.use(logRequests);
-    await app.listen(4000);
+    await app.listen(3500);
 
-    console.log('Fallback: NestJS server started on port 4000 (http).');
+    console.log('Fallback: NestJS server started on port 3500 (http).');
   }
 }
 
