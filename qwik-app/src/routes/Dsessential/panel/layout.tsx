@@ -10,16 +10,17 @@ export const onRequest: RequestHandler = (event) => {
   if (!session || new Date(session.expires) < new Date()) {
     throw event.redirect(
       302,
-      `/Dsessential/auth?callbackUrl=${event.url.href}`,
+      `/Dsessential/auth?callbackUrl=${event.url.href}`
     );
   }
 };
 
 export default component$(() => {
   const session = useAuthSession();
-  console.log();
+  const user = (session.value as any).user;
+
   const navlist =
-    (session.value?.user as any).role === "student"
+    user.role === "student"
       ? [
           ["Item", "主頁", "/"],
           [
@@ -35,12 +36,12 @@ export default component$(() => {
                 "https://drive.google.com/drive/folders/1_3ghe0QBmehvIGCfo6masnfUkLUpiBa3?usp=sharing",
               ],
 
-              ["Item", "修改密碼", "Features/stuinfo/resetpw.php"],
+              // ["Item", "修改密碼", "Features/stuinfo/resetpw.php"],
             ],
           ],
         ]
       : [
-          ["Item", "主頁", "index.php"],
+          ["Item", "主頁", "/"],
           /*
     ["List", "場地管理", "#", [
         ["Item", "預約時間表", "#"],
@@ -72,7 +73,7 @@ export default component$(() => {
         */
               ["Item", "轉換身分", "Features/Server/changerole"],
               /*
-        ["List", "系統管理", "#", [
+            ["List", "系統管理", "#", [
             ["Item", "訪問紀錄", "#"],
             ["Item", "系統資源", "#"],
         ]],
