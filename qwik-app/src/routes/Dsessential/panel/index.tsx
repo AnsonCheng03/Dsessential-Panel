@@ -1,11 +1,21 @@
 import { component$ } from "@builder.io/qwik";
 import { type DocumentHead } from "@builder.io/qwik-city";
-import { useAuthSignout } from "~/routes/plugin@auth";
+import { useAuthSession } from "~/routes/plugin@auth";
+import styles from "./index.module.css";
+import logo from "~/components/logo/logo.png";
 
 export default component$(() => {
-  const signOut = useAuthSignout();
+  const session = useAuthSession();
+  const user = (session.value as any).user;
 
-  return <button onClick$={() => signOut.submit({})}>Sign Out</button>;
+  return (
+    <div class={styles.profileBox}>
+      <img src={logo}></img>
+      <br />
+      學生編號：{user.username} <br />
+      角色： {user.role === "student" ? "學生" : "管理員"}
+    </div>
+  );
 });
 
 export const head: DocumentHead = {

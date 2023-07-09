@@ -1,5 +1,5 @@
 import { type Signal, component$, $ } from "@builder.io/qwik";
-import { Form, useLocation } from "@builder.io/qwik-city";
+import { Form, useLocation, useNavigate } from "@builder.io/qwik-city";
 import Prompt from "~/components/prompt/prompt";
 import { useAuthSignin } from "~/routes/plugin@auth";
 
@@ -12,6 +12,7 @@ interface Props {
 
 export default component$(({ adminRole, style, userName }: Props) => {
   const signIn = useAuthSignin();
+  const nav = useNavigate();
   const location = useLocation();
   const errorMessage = location.url.searchParams.get("error") || "";
 
@@ -77,8 +78,10 @@ export default component$(({ adminRole, style, userName }: Props) => {
         <div
           class={style.resetPasswordContainer}
           onClick$={() => {
-            window.alert("重設密碼暫時停用，請聯絡尚研閱文憑試支援中心。");
             // formState.value = "resetPassword";
+            nav(
+              "https://nas.dsessential.com:5000/Dsessential/auth/resetpw.php"
+            );
           }}
         >
           <div class={style.resetPassword}>
