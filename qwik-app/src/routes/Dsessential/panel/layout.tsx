@@ -10,7 +10,7 @@ export const onRequest: RequestHandler = (event) => {
   if (!session || new Date(session.expires) < new Date()) {
     throw event.redirect(
       302,
-      `/Dsessential/auth?callbackUrl=${event.url.href}`,
+      `/Dsessential/auth?callbackUrl=${event.url.href}`
     );
   }
 };
@@ -28,7 +28,7 @@ export default component$(() => {
             "學生資源",
             "#",
             [
-              ["Item", "課堂重播", "Features/School/Replay"],
+              ["Item", "課堂重播", "/Features/School/Replay"],
               ["Item", "範文", "https://www.dsessential.com/paper1a"],
               [
                 "Item",
@@ -56,7 +56,7 @@ export default component$(() => {
             "#",
             [
               //    ["Item", "學生資料", "#"],
-              ["Item", "點名系統", "Features/School/attendance"],
+              ["Item", "點名系統", "/Features/School/attendance"],
               //    ["Item", "時間表", "#"],
             ],
           ],
@@ -71,7 +71,7 @@ export default component$(() => {
         ["Item", "遠端列印", "#"],
         ["Item", "閉路電視", "#"],
         */
-              ["Item", "轉換身分", "Features/Server/changerole"],
+              ["Item", "轉換身分", "/Features/Server/changerole"],
               /*
             ["List", "系統管理", "#", [
             ["Item", "訪問紀錄", "#"],
