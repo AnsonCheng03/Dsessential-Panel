@@ -7,7 +7,12 @@ import { ConfigModule } from '@nestjs/config';
 import { LessonReplayModule } from './lesson-replay/lesson-replay.module';
 
 @Module({
-  imports: [AuthModule, UsersModule, ConfigModule.forRoot(), LessonReplayModule],
+  imports: [
+    AuthModule,
+    UsersModule,
+    ConfigModule.forRoot(),
+    LessonReplayModule,
+  ],
   controllers: [AppController],
   providers: [AppService],
 })

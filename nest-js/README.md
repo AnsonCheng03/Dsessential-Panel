@@ -33,8 +33,8 @@ $ yarn install
 ```
 
 ## Remark
-Please rename the ```.env.dev``` file to ```.env``` and change the values.
-Generate your server key for ssh by 
+1) Please rename the ```.env.dev``` file to ```.env``` and change the values.
+2) Generate your server key for ssh by 
 ```
 openssl req -x509 -newkey rsa:4096 -sha256 -days 3650 -nodes \
   -keyout ./cert/cert.key -out ./cert/cert.crt -extensions san -config \
@@ -45,6 +45,7 @@ openssl req -x509 -newkey rsa:4096 -sha256 -days 3650 -nodes \
     ) \
   -subj "/CN= localhost"
 ```
+3) Please download the json of service account ([example](https://github.com/johnkhansrc/NestGoogleSheetConnector))
 
 ## Running the app
 
