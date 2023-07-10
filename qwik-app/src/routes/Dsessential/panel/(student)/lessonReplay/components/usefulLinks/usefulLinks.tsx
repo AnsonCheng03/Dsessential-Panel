@@ -1,6 +1,5 @@
 import { component$ } from "@builder.io/qwik";
 import styles from "./usefulLinks.module.css";
-import { Link } from "@builder.io/qwik-city";
 
 const links = [
   [
@@ -25,9 +24,9 @@ export default component$(() => {
       <h2 class={styles.title}>有用連結</h2>
       <div class={styles.container}>
         {links.map((link) => (
-          <Link class={styles.links} key={link[0]} href={link[1]}>
+          <a class={styles.links} key={link[0]} href={link[1]}>
             {link[0]}
-          </Link>
+          </a>
         ))}
       </div>
     </div>
