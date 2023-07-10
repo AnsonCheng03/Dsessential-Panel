@@ -4,23 +4,22 @@ import styles from "./index.module.css";
 import logo from "~/components/logo/logo.png";
 
 export const getUserData = routeLoader$(async (requestEvent) => {
-  const access_token = requestEvent.sharedMap.get("session").user.access_token;
+  const accessToken = requestEvent.sharedMap.get("session").accessToken;
   try {
     const res = await fetch(
       `http://${requestEvent.url.hostname}:3500/auth/profile`,
       {
         cache: "no-store",
         headers: {
-          authorization: `Bearer ${access_token}`,
+          authorization: `Bearer ${accessToken}`,
         },
       }
     );
 
     const data = await res.json();
     if (!data.statusCode) return data;
-    throw "Error";
   } catch (error) {
-    throw requestEvent.redirect(302, `/api/auth/signout?error=${error}`);
+    console.log(error);
   }
 });
 

@@ -1,6 +1,6 @@
-import { Slot, component$ } from "@builder.io/qwik";
+import { Slot, component$, useVisibleTask$, $ } from "@builder.io/qwik";
 import type { Session } from "@auth/core/types";
-import { type RequestHandler } from "@builder.io/qwik-city";
+import { server$, type RequestHandler } from "@builder.io/qwik-city";
 import styles from "./layout.module.css";
 import NavBar from "~/components/navBar/navBar";
 import { useAuthSession } from "~/routes/plugin@auth";
@@ -14,10 +14,47 @@ export const onRequest: RequestHandler = (event) => {
     );
   }
 };
+// TODO: Update Token
+// const updateToken = server$(async function () {
+//   try {
+//     const userSession = (await this.sharedMap.get("session")) as any;
+//     // console.log("Updating Token", userSession);
+//     const res = await fetch(
+//       `http://${this.url.hostname}:3500/auth/refresh-token`,
+//       {
+//         method: "POST",
+//         cache: "no-store",
+//         headers: {
+//           authorization: `Bearer ${userSession?.accessToken}`,
+//         },
+//       }
+//     );
+//     if (res.status !== 201) throw "Auth Error";
+//     const newToken = await res.text();
+//     // console.log("New Token", newToken);
+//     this.sharedMap.set("session", {
+//       user: {
+//         ...userSession.user,
+//       },
+//       accessToken: "await res.text()",
+//       expires: "new Date(Date.now() + 1000 * 60 * 60 * 24 * 7).toISOString()",
+//     });
+//     // console.log("Token Updated", this.sharedMap.get("session"));
+//   } catch (error) {
+//     // console.log(error);
+//   }
+//   // console.log(this.sharedMap.get("session"));
+// });
 
 export default component$(() => {
   const session = useAuthSession();
   const user = (session.value as any).user;
+
+  // useVisibleTask$(() => {
+  //   setInterval(async () => {
+  //     await updateToken();
+  //   }, 2000);
+  // });
 
   const navlist =
     user.role === "student"
