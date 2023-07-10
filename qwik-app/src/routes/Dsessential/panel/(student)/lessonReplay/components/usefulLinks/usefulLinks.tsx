@@ -16,6 +16,11 @@ const links = [
     "https://docs.google.com/spreadsheets/d/1UqdFNpOX6pks1HCA8uquhFVUc4za71rEdPR33kjBMrI/edit?usp=sharing",
   ],
   ["網上交功課", "http://wa.link/4ogjli"],
+  ["範文", "https://www.dsessential.com/paper1a"],
+  [
+    "其他資源",
+    "https://drive.google.com/drive/folders/1_3ghe0QBmehvIGCfo6masnfUkLUpiBa3?usp=sharing",
+  ],
 ];
 
 export default component$(() => {

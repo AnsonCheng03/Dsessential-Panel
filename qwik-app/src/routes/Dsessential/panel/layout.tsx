@@ -29,12 +29,6 @@ export default component$(() => {
             "#",
             [
               ["Item", "課堂重播", "/panel/lessonReplay"],
-              ["Item", "範文", "https://www.dsessential.com/paper1a"],
-              [
-                "Item",
-                "其他資源",
-                "https://drive.google.com/drive/folders/1_3ghe0QBmehvIGCfo6masnfUkLUpiBa3?usp=sharing",
-              ],
 
               // ["Item", "修改密碼", "Features/stuinfo/resetpw.php"],
             ],
