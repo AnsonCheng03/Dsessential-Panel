@@ -1,5 +1,5 @@
 # Intermediate docker image to build the bundle in and install dependencies
-FROM node:19.2-alpine3.15 as build
+FROM node:latest as build
 
 # Set the working directory to /usr/src/app
 WORKDIR /usr/src/app

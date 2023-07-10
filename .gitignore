@@ -16,3 +16,4 @@
 # Editor
 .vscode
 nest-js/src/google-credentials.json
+qwik-app/compose.yaml
