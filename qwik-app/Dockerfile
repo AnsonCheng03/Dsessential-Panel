@@ -10,6 +10,7 @@ COPY ./package-lock.json ./
 
 # Install the dependencies
 # Clean install because we want to install the exact versions
+RUN npm install
 RUN npm ci
 
 # Copy the source code into the build image

@@ -1,6 +1,6 @@
-import { Slot, component$, useVisibleTask$, $ } from "@builder.io/qwik";
+import { Slot, component$ } from "@builder.io/qwik";
 import type { Session } from "@auth/core/types";
-import { server$, type RequestHandler } from "@builder.io/qwik-city";
+import { type RequestHandler } from "@builder.io/qwik-city";
 import styles from "./layout.module.css";
 import NavBar from "~/components/navBar/navBar";
 import { useAuthSession } from "~/routes/plugin@auth";
