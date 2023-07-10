@@ -1,6 +1,5 @@
 import { component$ } from "@builder.io/qwik";
 import { routeLoader$, type DocumentHead } from "@builder.io/qwik-city";
-import { useAuthSession, useAuthSignout } from "~/routes/plugin@auth";
 import styles from "./index.module.css";
 import logo from "~/components/logo/logo.png";
 

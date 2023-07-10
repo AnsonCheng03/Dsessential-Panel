@@ -28,7 +28,7 @@ export default component$(() => {
             "學生資源",
             "#",
             [
-              ["Item", "課堂重播", "/Features/School/Replay"],
+              ["Item", "課堂重播", "/panel/lessonReplay"],
               ["Item", "範文", "https://www.dsessential.com/paper1a"],
               [
                 "Item",
