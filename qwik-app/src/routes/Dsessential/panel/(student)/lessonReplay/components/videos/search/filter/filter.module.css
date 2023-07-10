@@ -1,3 +1,17 @@
+.dateFilter {
+  max-height: 310px;
+  transition:
+    0.5s ease-in-out max-height,
+    0.6s ease-in-out margin-top;
+  overflow: hidden;
+  margin-top: 20px;
+}
+
+.hidden {
+  max-height: 0;
+  margin-top: 0;
+}
+
 .yearContainer,
 .monthContainer {
   display: flex;
