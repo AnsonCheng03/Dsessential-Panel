@@ -8,6 +8,15 @@
     CenturyGothic,
     AppleGothic,
     sans-serif;
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  color: #fdf6f1;
 }
 
 .container {
@@ -17,6 +26,9 @@
   top: 50%;
   -ms-transform: translateY(-50%);
   transform: translateY(-50%);
+}
+
+.container p {
   color: #fdf6f1;
 }
 

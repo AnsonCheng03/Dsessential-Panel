@@ -10,9 +10,7 @@ export default component$(() => {
         <br />
         <p>
           Type: 404 / IP:
-          {
-            //   Todo: add remote IP
-          }
+          {}
         </p>
         <p>如問題持續，請聯絡管理員（admin@dsessential.com）</p>
       </div>
