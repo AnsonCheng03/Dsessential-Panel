@@ -12,7 +12,7 @@ export const authorizeFunction = async (credentials: Credentials) => {
   };
 
   try {
-    const loginURL = "http://localhost:3500/auth/login";
+    const loginURL = "https://localhost:3500/auth/login";
 
     const loginResponse = await fetch(loginURL, {
       method: "POST",
@@ -32,6 +32,7 @@ export const authorizeFunction = async (credentials: Credentials) => {
       access_token: user.token,
     };
   } catch (err) {
+    console.error("Error in authorizeFunction: ", err);
     return null;
   }
 };

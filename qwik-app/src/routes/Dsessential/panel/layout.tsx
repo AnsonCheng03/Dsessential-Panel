@@ -20,7 +20,7 @@ export const onRequest: RequestHandler = (event) => {
 //     const userSession = (await this.sharedMap.get("session")) as any;
 //     // console.log("Updating Token", userSession);
 //     const res = await fetch(
-//       `http://${this.url.hostname}:3500/auth/refresh-token`,
+//       `https://${this.url.hostname}:3500/auth/refresh-token`,
 //       {
 //         method: "POST",
 //         cache: "no-store",

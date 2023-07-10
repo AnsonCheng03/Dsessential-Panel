@@ -7,7 +7,7 @@ export const getUserData = routeLoader$(async (requestEvent) => {
   const accessToken = requestEvent.sharedMap.get("session").accessToken;
   try {
     const res = await fetch(
-      `http://${requestEvent.url.hostname}:3500/auth/profile`,
+      `https://${requestEvent.url.hostname}:3500/auth/profile`,
       {
         cache: "no-store",
         headers: {
