@@ -2,6 +2,19 @@ import { Injectable } from '@nestjs/common';
 const fs = require('fs');
 const path = require('path');
 
+const isVideoFile = (extension) => {
+  const videoExtensions = [
+    '.mp4',
+    '.avi',
+    '.mkv',
+    '.mov',
+    '.wmv',
+    '.flv',
+    '.webm',
+  ];
+  return videoExtensions.includes(extension);
+};
+
 @Injectable()
 export class LessonReplayService {
   async getMonth(user, sheetValue) {
@@ -31,24 +44,21 @@ export class LessonReplayService {
     return ['Not Found'];
   }
 
+  async getMonthArray(month) {
+    const result = [];
+    for (let i = 4 + 1; i <= 4 + 12; i++) {
+      const currentMonth = ((i - 2) % 12) + 1;
+      if (month === currentMonth.toString()) break;
+      result.push(currentMonth);
+    }
+    return result;
+  }
+
   async getDefaultVideo() {
     const fs = require('fs');
     const path = require('path');
 
     const basePath = `${process.env.RESOURCE_PATH}/範文`;
-
-    function isVideoFile(extension) {
-      const videoExtensions = [
-        '.mp4',
-        '.avi',
-        '.mkv',
-        '.mov',
-        '.wmv',
-        '.flv',
-        '.webm',
-      ];
-      return videoExtensions.includes(extension);
-    }
 
     const result = {
       範文: {},
@@ -86,41 +96,56 @@ export class LessonReplayService {
       return result;
     }
 
-    getFilesFromDirectory(basePath);
-
-    return result;
+    return getFilesFromDirectory(basePath);
   }
 
-  async getVideo(returnMonth) {
-    function visit_dir(dir) {
-      require('fs').readdir(dir, function (err, files) {
-        if (!err) {
-          files.forEach(function (file) {
-            if (file !== '.DS_Store') {
-              const file_full_path = require('path').join(dir, file);
-              (function (file_full_path) {
-                require('fs').lstat(file_full_path, function (err, stats) {
-                  if (!err) {
-                    if (stats.isFile()) {
-                      console.log(file_full_path);
-                    } else if (stats.isDirectory() && !stats.isSymbolicLink()) {
-                      const baseName = require('path').basename(file_full_path);
-                      if (
-                        !baseName.startsWith('ts-') &&
-                        !baseName.startsWith('@')
-                      ) {
-                        visit_dir(file_full_path);
-                      }
-                    }
-                  }
-                });
-              })(file_full_path);
-            }
-          });
+  async getVideo(returnMonth, zone) {
+    const basePath = `${process.env.RESOURCE_PATH}/Videos/${zone}`;
+    const result = {
+      課堂: {},
+    };
+
+    function getFilesFromDirectory(directory) {
+      const files = fs.readdirSync(directory);
+
+      files.forEach((file) => {
+        const filePath = path.join(directory, file);
+        const stats = fs.statSync(filePath);
+        const fileName = path.parse(file).name;
+
+        if (stats.isFile()) {
+          // parent directory name
+          const parentDirName = path.basename(directory);
+          const grandParentDirName = path.basename(parentDirName);
+          console.log('grandParentDirName', grandParentDirName);
+
+          if (!result['課堂'][grandParentDirName])
+            result['課堂'][grandParentDirName] = {};
+          if (!result['課堂'][grandParentDirName][parentDirName]) {
+            result['課堂'][grandParentDirName][parentDirName] = {
+              video: [],
+              notes: [],
+            };
+          }
+
+          const extension = path.parse(file).ext;
+          if (isVideoFile(extension)) {
+            result['課堂'][grandParentDirName][parentDirName]['video'].push(
+              filePath,
+            );
+          } else if (extension === '.pdf') {
+            result['課堂'][grandParentDirName][parentDirName]['notes'].push(
+              filePath,
+            );
+          }
+        } else {
+          getFilesFromDirectory(filePath);
         }
       });
+
+      return result;
     }
 
-    return visit_dir(`${process.env.RESOURCE_PATH}/Videos/`);
+    return getFilesFromDirectory(basePath);
   }
 }
