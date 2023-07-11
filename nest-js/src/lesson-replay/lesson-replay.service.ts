@@ -35,7 +35,7 @@ export class LessonReplayService {
     const fs = require('fs');
     const path = require('path');
 
-    const directoryPath = '/home/resources/範文';
+    const directoryPath = `${process.env.RESOURCE_PATH}/範文`;
 
     function getFilesFromDirectory(directory) {
       const files = fs.readdirSync(directory);
@@ -124,6 +124,6 @@ export class LessonReplayService {
       });
     }
 
-    return visit_dir('/home/resources/Videos/');
+    return visit_dir(`${process.env.RESOURCE_PATH}/Videos/`);
   }
 }
