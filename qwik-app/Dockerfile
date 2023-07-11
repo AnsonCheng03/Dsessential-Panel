@@ -1,3 +1,6 @@
+# Set Memory limit
+ENV NODE_OPTIONS=--max_old_space_size=2048
+
 # Intermediate docker image to build the bundle in and install dependencies
 FROM node:latest as build
 
@@ -20,7 +23,7 @@ COPY ./ ./
 RUN npm run build
 
 # Pull the same Node image and use it as the final (production image)
-FROM node:19.2-alpine3.15 as production
+FROM node:latest as production
 
 # Set the working directory to /usr/src/app
 WORKDIR /usr/src/app
