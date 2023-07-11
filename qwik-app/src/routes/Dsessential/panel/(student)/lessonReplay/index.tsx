@@ -4,7 +4,7 @@ import UsefulLinks from "./components/usefulLinks/usefulLinks";
 import Videos from "./components/videos/videos";
 import styles from "./index.module.css";
 
-export const getVideoList = routeLoader$(async (requestEvent) => {
+export const useGetVideoList = routeLoader$(async (requestEvent) => {
   const accessToken = requestEvent.sharedMap.get("session").accessToken;
   try {
     const res = await fetch(
@@ -24,7 +24,8 @@ export const getVideoList = routeLoader$(async (requestEvent) => {
 });
 
 export default component$(() => {
-  const videoList = getVideoList().value;
+  const videoList = useGetVideoList().value;
+  console.log(videoList);
 
   return (
     <>
