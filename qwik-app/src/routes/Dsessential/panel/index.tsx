@@ -3,7 +3,7 @@ import { routeLoader$, type DocumentHead } from "@builder.io/qwik-city";
 import styles from "./index.module.css";
 import logo from "~/components/logo/logo.png";
 
-export const getUserData = routeLoader$(async (requestEvent) => {
+export const useGetUserData = routeLoader$(async (requestEvent) => {
   const accessToken = requestEvent.sharedMap.get("session").accessToken;
   try {
     const res = await fetch(
@@ -13,7 +13,7 @@ export const getUserData = routeLoader$(async (requestEvent) => {
         headers: {
           authorization: `Bearer ${accessToken}`,
         },
-      }
+      },
     );
 
     const data = await res.json();
@@ -24,7 +24,7 @@ export const getUserData = routeLoader$(async (requestEvent) => {
 });
 
 export default component$(() => {
-  const userData = getUserData().value;
+  const userData = useGetUserData().value;
 
   return (
     <div class={styles.profileBox}>

@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
-const fs = require('fs');
-const path = require('path');
+import fs = require('fs');
+import path = require('path');
 
 const isVideoFile = (extension) => {
   const videoExtensions = [
@@ -55,9 +55,6 @@ export class LessonReplayService {
   }
 
   async getDefaultVideo() {
-    const fs = require('fs');
-    const path = require('path');
-
     const basePath = `${process.env.RESOURCE_PATH}/範文`;
 
     const result = {
@@ -70,7 +67,6 @@ export class LessonReplayService {
       files.forEach((file) => {
         const filePath = path.join(directory, file);
         const stats = fs.statSync(filePath);
-        const fileName = path.parse(file).name;
 
         if (stats.isFile()) {
           // parent directory name
@@ -111,13 +107,11 @@ export class LessonReplayService {
       files.forEach((file) => {
         const filePath = path.join(directory, file);
         const stats = fs.statSync(filePath);
-        const fileName = path.parse(file).name;
 
         if (stats.isFile()) {
           // parent directory name
           const parentDirName = path.basename(directory);
           const grandParentDirName = path.basename(parentDirName);
-          console.log('grandParentDirName', grandParentDirName);
 
           if (!result['課堂'][grandParentDirName])
             result['課堂'][grandParentDirName] = {};
