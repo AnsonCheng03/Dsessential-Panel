@@ -1,8 +1,8 @@
-# Set Memory limit
-ENV NODE_OPTIONS=--max_old_space_size=2048
-
 # Intermediate docker image to build the bundle in and install dependencies
 FROM node:latest as build
+
+# Set Memory limit
+ENV NODE_OPTIONS=--max_old_space_size=2048
 
 # Set the working directory to /usr/src/app
 WORKDIR /usr/src/app
