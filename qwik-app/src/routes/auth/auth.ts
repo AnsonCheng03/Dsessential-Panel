@@ -12,7 +12,7 @@ export const authorizeFunction = async (credentials: Credentials) => {
   };
 
   try {
-    const loginURL = `h${process.env.BACKEND_ADDRESS}/auth/login`;
+    const loginURL = `${process.env.BACKEND_ADDRESS}:3500/auth/login`;
 
     const loginResponse = await fetch(loginURL, {
       method: "POST",

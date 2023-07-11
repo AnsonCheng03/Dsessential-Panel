@@ -8,7 +8,7 @@ export const getVideoList = routeLoader$(async (requestEvent) => {
   const accessToken = requestEvent.sharedMap.get("session").accessToken;
   try {
     const res = await fetch(
-      `${process.env.BACKEND_ADDRESS}/lesson-replay/videoList`,
+      `${process.env.BACKEND_ADDRESS}:3500/lesson-replay/videoList`,
       {
         cache: "no-store",
         method: "POST",
@@ -32,15 +32,16 @@ export default component$(() => {
         <Videos />
       ) : (
         <div class={styles.errorBox}>
-          {videoList[0] === "New" ? (
-            <p>請先上第一堂再觀看影片！</p>
-          ) : videoList[0] === "Expired" ? (
-            <p>請繳交學費！</p>
-          ) : (
-            <p>
-              找不到學生 <br /> 請聯絡管理員！
-            </p>
-          )}
+          {videoList &&
+            (videoList[0] === "New" ? (
+              <p>請先上第一堂再觀看影片！</p>
+            ) : videoList[0] === "Expired" ? (
+              <p>請繳交學費！</p>
+            ) : (
+              <p>
+                找不到學生 <br /> 請聯絡管理員！
+              </p>
+            ))}
         </div>
       )}
       <UsefulLinks />
