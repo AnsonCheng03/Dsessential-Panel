@@ -35,43 +35,7 @@ export class LessonReplayService {
     const fs = require('fs');
     const path = require('path');
 
-    const directoryPath = `${process.env.RESOURCE_PATH}/範文`;
-
-    function getFilesFromDirectory(directory) {
-      const files = fs.readdirSync(directory);
-      const result = {};
-
-      files.forEach((file) => {
-        const filePath = path.join(directory, file);
-        const stats = fs.statSync(filePath);
-        const fileName = path.parse(file).name;
-
-        if (stats.isFile()) {
-          const extension = path.parse(file).ext;
-          if (isVideoFile(extension)) {
-            if (!result[fileName]) {
-              result[fileName] = {
-                video: [],
-                notes: [],
-              };
-            }
-            result[fileName].video.push(filePath);
-          } else if (extension === '.pdf') {
-            if (!result[fileName]) {
-              result[fileName] = {
-                video: [],
-                notes: [],
-              };
-            }
-            result[fileName].notes.push(filePath);
-          }
-        } else if (stats.isDirectory()) {
-          result[fileName] = getFilesFromDirectory(filePath);
-        }
-      });
-
-      return result;
-    }
+    const basePath = `${process.env.RESOURCE_PATH}/範文`;
 
     function isVideoFile(extension) {
       const videoExtensions = [
@@ -86,10 +50,43 @@ export class LessonReplayService {
       return videoExtensions.includes(extension);
     }
 
-    // Usage example
     const result = {
-      範文: getFilesFromDirectory(directoryPath),
+      範文: {},
     };
+
+    function getFilesFromDirectory(directory) {
+      const files = fs.readdirSync(directory);
+
+      files.forEach((file) => {
+        const filePath = path.join(directory, file);
+        const stats = fs.statSync(filePath);
+        const fileName = path.parse(file).name;
+
+        if (stats.isFile()) {
+          // parent directory name
+          const parentDirName = path.basename(directory);
+          if (!result['範文'][parentDirName]) {
+            result['範文'][parentDirName] = {
+              video: [],
+              notes: [],
+            };
+          }
+
+          const extension = path.parse(file).ext;
+          if (isVideoFile(extension)) {
+            result['範文'][parentDirName]['video'].push(filePath);
+          } else if (extension === '.pdf') {
+            result['範文'][parentDirName]['notes'].push(filePath);
+          }
+        } else {
+          getFilesFromDirectory(filePath);
+        }
+      });
+
+      return result;
+    }
+
+    getFilesFromDirectory(basePath);
 
     return result;
   }

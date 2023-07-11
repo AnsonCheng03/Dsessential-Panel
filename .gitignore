@@ -17,3 +17,6 @@
 .vscode
 nest-js/src/google-credentials.json
 */compose.yaml
+
+# test datas
+testDatas
