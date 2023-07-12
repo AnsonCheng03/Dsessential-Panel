@@ -17,7 +17,7 @@ import render from "./entry.ssr";
 import express from "express";
 import { fileURLToPath } from "node:url";
 import { join } from "node:path";
-import fs from "fs";
+import * as fs from "fs";
 // import http from "http";
 import https from "https";
 
@@ -69,7 +69,7 @@ app.use(notFound);
 const privateKey = fs.readFileSync(`${process.env.CERT_PATH}/cert.key`, "utf8");
 const certificate = fs.readFileSync(
   `${process.env.CERT_PATH}/cert.crt`,
-  "utf8"
+  "utf8",
 );
 
 const credentials = { key: privateKey, cert: certificate };

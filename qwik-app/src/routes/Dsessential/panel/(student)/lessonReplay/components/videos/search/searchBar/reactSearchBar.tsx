@@ -33,5 +33,5 @@ export const AutoCompleteBox = qwikify$(
   },
   {
     eagerness: "visible",
-  }
+  },
 );
