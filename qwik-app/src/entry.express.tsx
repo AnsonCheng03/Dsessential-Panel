@@ -17,6 +17,9 @@ import render from "./entry.ssr";
 import express from "express";
 import { fileURLToPath } from "node:url";
 import { join } from "node:path";
+import fs from "fs";
+// import http from "http";
+import https from "https";
 
 declare global {
   interface QwikCityPlatform extends PlatformNode {}
@@ -62,8 +65,19 @@ app.use(router);
 // Use Qwik City's 404 handler
 app.use(notFound);
 
+// enable https
+const privateKey = fs.readFileSync(`${process.env.CERT_PATH}/cert.key`, "utf8");
+const certificate = fs.readFileSync(
+  `${process.env.CERT_PATH}/cert.crt`,
+  "utf8"
+);
+
+const credentials = { key: privateKey, cert: certificate };
+
+// const httpServer = http.createServer(app);
+const httpsServer = https.createServer(credentials, app);
+
 // Start the express server
-app.listen(PORT, () => {
-  /* eslint-disable */
-  console.log(`Server started: http://localhost:${PORT}/`);
+httpsServer.listen(PORT, () => {
+  console.log(`Server started: https://localhost:${PORT}/`);
 });
