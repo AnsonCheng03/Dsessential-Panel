@@ -19,8 +19,14 @@ async function bootstrap() {
   console.log('Starting NestJS server...');
   try {
     // throw new Error('Force fallback to http');
-    const privateKey = fs.readFileSync('./cert/cert.key', 'utf8');
-    const certificate = fs.readFileSync('./cert/cert.crt', 'utf8');
+    const privateKey = fs.readFileSync(
+      `${process.env.CERT_PATH}/cert.key`,
+      'utf8',
+    );
+    const certificate = fs.readFileSync(
+      `${process.env.CERT_PATH}/cert.crt`,
+      'utf8',
+    );
     const httpsOptions = { key: privateKey, cert: certificate };
 
     const server = express();
