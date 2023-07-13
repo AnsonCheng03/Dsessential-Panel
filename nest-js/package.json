@@ -27,7 +27,7 @@
     "@nestjs/platform-express": "^10.0.5",
     "@types/bcrypt": "^5.0.0",
     "bcrypt": "^5.1.0",
-    "exceljs": "^4.3.0",
+    "nest-google-sheet-connector": "^2.0.0",
     "ldapjs": "^3.0.3",
     "mysql2": "^3.5.1",
     "reflect-metadata": "^0.1.13",

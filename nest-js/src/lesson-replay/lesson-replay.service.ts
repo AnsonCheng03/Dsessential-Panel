@@ -1,7 +1,6 @@
 import { Injectable } from '@nestjs/common';
-import * as fs from 'fs';
-import * as path from 'path';
-import * as Excel from 'exceljs';
+import fs = require('fs');
+import path = require('path');
 
 const isVideoFile = (extension) => {
   const videoExtensions = [
@@ -22,15 +21,15 @@ export class LessonReplayService {
     const userID = user.sub;
     // const userID = '2260';
 
-    if (sheetValue[13].split('|')[0].includes(userID)) return ['New'];
-    if (sheetValue[13].split('|')[1].includes(userID)) return ['Expired'];
-    if (sheetValue[12].split('|')[0].includes(userID)) return ['Normal'];
-    if (sheetValue[12].split('|')[1].split('`')[0].includes(userID))
+    if (sheetValue[0][13].split('|')[0].includes(userID)) return ['New'];
+    if (sheetValue[0][13].split('|')[1].includes(userID)) return ['Expired'];
+    if (sheetValue[0][12].split('|')[0].includes(userID)) return ['Normal'];
+    if (sheetValue[0][12].split('|')[1].split('`')[0].includes(userID))
       return ['All', 'A'];
-    if (sheetValue[12].split('|')[1].split('`')[1].includes(userID))
+    if (sheetValue[0][12].split('|')[1].split('`')[1].includes(userID))
       return ['All', 'B'];
     try {
-      sheetValue.slice(0, 12).forEach((element, index) => {
+      sheetValue[0].slice(0, 12).forEach((element, index) => {
         const month = index + 1;
         if (element.split('|')[0].includes(userID)) throw ['Normal'];
         if (element.split('|')[1].split('`')[0].includes(userID))
@@ -43,23 +42,6 @@ export class LessonReplayService {
     }
 
     return ['Not Found'];
-  }
-
-  async getPermissionList() {
-    const workBook = new Excel.Workbook();
-    const rowValueWithFormula = await workBook.xlsx
-      .readFile(
-        `${process.env.RESOURCE_PATH}/Datas/點名系統3.0/點名系統3.0.xlsx`,
-      )
-      .then(function () {
-        const sheet = workBook.getWorksheet('Access');
-        const rowValueWithFormula = sheet.getRow(1).values;
-        return rowValueWithFormula;
-      });
-    const rowValue = (rowValueWithFormula as any[]).map(
-      (obj: any) => obj.result,
-    );
-    return rowValue;
   }
 
   async getMonthArray(month) {

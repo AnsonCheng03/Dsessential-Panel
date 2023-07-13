@@ -6,12 +6,16 @@ import {
   Request,
   UseGuards,
 } from '@nestjs/common';
+import { GoogleSheetConnectorService } from 'nest-google-sheet-connector';
 import { LessonReplayService } from './lesson-replay.service';
 import { AuthGuard } from 'src/auth/auth.guard';
 
 @Controller('lesson-replay')
 export class LessonReplayController {
-  constructor(private readonly service: LessonReplayService) {}
+  constructor(
+    private googleSheetConnectorService: GoogleSheetConnectorService,
+    private readonly service: LessonReplayService,
+  ) {}
 
   @UseGuards(AuthGuard)
   @HttpCode(HttpStatus.OK)
@@ -23,7 +27,11 @@ export class LessonReplayController {
       returnMonth = ['1', 'A'];
     } else {
       // A1: Jan, B1: Feb, ..., L1: Dec, M1: ALL, N1: Ban
-      const sheetValue = await this.service.getPermissionList();
+      const sheetValue = await this.googleSheetConnectorService.readRange(
+        '1dBCGDIgnBKqVR6WCyIrESQqQzcqhIse0KFOLhCJrHDM',
+        'Access!A1:N1',
+      );
+
       returnMonth = await this.service.getMonth(req.user, sheetValue);
     }
     if (
