@@ -12,6 +12,7 @@
   height: calc(100% - 95px);
   border: 0;
   box-shadow: 0 0 5px 0 rgba(0, 0, 0, 0.2);
+  border-radius: 5px;
 }
 
 .switchUserButton {

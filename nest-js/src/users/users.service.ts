@@ -94,16 +94,13 @@ export class UsersService {
     }
   }
 
-  async getAllUsers(getType: string) {
+  async getAllUsers() {
     const connection = await this.pool.getConnection();
     try {
       const [TotalAcc] = await connection.execute(
         'SELECT `SID`, `姓名`, `學生電話` FROM `Student` \
         WHERE `學生電話` IS NOT NULL OR `姓名` IS NOT NULL ORDER BY `學生電話` DESC',
       );
-
-      console.log(TotalAcc);
-
       return TotalAcc;
     } catch (err) {
       return [];

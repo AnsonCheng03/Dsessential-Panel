@@ -41,7 +41,11 @@ export default component$(() => {
   const searchValue = useSignal("");
   const options = useGetAllUser().value;
 
-  console.log(options[1]);
+  useTask$(({ track }) => {
+    track(() => selectValue.value);
+
+    searchValue.value = options[0][0];
+  });
 
   return (
     <>

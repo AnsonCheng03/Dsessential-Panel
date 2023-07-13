@@ -16,6 +16,6 @@ export class UsersController {
   @Post('getAllUsers')
   getAllUsers(@Request() req) {
     if (req.user.role !== 'admin') throw new UnauthorizedException();
-    return this.userService.getAllUsers('SID');
+    return this.userService.getAllUsers();
   }
 }
