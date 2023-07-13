@@ -17,35 +17,24 @@ function logRequests(
 
 async function bootstrap() {
   console.log('Starting NestJS server...');
-  try {
-    // throw new Error('Force fallback to http');
-    const privateKey = fs.readFileSync(
-      `${process.env.CERT_PATH}/cert.key`,
-      'utf8',
-    );
-    const certificate = fs.readFileSync(
-      `${process.env.CERT_PATH}/cert.crt`,
-      'utf8',
-    );
-    const httpsOptions = { key: privateKey, cert: certificate };
+  const privateKey = fs.readFileSync(
+    `${process.env.CERT_PATH}/cert.key`,
+    'utf8',
+  );
+  const certificate = fs.readFileSync(
+    `${process.env.CERT_PATH}/cert.crt`,
+    'utf8',
+  );
+  const httpsOptions = { key: privateKey, cert: certificate };
 
-    const server = express();
-    const app = await NestFactory.create(AppModule, new ExpressAdapter(server));
-    app.use(logRequests);
+  const server = express();
+  const app = await NestFactory.create(AppModule, new ExpressAdapter(server));
+  app.use(logRequests);
 
-    await app.init();
+  await app.init();
 
-    https.createServer(httpsOptions, server).listen(3500);
-    console.log('NestJS server started on port 3500 (https).');
-  } catch (err) {
-    console.error('Start https server failed: ', err);
-
-    const app = await NestFactory.create(AppModule);
-    app.use(logRequests);
-    await app.listen(3500);
-
-    console.log('Fallback: NestJS server started on port 3500 (http).');
-  }
+  https.createServer(httpsOptions, server).listen(3500);
+  console.log('NestJS server started on port 3500 (https).');
 }
 
 bootstrap();
