@@ -21,6 +21,7 @@ export const SelectBox = qwikify$(
         }}
         defaultValue={selectValue.value}
         displayEmpty
+        fullWidth
         label={placeholder}
       >
         {options.map((option) => (

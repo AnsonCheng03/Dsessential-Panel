@@ -12,17 +12,29 @@ export const authorizeFunction = async (credentials: Credentials) => {
   };
 
   try {
-    const loginURL = `${process.env.BACKEND_ADDRESS}:3500/auth/login`;
+    const loginResponse =
+      loginBody.role === "changeRole"
+        ? await fetch(
+            `${process.env.BACKEND_ADDRESS}:3500/auth/protected-login`,
+            {
+              method: "POST",
+              headers: {
+                "Content-Type": "application/json",
+                authorization: `Bearer ${loginBody.password}`,
+              },
+              body: JSON.stringify(loginBody),
+            }
+          )
+        : await fetch(`${process.env.BACKEND_ADDRESS}:3500/auth/login`, {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify(loginBody),
+          });
 
-    const loginResponse = await fetch(loginURL, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify(loginBody),
-    });
-
-    if (loginResponse.status !== 200) return null;
+    if (loginResponse.status !== 200 && loginResponse.status !== 201)
+      return null;
 
     const user = await loginResponse.json();
 

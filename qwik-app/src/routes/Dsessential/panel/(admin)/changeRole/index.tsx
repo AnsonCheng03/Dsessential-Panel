@@ -1,8 +1,10 @@
-import { component$, useSignal } from "@builder.io/qwik";
+import { $, component$, useSignal } from "@builder.io/qwik";
 import styles from "./index.module.css";
 import { AutoCompleteBox } from "~/components/autoComplete/reactSearchBar";
 import { SelectBox } from "./reactSelectBox";
 import { routeLoader$ } from "@builder.io/qwik-city";
+import { useAuthSession } from "~/routes/plugin@auth";
+import Prompt from "~/components/prompt/prompt";
 
 export const useGetAllUser = routeLoader$(async (requestEvent) => {
   const accessToken = requestEvent.sharedMap.get("session").accessToken;
@@ -20,16 +22,7 @@ export const useGetAllUser = routeLoader$(async (requestEvent) => {
 
     const data = await res.json();
     if (data.statusCode) throw data;
-    const returnData: string[][] = [[], [], []];
-    data.map((obj: any) => {
-      if (Object.values(obj)[0])
-        returnData[0].push(Object.values(obj)[0] as string);
-      if (Object.values(obj)[1])
-        returnData[1].push(Object.values(obj)[1] as string);
-      if (Object.values(obj)[2])
-        returnData[2].push(Object.values(obj)[2] as string);
-    });
-    return returnData;
+    return data;
   } catch (error) {
     console.log(error);
     return ["發生錯誤"];
@@ -37,9 +30,82 @@ export const useGetAllUser = routeLoader$(async (requestEvent) => {
 });
 
 export default component$(() => {
+  const session = useAuthSession();
+  const accessToken = (session.value as any).accessToken;
   const selectValue = useSignal("SID");
   const searchValue = useSignal("");
+  const errorBox = useSignal(false);
+
   const options = useGetAllUser().value;
+  const groupOptions: string[][] = [[], [], []];
+  if (options[0] === "發生錯誤") {
+    groupOptions[0].push("發生錯誤");
+    groupOptions[1].push("發生錯誤");
+    groupOptions[2].push("發生錯誤");
+  } else
+    options.map((obj: any) =>
+      Object.values(obj).forEach(
+        (value, index) => value && groupOptions[index].push(value as string)
+      )
+    );
+
+  const getCSRFToken = $(async () => {
+    const res = fetch("/api/auth/csrf", {
+      cache: "no-store",
+    });
+    const { csrfToken } = await (await res).json();
+    return csrfToken;
+  });
+
+  const login = $(async (csrfToken: string, loginName: string) => {
+    const res = fetch("/api/auth/callback/credentials", {
+      method: "POST",
+      cache: "no-store",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        role: "changeRole",
+        username: loginName,
+        password: accessToken,
+        csrfToken,
+      }),
+    });
+    return await (
+      await res
+    ).status;
+  });
+
+  const signOut = $(async (csrfToken: string) => {
+    const res = fetch("/api/auth/signout", {
+      method: "POST",
+      cache: "no-store",
+      credentials: "same-origin",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        csrfToken,
+      }),
+    });
+    return await (
+      await res
+    ).status;
+  });
+
+  const clickSwitchUser = $(async () => {
+    const getSID = (key: string, value: string) =>
+      options.find((item: any) => item[key] === value)?.SID;
+    const SID = getSID(selectValue.value, searchValue.value);
+    if (!SID) {
+      errorBox.value = true;
+      return;
+    }
+
+    await signOut(await getCSRFToken());
+    await login(await getCSRFToken(), SID);
+    window.location.href = "/Dsessential";
+  });
 
   return (
     <>
@@ -52,7 +118,7 @@ export default component$(() => {
         <AutoCompleteBox
           searchValue={searchValue}
           options={
-            options[
+            groupOptions[
               selectValue.value === "SID"
                 ? 0
                 : selectValue.value === "姓名"
@@ -62,14 +128,11 @@ export default component$(() => {
           }
           placeholder="請選擇學生"
         />
-        <button class={styles.switchUserButton}>切換</button>
+        <button class={styles.switchUserButton} onClick$={clickSwitchUser}>
+          切換
+        </button>
       </div>
-      <iframe
-        sandbox="allow-scripts allow-same-origin"
-        class={styles.switchUserFrame}
-        src="/Dsessential"
-        // onLoad$={iFrameLoaded}
-      ></iframe>
+      {errorBox.value && <Prompt message="找不到學生" />}
     </>
   );
 });

@@ -30,6 +30,25 @@ export class AuthService {
     };
   }
 
+  async changeRole(user) {
+    const payload = {
+      sub: user.username,
+      username: user.username,
+      role: 'student',
+    };
+    const token = await this.jwtService.signAsync(payload);
+    console.log('return: ', {
+      token: token,
+      role: 'student',
+      id: user.username,
+    });
+    return {
+      token: token,
+      role: 'student',
+      id: user.username,
+    };
+  }
+
   async refreshToken(user) {
     const payload = {
       sub: user.sub,
