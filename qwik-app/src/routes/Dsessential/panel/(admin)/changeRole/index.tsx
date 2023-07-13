@@ -5,6 +5,7 @@ import { SelectBox } from "./reactSelectBox";
 import { routeLoader$ } from "@builder.io/qwik-city";
 import { useAuthSession } from "~/routes/plugin@auth";
 import Prompt from "~/components/prompt/prompt";
+import { changeSession } from "~/routes/auth/changeSession";
 
 export const useGetAllUser = routeLoader$(async (requestEvent) => {
   const accessToken = requestEvent.sharedMap.get("session").accessToken;
@@ -49,50 +50,6 @@ export default component$(() => {
       )
     );
 
-  const getCSRFToken = $(async () => {
-    const res = fetch("/api/auth/csrf", {
-      cache: "no-store",
-    });
-    const { csrfToken } = await (await res).json();
-    return csrfToken;
-  });
-
-  const login = $(async (csrfToken: string, loginName: string) => {
-    const res = fetch("/api/auth/callback/credentials", {
-      method: "POST",
-      cache: "no-store",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        role: "changeRole",
-        username: loginName,
-        password: accessToken,
-        csrfToken,
-      }),
-    });
-    return await (
-      await res
-    ).status;
-  });
-
-  const signOut = $(async (csrfToken: string) => {
-    const res = fetch("/api/auth/signout", {
-      method: "POST",
-      cache: "no-store",
-      credentials: "same-origin",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        csrfToken,
-      }),
-    });
-    return await (
-      await res
-    ).status;
-  });
-
   const clickSwitchUser = $(async () => {
     const getSID = (key: string, value: string) =>
       options.find((item: any) => item[key] === value)?.SID;
@@ -102,8 +59,7 @@ export default component$(() => {
       return;
     }
 
-    await signOut(await getCSRFToken());
-    await login(await getCSRFToken(), SID);
+    await changeSession(accessToken, "changeRole", SID);
     window.location.href = "/Dsessential";
   });
 
