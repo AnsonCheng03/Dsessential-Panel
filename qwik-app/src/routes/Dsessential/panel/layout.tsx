@@ -1,10 +1,10 @@
-import { Slot, component$, useVisibleTask$ } from "@builder.io/qwik";
+import { Slot, component$ } from "@builder.io/qwik";
 import type { Session } from "@auth/core/types";
 import { type RequestHandler } from "@builder.io/qwik-city";
 import styles from "./layout.module.css";
 import NavBar from "~/components/navBar/navBar";
 import { useAuthSession } from "~/routes/plugin@auth";
-import { changeSession } from "~/routes/auth/changeSession";
+// import { changeSession } from "~/routes/auth/changeSession";
 
 export const onRequest: RequestHandler = (event) => {
   const session: Session | null = event.sharedMap.get("session");
@@ -18,14 +18,14 @@ export const onRequest: RequestHandler = (event) => {
 
 export default component$(() => {
   const session = useAuthSession();
-  const accessToken = (session.value as any).accessToken;
+  // const accessToken = (session.value as any).accessToken;
   const user = (session.value as any).user;
 
-  useVisibleTask$(() => {
-    setInterval(async () => {
-      await changeSession(accessToken, "refreshToken", user.username);
-    }, 2000);
-  });
+  // useVisibleTask$(() => {
+  //   setInterval(async () => {
+  //     await changeSession(accessToken, "refreshToken", user.username);
+  //   }, 2000);
+  // });
 
   const navlist =
     user.role === "student"
