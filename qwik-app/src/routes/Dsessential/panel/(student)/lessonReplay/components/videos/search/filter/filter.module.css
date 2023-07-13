@@ -42,6 +42,7 @@
   margin: 5px 7px;
   cursor: pointer;
   transition: 0.2s ease-in-out background;
+  user-select: none;
 }
 
 .Selected {

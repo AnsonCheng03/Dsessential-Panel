@@ -1,5 +1,6 @@
 import { component$, useSignal } from "@builder.io/qwik";
 import Search from "./search/search";
+import VideoList from "./videoList/videoList";
 
 export default component$(({ videoList }: any) => {
   const getStringsFromDeepestVideo = (obj: Object) => {
@@ -30,15 +31,25 @@ export default component$(({ videoList }: any) => {
     Object.keys(value as Object),
   ]);
   const availableVideos = getStringsFromDeepestVideo(videoList);
-  const selectedYear = useSignal(availableMonth[0][0] as string);
-  const selectedMonth = useSignal(availableMonth[0][1][0] as string);
+  const selectedType = useSignal(availableMonth[0][0] as string);
+  const selectedMonth = useSignal<string | null>(null);
+  const searchValue = useSignal("");
 
   return (
-    <Search
-      availableVideos={availableVideos}
-      availableMonth={availableMonth}
-      selectedYear={selectedYear}
-      selectedMonth={selectedMonth}
-    />
+    <>
+      <Search
+        availableVideos={availableVideos}
+        availableMonth={availableMonth}
+        selectedType={selectedType}
+        selectedMonth={selectedMonth}
+        searchValue={searchValue}
+      />
+      <VideoList
+        videoList={videoList}
+        selectedType={selectedType}
+        selectedMonth={selectedMonth}
+        searchValue={searchValue}
+      />
+    </>
   );
 });

@@ -73,15 +73,15 @@ export class LessonReplayService {
           const parentDirName = path.basename(directory);
           if (!result['範文'][parentDirName]) {
             result['範文'][parentDirName] = {
-              1: { video: [], notes: [] },
+              影片: { video: [], notes: [] },
             };
           }
 
           const extension = path.parse(file).ext;
           if (isVideoFile(extension)) {
-            result['範文'][parentDirName]['1']['video'].push(filePath);
+            result['範文'][parentDirName]['影片']['video'].push(filePath);
           } else if (extension === '.pdf') {
-            result['範文'][parentDirName]['1']['notes'].push(filePath);
+            result['範文'][parentDirName]['影片']['notes'].push(filePath);
           }
         } else {
           getFilesFromDirectory(filePath);
@@ -111,7 +111,7 @@ export class LessonReplayService {
 
         if (stats.isFile()) {
           // parent directory name
-          const parentDirName = path.basename(directory);
+          const parentDirName = `第${path.basename(directory)}期`;
 
           if (!result['課堂'][month]) result['課堂'][month] = {};
           if (!result['課堂'][month][parentDirName]) {
@@ -136,7 +136,7 @@ export class LessonReplayService {
     }
 
     returnMonth.forEach((month) => {
-      getFilesFromDirectory(`${basePath}/${month}`, month);
+      getFilesFromDirectory(`${basePath}/${month}`, `${month}月`);
     });
 
     return result;

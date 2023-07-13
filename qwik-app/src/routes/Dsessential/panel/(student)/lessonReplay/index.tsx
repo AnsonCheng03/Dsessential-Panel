@@ -25,12 +25,13 @@ export const useGetVideoList = routeLoader$(async (requestEvent) => {
 
 export default component$(() => {
   const videoList = useGetVideoList().value;
-  console.log(videoList);
 
   return (
     <>
       {videoList && !["New", "Not Found", "Expired"]?.includes(videoList[0]) ? (
-        <Videos videoList={videoList} />
+        <>
+          <Videos videoList={videoList} />
+        </>
       ) : (
         <div class={styles.errorBox}>
           {videoList &&

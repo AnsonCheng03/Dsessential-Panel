@@ -1,5 +1,5 @@
 import type { Signal } from "@builder.io/qwik";
-import { component$, useSignal } from "@builder.io/qwik";
+import { component$, useTask$ } from "@builder.io/qwik";
 import styles from "./search.module.css";
 import Filter from "./filter/filter";
 import SearchBar from "./searchBar/searchBar";
@@ -8,16 +8,20 @@ export default component$(
   ({
     availableMonth,
     selectedMonth,
-    selectedYear,
+    selectedType,
     availableVideos,
+    searchValue,
   }: {
     availableVideos: string[];
     availableMonth: (string | string[])[][];
-    selectedMonth: Signal<string>;
-    selectedYear: Signal<string>;
+    selectedType: Signal<string>;
+    selectedMonth: Signal<string | null>;
+    searchValue: Signal<string>;
   }) => {
-    const searchValue = useSignal("");
-
+    useTask$(({ track }) => {
+      track(() => searchValue.value);
+      selectedMonth.value = null;
+    });
     return (
       <div class={styles.search}>
         <SearchBar
@@ -26,11 +30,11 @@ export default component$(
         />
         <Filter
           searchValue={searchValue}
-          selectedYear={selectedYear}
+          selectedType={selectedType}
           selectedMonth={selectedMonth}
           availableMonth={availableMonth}
         />
       </div>
     );
-  },
+  }
 );
