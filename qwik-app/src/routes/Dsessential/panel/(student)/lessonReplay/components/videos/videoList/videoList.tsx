@@ -1,5 +1,6 @@
-import { type Signal, component$ } from "@builder.io/qwik";
+import { type Signal, component$, $ } from "@builder.io/qwik";
 import styles from "./videoList.module.css";
+import { server$ } from "@builder.io/qwik-city";
 
 export default component$(
   ({
@@ -13,6 +14,24 @@ export default component$(
     selectedMonth: Signal<string | null>;
     searchValue: Signal<string>;
   }) => {
+    const fetchVideo = server$(async function (url: string) {
+      const rawVideo = await fetch(
+        `${process.env.BACKEND_ADDRESS}:3500/video/stream`,
+        {
+          method: "POST",
+          headers: {
+            "content-type": "application/json",
+            authorization: `Bearer ${
+              this.sharedMap.get("session").accessToken
+            }`,
+          },
+          body: JSON.stringify({ url }),
+        }
+      );
+      console.log(await rawVideo.blob());
+      return await rawVideo.blob();
+    });
+
     return (
       <>
         {Object.entries(videoList).map((videoType: any) => {
@@ -38,9 +57,15 @@ export default component$(
                               .split("/")
                               .pop()
                               ?.split(".")[0];
-
                             return (
-                              <button key={url} class={styles.videoButton}>
+                              <button
+                                key={url}
+                                class={styles.videoButton}
+                                onClick$={async () => {
+                                  const rawVideo = await fetchVideo(url);
+                                  console.log(rawVideo);
+                                }}
+                              >
                                 {fileName}
                               </button>
                             );
@@ -51,7 +76,14 @@ export default component$(
                               .pop()
                               ?.split(".")[0];
                             return (
-                              <button key={url} class={styles.videoButton}>
+                              <button
+                                key={url}
+                                class={styles.videoButton}
+                                onClick$={async () => {
+                                  const rawVideo = await fetchVideo(url);
+                                  console.log(rawVideo);
+                                }}
+                              >
                                 {fileName}
                               </button>
                             );

@@ -5,6 +5,8 @@ import { AuthModule } from './auth/auth.module';
 import { UsersModule } from './users/users.module';
 import { ConfigModule } from '@nestjs/config';
 import { LessonReplayModule } from './lesson-replay/lesson-replay.module';
+import { VideoController } from './video/video.controller';
+import { VideoService } from './video/video.service';
 
 @Module({
   imports: [
@@ -13,7 +15,7 @@ import { LessonReplayModule } from './lesson-replay/lesson-replay.module';
     ConfigModule.forRoot(),
     LessonReplayModule,
   ],
-  controllers: [AppController],
-  providers: [AppService],
+  controllers: [AppController, VideoController],
+  providers: [AppService, VideoService],
 })
 export class AppModule {}
