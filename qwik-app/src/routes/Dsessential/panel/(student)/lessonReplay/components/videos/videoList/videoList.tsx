@@ -20,12 +20,6 @@ export default component$(
             return Object.entries(videoType[1]).map((episode: any) => {
               if (!selectedMonth.value || episode[0] === selectedMonth.value)
                 return Object.entries(episode[1]).map((video: any) => {
-                  console.log(
-                    "np",
-                    video[1].video,
-                    video[1].notes,
-                    searchValue.value
-                  );
                   return (
                     (searchValue.value === "" ||
                       [...video[1].video, ...video[1].notes].find((item) =>
