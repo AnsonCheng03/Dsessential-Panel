@@ -17,7 +17,6 @@ export default component$(
   }) => {
     const session = useAuthSession();
     const accessToken = (session.value as any).accessToken;
-    const BACKEND_ADDRESS = process.env.BACKEND_ADDRESS;
 
     const fetchVideoLink = server$(async function (url: string) {
       const rawVideo = await fetch(
@@ -33,11 +32,14 @@ export default component$(
           body: JSON.stringify({ url }),
         }
       );
-      return await rawVideo.text();
+      return [
+        `${process.env.BACKEND_ADDRESS}:3500/video/stream`,
+        await rawVideo.text(),
+      ];
     });
 
-    const fetchVideo = $(async function (url: string) {
-      const rawVideo = await fetch(`${BACKEND_ADDRESS}:3500/video/stream`, {
+    const fetchVideo = $(async function (fetchURL: string, url: string) {
+      const rawVideo = await fetch(fetchURL, {
         method: "POST",
         headers: {
           "content-type": "application/json",
@@ -86,8 +88,9 @@ export default component$(
                                 key={url}
                                 class={styles.videoButton}
                                 onClick$={async () => {
-                                  const rawVideo = await fetchVideoLink(url);
-                                  fetchVideo(rawVideo);
+                                  const [fetchURL, rawVideo] =
+                                    await fetchVideoLink(url);
+                                  fetchVideo(fetchURL, rawVideo);
                                 }}
                               >
                                 {fileName}

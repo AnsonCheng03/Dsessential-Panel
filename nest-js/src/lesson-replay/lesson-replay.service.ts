@@ -104,7 +104,12 @@ export class LessonReplayService {
       const files = fs.readdirSync(directory);
 
       files.forEach((file) => {
-        if (file === '.DS_Store' || file.startsWith('ts-')) return;
+        if (
+          file === '.DS_Store' ||
+          file.startsWith('ts-') ||
+          file.startsWith('@')
+        )
+          return;
 
         const filePath = path.join(directory, file);
         const stats = fs.statSync(filePath);
