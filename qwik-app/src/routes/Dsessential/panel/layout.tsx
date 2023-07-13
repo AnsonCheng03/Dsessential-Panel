@@ -10,7 +10,7 @@ export const onRequest: RequestHandler = (event) => {
   if (!session || new Date(session.expires) < new Date()) {
     throw event.redirect(
       302,
-      `/Dsessential/auth?callbackUrl=${event.url.href}`,
+      `/Dsessential/auth?callbackUrl=${event.url.href}`
     );
   }
 };
@@ -81,16 +81,16 @@ export default component$(() => {
         ["Item", "設定", "#"],
     ]],
     */
-          [
-            "List",
-            "學生管理",
-            "#",
-            [
-              //    ["Item", "學生資料", "#"],
-              ["Item", "點名系統", "/Features/School/attendance"],
-              //    ["Item", "時間表", "#"],
-            ],
-          ],
+          // [
+          //   "List",
+          //   "學生管理",
+          //   "#",
+          //   [
+          //     //    ["Item", "學生資料", "#"],
+          //     // ["Item", "點名系統", "/Features/School/attendance"],
+          //     //    ["Item", "時間表", "#"],
+          //   ],
+          // ],
 
           [
             "List",
@@ -98,17 +98,17 @@ export default component$(() => {
             "#",
             [
               /*
-        ["Item", "重設密碼", "#"],
-        ["Item", "遠端列印", "#"],
-        ["Item", "閉路電視", "#"],
-        */
-              ["Item", "轉換身分", "/Features/Server/changerole"],
+              ["Item", "重設密碼", "#"],
+              ["Item", "遠端列印", "#"],
+              ["Item", "閉路電視", "#"],
+              */
+              ["Item", "轉換身分", "/panel/changeRole"],
               /*
-            ["List", "系統管理", "#", [
-            ["Item", "訪問紀錄", "#"],
-            ["Item", "系統資源", "#"],
-        ]],
-        */
+              ["List", "系統管理", "#", [
+                ["Item", "訪問紀錄", "#"],
+                ["Item", "系統資源", "#"],
+              ]],
+            */
             ],
           ],
         ];

@@ -1,0 +1,24 @@
+.switchUserSelection {
+  height: 56px;
+  margin: 15px 0;
+  padding: 0 10px;
+  gap: 5px;
+  display: grid;
+  grid-template-columns: 100px 1fr 100px;
+}
+
+.switchUserFrame {
+  width: calc(100% - 20px);
+  height: calc(100% - 95px);
+  border: 0;
+  box-shadow: 0 0 5px 0 rgba(0, 0, 0, 0.2);
+}
+
+.switchUserButton {
+  margin: 0 5px;
+  border: 0;
+  background: rgb(96, 180, 223);
+  color: white;
+  cursor: pointer;
+  border-radius: 5px;
+}
