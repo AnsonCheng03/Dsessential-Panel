@@ -43,7 +43,7 @@ export const { onRequest, useAuthSession, useAuthSignin, useAuthSignout } =
     ] as Provider[],
     session: {
       strategy: "jwt",
-      maxAge: 60 * 60 * 24, // seconds
+      maxAge: 60 * 1.5, // seconds
     },
     callbacks: {
       async jwt({ token, user }) {

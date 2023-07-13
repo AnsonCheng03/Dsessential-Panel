@@ -13,7 +13,7 @@ export const authorizeFunction = async (credentials: Credentials) => {
 
   try {
     const loginResponse =
-      loginBody.role === "changeRole"
+      loginBody.role === "changeRole" || loginBody.role === "refreshToken"
         ? await fetch(
             `${process.env.BACKEND_ADDRESS}:3500/auth/protected-login`,
             {

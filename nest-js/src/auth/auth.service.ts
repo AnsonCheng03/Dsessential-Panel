@@ -37,11 +37,6 @@ export class AuthService {
       role: 'student',
     };
     const token = await this.jwtService.signAsync(payload);
-    console.log('return: ', {
-      token: token,
-      role: 'student',
-      id: user.username,
-    });
     return {
       token: token,
       role: 'student',
@@ -56,6 +51,10 @@ export class AuthService {
       role: user.role,
     };
     const newToken = await this.jwtService.signAsync(payload);
-    return newToken;
+    return {
+      token: newToken,
+      role: user.role,
+      id: user.sub,
+    };
   }
 }
