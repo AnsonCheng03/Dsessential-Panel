@@ -1,4 +1,4 @@
-import { $, component$, useSignal, useTask$ } from "@builder.io/qwik";
+import { component$, useSignal } from "@builder.io/qwik";
 import styles from "./index.module.css";
 import { AutoCompleteBox } from "~/components/autoComplete/reactSearchBar";
 import { SelectBox } from "./reactSelectBox";
@@ -40,12 +40,6 @@ export default component$(() => {
   const selectValue = useSignal("SID");
   const searchValue = useSignal("");
   const options = useGetAllUser().value;
-
-  useTask$(({ track }) => {
-    track(() => selectValue.value);
-
-    searchValue.value = options[0][0];
-  });
 
   return (
     <>
