@@ -24,7 +24,7 @@ export class LessonReplayController {
   async getVideo(@Request() req) {
     let returnMonth;
     if (process.env.NODE_ENV === 'development') {
-      returnMonth = ['1', 'A'];
+      returnMonth = ['All', 'A'];
     } else {
       // A1: Jan, B1: Feb, ..., L1: Dec, M1: ALL, N1: Ban
       const sheetValue = await this.googleSheetConnectorService.readRange(

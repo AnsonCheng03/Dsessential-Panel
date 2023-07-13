@@ -73,16 +73,15 @@ export class LessonReplayService {
           const parentDirName = path.basename(directory);
           if (!result['範文'][parentDirName]) {
             result['範文'][parentDirName] = {
-              video: [],
-              notes: [],
+              1: { video: [], notes: [] },
             };
           }
 
           const extension = path.parse(file).ext;
           if (isVideoFile(extension)) {
-            result['範文'][parentDirName]['video'].push(filePath);
+            result['範文'][parentDirName]['1']['video'].push(filePath);
           } else if (extension === '.pdf') {
-            result['範文'][parentDirName]['notes'].push(filePath);
+            result['範文'][parentDirName]['1']['notes'].push(filePath);
           }
         } else {
           getFilesFromDirectory(filePath);
@@ -101,22 +100,22 @@ export class LessonReplayService {
       課堂: {},
     };
 
-    function getFilesFromDirectory(directory) {
+    function getFilesFromDirectory(directory, month) {
       const files = fs.readdirSync(directory);
 
       files.forEach((file) => {
+        if (file === '.DS_Store' || file.startsWith('ts-')) return;
+
         const filePath = path.join(directory, file);
         const stats = fs.statSync(filePath);
 
         if (stats.isFile()) {
           // parent directory name
           const parentDirName = path.basename(directory);
-          const grandParentDirName = path.basename(parentDirName);
 
-          if (!result['課堂'][grandParentDirName])
-            result['課堂'][grandParentDirName] = {};
-          if (!result['課堂'][grandParentDirName][parentDirName]) {
-            result['課堂'][grandParentDirName][parentDirName] = {
+          if (!result['課堂'][month]) result['課堂'][month] = {};
+          if (!result['課堂'][month][parentDirName]) {
+            result['課堂'][month][parentDirName] = {
               video: [],
               notes: [],
             };
@@ -124,22 +123,22 @@ export class LessonReplayService {
 
           const extension = path.parse(file).ext;
           if (isVideoFile(extension)) {
-            result['課堂'][grandParentDirName][parentDirName]['video'].push(
-              filePath,
-            );
+            result['課堂'][month][parentDirName]['video'].push(filePath);
           } else if (extension === '.pdf') {
-            result['課堂'][grandParentDirName][parentDirName]['notes'].push(
-              filePath,
-            );
+            result['課堂'][month][parentDirName]['notes'].push(filePath);
           }
         } else {
-          getFilesFromDirectory(filePath);
+          getFilesFromDirectory(filePath, month);
         }
       });
 
       return result;
     }
 
-    return getFilesFromDirectory(basePath);
+    returnMonth.forEach((month) => {
+      getFilesFromDirectory(`${basePath}/${month}`, month);
+    });
+
+    return result;
   }
 }
