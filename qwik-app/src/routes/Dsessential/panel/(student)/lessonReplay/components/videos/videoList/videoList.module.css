@@ -27,3 +27,19 @@
   border-radius: 50px;
   padding: 5px 15px;
 }
+
+.videoPlayer {
+  width: 95vw;
+  max-height: calc(95vw * 16 / 9);
+  object-fit: contain;
+  border-radius: 5px;
+  margin: 10px 0;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
+  transition: all 1s ease-in-out;
+}
+
+.playerHidden {
+  max-height: 0;
+  margin: 0;
+  box-shadow: none;
+}

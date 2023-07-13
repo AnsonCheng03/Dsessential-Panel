@@ -1,6 +1,7 @@
 import { type Signal, component$, $ } from "@builder.io/qwik";
 import styles from "./videoList.module.css";
 import { server$ } from "@builder.io/qwik-city";
+import { useAuthSession } from "~/routes/plugin@auth";
 
 export default component$(
   ({
@@ -14,9 +15,13 @@ export default component$(
     selectedMonth: Signal<string | null>;
     searchValue: Signal<string>;
   }) => {
-    const fetchVideo = server$(async function (url: string) {
+    const session = useAuthSession();
+    const accessToken = (session.value as any).accessToken;
+    const BACKEND_ADDRESS = process.env.BACKEND_ADDRESS;
+
+    const fetchVideoLink = server$(async function (url: string) {
       const rawVideo = await fetch(
-        `${process.env.BACKEND_ADDRESS}:3500/video/stream`,
+        `${process.env.BACKEND_ADDRESS}:3500/video/createStream`,
         {
           method: "POST",
           headers: {
@@ -28,12 +33,31 @@ export default component$(
           body: JSON.stringify({ url }),
         }
       );
-      console.log(await rawVideo.blob());
-      return await rawVideo.blob();
+      return await rawVideo.text();
+    });
+
+    const fetchVideo = $(async function (url: string) {
+      const rawVideo = await fetch(`${BACKEND_ADDRESS}:3500/video/stream`, {
+        method: "POST",
+        headers: {
+          "content-type": "application/json",
+          authorization: `Bearer ${accessToken}`,
+        },
+        body: JSON.stringify({ url }),
+      });
+      // return await rawVideo.blob();
+      const video = document.querySelector("video");
+      if (video) {
+        video.src = URL.createObjectURL(await rawVideo.blob());
+        video.load();
+        video.classList.remove(styles.playerHidden);
+        video.scrollIntoView({ behavior: "smooth" });
+      }
     });
 
     return (
       <>
+        <video controls class={[styles.videoPlayer, styles.playerHidden]} />
         {Object.entries(videoList).map((videoType: any) => {
           if (searchValue.value !== "" || videoType[0] === selectedType.value)
             return Object.entries(videoType[1]).map((episode: any) => {
@@ -62,14 +86,16 @@ export default component$(
                                 key={url}
                                 class={styles.videoButton}
                                 onClick$={async () => {
-                                  const rawVideo = await fetchVideo(url);
-                                  console.log(rawVideo);
+                                  const rawVideo = await fetchVideoLink(url);
+                                  fetchVideo(rawVideo);
                                 }}
                               >
                                 {fileName}
                               </button>
                             );
                           })}
+                          {/* 
+                          TODO: Add notes
                           {video[1].notes.map((url: string) => {
                             const fileName = url
                               .split("/")
@@ -80,14 +106,14 @@ export default component$(
                                 key={url}
                                 class={styles.videoButton}
                                 onClick$={async () => {
-                                  const rawVideo = await fetchVideo(url);
-                                  console.log(rawVideo);
+                                  const rawVideo = await fetchVideoLink(url);
+                                  console.log(typeof rawVideo);
                                 }}
                               >
                                 {fileName}
                               </button>
                             );
-                          })}
+                          })} */}
                         </div>
                       </div>
                     )

@@ -1,29 +1,44 @@
 import {
   Controller,
-  Get,
   Post,
   Body,
-  Patch,
-  Param,
-  Delete,
   Res,
   HttpStatus,
   Header,
+  Request,
+  UseGuards,
 } from '@nestjs/common';
 import { VideoService } from './video.service';
 import { statSync, createReadStream } from 'fs';
 import { Headers } from '@nestjs/common';
 import { Response } from 'express';
+import { AuthGuard } from 'src/auth/auth.guard';
 @Controller('video')
 export class VideoController {
   constructor(private readonly videoService: VideoService) {}
 
+  @UseGuards(AuthGuard)
+  @Post('createStream')
+  async createStream(@Request() req, @Body() body) {
+    // encrypt uri with uuid
+    const uuid = req.user.uuid;
+    const url = body.url;
+    const video = await this.videoService.encrypt(url, uuid);
+    console.log('video', video);
+    return video;
+  }
+
+  @UseGuards(AuthGuard)
   @Post('stream')
   @Header('Accept-Ranges', 'bytes')
   @Header('Content-Type', 'video/mp4')
-  async getStreamVideo(@Headers() headers, @Res() res: Response, @Body() body) {
-    console.log('videoPath: ', body);
-    const videoPath = body.url;
+  async getStreamVideo(
+    @Headers() headers,
+    @Res() res: Response,
+    @Body() body,
+    @Request() req,
+  ) {
+    const videoPath = await this.videoService.decrypt(body.url, req.user.uuid);
     const { size } = statSync(videoPath);
     const videoRange = headers.range;
     if (videoRange) {
@@ -50,14 +65,4 @@ export class VideoController {
       createReadStream(videoPath).pipe(res);
     }
   }
-
-  //   @Get()
-  //   findAll() {
-  //     return this.videoService.findAll();
-  //   }
-
-  //   @Get(':id')
-  //   findOne(@Param('id') id: string) {
-  //     return this.videoService.findOne(+id);
-  //   }
 }
