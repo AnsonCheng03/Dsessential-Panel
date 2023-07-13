@@ -13,7 +13,7 @@ interface User {
   id: string;
   role: string;
   username: string;
-  access_token: string;
+  access_token?: string;
 }
 
 export const { onRequest, useAuthSession, useAuthSignin, useAuthSignout } =
@@ -43,10 +43,10 @@ export const { onRequest, useAuthSession, useAuthSignin, useAuthSignout } =
     ] as Provider[],
     session: {
       strategy: "jwt",
+      maxAge: 60 * 60 * 24, // seconds
     },
     callbacks: {
       async jwt({ token, user }) {
-        // Persist the OAuth access_token to the token right after signin
         if (user) {
           token.accessToken = (user as User).access_token;
           token.user = user;
@@ -54,8 +54,9 @@ export const { onRequest, useAuthSession, useAuthSignin, useAuthSignout } =
         return token;
       },
       async session({ session, token }) {
-        // Send properties to the client, like an access_token from a provider.
         if (session.user) {
+          (session as any).accessToken = token.accessToken;
+          (token.user as User).access_token = undefined;
           (session as any).user = token.user;
           token.user = undefined;
         }

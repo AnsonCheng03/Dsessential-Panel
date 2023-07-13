@@ -1,0 +1,47 @@
+.usefulLinks {
+  background: #fff;
+  margin: 20px;
+  border-radius: 5px;
+  padding: 30px;
+}
+
+.title {
+  margin: 0;
+  padding: 10px 15px 25px 15px;
+  text-align: left;
+}
+
+.container {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+}
+
+.links {
+  width: calc(100% - 100px);
+  padding: 10px 50px;
+  display: grid;
+  grid-template-columns: 1fr 100px;
+  text-align: left;
+  cursor: inherit;
+}
+
+.links::after {
+  content: "前往";
+  display: block;
+  clear: both;
+  float: right;
+  border: 2px solid #60b4df;
+  color: #60b4df;
+  text-align: center;
+  padding: 5px 0;
+  border-radius: 50px;
+  transition: 0.2s ease-in-out background;
+  cursor: pointer;
+}
+
+.links:hover::after {
+  background: #60b4df;
+  color: #fff;
+}

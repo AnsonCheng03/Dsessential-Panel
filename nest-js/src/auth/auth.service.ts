@@ -22,10 +22,21 @@ export class AuthService {
       username: user.userId,
       role: role,
     };
+    const token = await this.jwtService.signAsync(payload);
     return {
-      token: await this.jwtService.signAsync(payload),
+      token: token,
       role: role,
       id: user.userId,
     };
+  }
+
+  async refreshToken(user) {
+    const payload = {
+      sub: user.sub,
+      username: user.username,
+      role: user.role,
+    };
+    const newToken = await this.jwtService.signAsync(payload);
+    return newToken;
   }
 }

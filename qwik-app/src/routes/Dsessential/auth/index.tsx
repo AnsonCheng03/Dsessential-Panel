@@ -3,7 +3,7 @@ import { type DocumentHead } from "@builder.io/qwik-city";
 import { useAuthSession } from "~/routes/plugin@auth";
 import SignIn from "./(signIn)/signIn";
 import ResetPassword from "./(resetPassword)/resetPassword";
-import style from "./index.module.css";
+import styles from "./index.module.css";
 
 export default component$(() => {
   const session = useAuthSession();
@@ -14,19 +14,19 @@ export default component$(() => {
   if (session.value) return null;
 
   return (
-    <div class={style.center}>
+    <div class={styles.center}>
       {formState.value === "resetPassword" ? (
         <ResetPassword
           formState={formState}
           adminRole={adminRole}
-          style={style}
+          style={styles}
           userName={userName}
         />
       ) : (
         <SignIn
           formState={formState}
           adminRole={adminRole}
-          style={style}
+          style={styles}
           userName={userName}
         />
       )}
