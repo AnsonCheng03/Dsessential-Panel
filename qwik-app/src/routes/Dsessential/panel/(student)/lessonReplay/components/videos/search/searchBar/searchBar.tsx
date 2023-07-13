@@ -1,6 +1,6 @@
 import { type Signal, component$ } from "@builder.io/qwik";
 import styles from "./searchBar.module.css";
-import { AutoCompleteBox } from "./reactSearchBar";
+import { AutoCompleteBox } from "~/components/autoComplete/reactSearchBar";
 
 export default component$(
   ({
@@ -13,10 +13,11 @@ export default component$(
     return (
       <div class={styles.searchBar}>
         <AutoCompleteBox
-          availableVideos={availableVideos}
+          options={availableVideos}
           searchValue={searchValue}
+          placeholder="搜尋影片"
         />
       </div>
     );
-  },
+  }
 );
