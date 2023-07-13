@@ -17,6 +17,7 @@ export const AutoCompleteBox = qwikify$(
     return (
       <Autocomplete
         disablePortal
+        disableClearable
         options={[...new Set(options)]}
         onChange={(e, value) => {
           if (value) searchValue.value = value;
