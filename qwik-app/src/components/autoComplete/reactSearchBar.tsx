@@ -7,22 +7,24 @@ import { Autocomplete, TextField } from "@mui/material";
 export const AutoCompleteBox = qwikify$(
   ({
     searchValue,
-    availableVideos,
+    options,
+    placeholder,
   }: {
     searchValue: Signal<string>;
-    availableVideos: string[];
+    options: string[];
+    placeholder: string;
   }) => {
     return (
       <Autocomplete
         disablePortal
-        options={[...new Set(availableVideos)]}
+        options={[...new Set(options)]}
         onChange={(e, value) => {
           if (value) searchValue.value = value;
         }}
         renderInput={(params) => (
           <TextField
             {...params}
-            label="搜尋影片"
+            label={placeholder}
             onChange={(e) => {
               searchValue.value = e.target.value;
             }}
@@ -33,5 +35,5 @@ export const AutoCompleteBox = qwikify$(
   },
   {
     eagerness: "visible",
-  },
+  }
 );

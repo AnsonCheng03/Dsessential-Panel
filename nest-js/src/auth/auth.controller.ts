@@ -26,8 +26,11 @@ export class AuthController {
   }
 
   @UseGuards(AuthGuard)
-  @Post('refresh-token')
-  refreshToken(@Request() req) {
+  @Post('protected-login')
+  protectedLogin(@Request() req) {
+    if (req.user.role !== 'admin') throw new Error('Unauthorized');
+    if (req.body.role === 'changeRole')
+      return this.authService.changeRole(req.body);
     return this.authService.refreshToken(req.user);
   }
 
