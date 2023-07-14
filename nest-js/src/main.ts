@@ -12,6 +12,7 @@ function logRequests(
 ) {
   console.log(`[${new Date().toISOString()}] ${req.method} ${req.url}`);
   console.log('Headers: ', req.headers);
+  console.log('Body: ', req.body);
   next();
 }
 
@@ -29,7 +30,7 @@ async function bootstrap() {
 
   const server = express();
   const app = await NestFactory.create(AppModule, new ExpressAdapter(server));
-  app.use(logRequests);
+  if (process.env.LOG_REQUEST === 'true') app.use(logRequests);
   app.enableCors({
     origin: '*',
     methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
