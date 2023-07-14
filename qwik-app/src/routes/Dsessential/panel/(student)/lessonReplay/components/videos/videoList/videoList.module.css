@@ -30,7 +30,7 @@
 
 .videoPlayer {
   width: 95vw;
-  max-height: calc(95vw * 16 / 9);
+  max-height: calc(95vw / 16 * 9);
   object-fit: contain;
   border-radius: 5px;
   margin: 10px 0;
