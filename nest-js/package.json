@@ -20,6 +20,7 @@
     "test:e2e": "jest --config ./test/jest-e2e.json"
   },
   "dependencies": {
+    "@ffmpeg-installer/ffmpeg": "^1.1.0",
     "@nestjs/common": "^10.0.5",
     "@nestjs/config": "^3.0.0",
     "@nestjs/core": "^10.0.5",
@@ -28,6 +29,7 @@
     "@types/bcrypt": "^5.0.0",
     "bcrypt": "^5.1.0",
     "crypto-js": "^4.1.1",
+    "fluent-ffmpeg": "^2.1.2",
     "ldapjs": "^3.0.3",
     "mysql2": "^3.5.1",
     "nest-google-sheet-connector": "^2.0.0",
