@@ -30,7 +30,10 @@ async function bootstrap() {
 
   const server = express();
   const app = await NestFactory.create(AppModule, new ExpressAdapter(server));
-  if (process.env.LOG_REQUEST === 'true') app.use(logRequests);
+  if (process.env.LOG_REQUEST === 'true') {
+    console.log('Logging requests...');
+    app.use(logRequests);
+  }
   app.enableCors({
     origin: '*',
     methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
