@@ -1,9 +1,10 @@
 import { type Signal, component$, $, useSignal } from "@builder.io/qwik";
-import styles from "./videoList.module.css";
 import { server$ } from "@builder.io/qwik-city";
 import { useAuthSession } from "~/routes/plugin@auth";
 import { CircularWithValueLabel } from "~/components/react/CircularWithValueLabel";
-import Hls from "hls.js";
+import videojs from "video.js";
+import styles from "./videoList.module.css";
+import "video.js/dist/video-js.min.css";
 
 export default component$(
   ({
@@ -72,7 +73,18 @@ export default component$(
     return (
       <>
         <div class={[styles.videoPlayerContainer, styles.playerHidden]}>
-          <video controls class={styles.videoPlayer} />
+          <video id="videoPlayer" class={[styles.videoPlayer, "video-js"]}>
+            <p class="vjs-no-js">
+              To view this video please enable JavaScript, and consider
+              upgrading to a web browser that
+              <a
+                href="https://videojs.com/html5-video-support/"
+                target="_blank"
+              >
+                supports HTML5 video
+              </a>
+            </p>
+          </video>
           {loadingPercent.value !== null && (
             <div class={styles.videoPlayerOverlay}>
               <div class={styles.loadingContainer}>
@@ -188,38 +200,22 @@ export default component$(
                                   loadingPercent.value = null;
 
                                   const videoElement =
-                                    document.querySelector("video");
+                                    document.querySelector("#videoPlayer");
                                   if (videoElement) {
-                                    if (Hls.isSupported()) {
-                                      const hls = new Hls();
-                                      hls.loadSource(
-                                        URL.createObjectURL(await video.blob())
-                                      );
-                                      hls.attachMedia(videoElement);
-                                      hls.on(
-                                        Hls.Events.MANIFEST_PARSED,
-                                        function () {
-                                          videoElement.play();
-                                        }
-                                      );
-                                    } else if (
-                                      videoElement.canPlayType(
-                                        "application/vnd.apple.mpegurl"
-                                      )
-                                    ) {
-                                      videoElement.src = URL.createObjectURL(
+                                    const videoJS = videojs("videoPlayer", {
+                                      autoplay: true,
+                                      controls: true,
+                                      responsive: true,
+                                      fluid: true,
+                                    });
+                                    videoJS.src({
+                                      src: URL.createObjectURL(
                                         await video.blob()
-                                      );
-                                      videoElement.addEventListener(
-                                        "loadedmetadata",
-                                        function () {
-                                          videoElement.play();
-                                        }
-                                      );
-                                    } else {
-                                      alert("Your browser is not supported");
-                                      return;
-                                    }
+                                      ),
+                                      type: "application/x-mpegURL",
+                                    });
+                                    await videoJS.load();
+                                    await videoJS.play();
 
                                     videoElement.classList.remove(
                                       styles.playerHidden

@@ -1,5 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import * as CryptoJS from 'crypto-js';
+import * as crypto from 'crypto';
 
 @Injectable()
 export class VideoService {
@@ -14,7 +15,11 @@ export class VideoService {
     return bytes.toString(CryptoJS.enc.Utf8);
   }
 
+  createRandomID() {
+    return crypto.randomBytes(16).toString('hex');
+  }
+
   createM3U8Key() {
-    return CryptoJS.lib.WordArray.random(16).toString();
+    return crypto.randomBytes(16);
   }
 }

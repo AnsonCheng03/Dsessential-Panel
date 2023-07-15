@@ -41,17 +41,16 @@ export class VideoController {
     const videoPathDir = videoPath.split('/').slice(0, -1).join('/');
     const fileName = videoPath.split('/').pop()?.split('.')[0];
     const keyPath = `${videoPathDir}/ts-${fileName}/key.key`;
-    try {
-      const key = fs.readFileSync(keyPath, 'utf8');
-      return res.status(HttpStatus.OK).send(key);
-    } catch (e) {
-      return res.sendStatus(HttpStatus.CREATED);
-    }
+
+    if (!fs.existsSync(keyPath)) return res.sendStatus(HttpStatus.CREATED);
+
+    return res.status(HttpStatus.OK).sendFile(keyPath);
   }
 
   @Get('stream/:videoKey')
   @Header('Accept-Ranges', 'bytes')
-  @Header('Content-Type', 'video/MP2T')
+  @Header('Content-Type', 'application/x-mpegURL')
+  @Header('Cache-Control', 'max-age=0')
   async getStreamVideo(
     @Req() req,
     @Headers() headers,
@@ -68,14 +67,13 @@ export class VideoController {
     const tsName = req.query.video;
     const tsPath = `${videoPathDir}/${fileName}/streamingvid-${tsName}`;
 
+    if (!fs.existsSync(tsPath)) throw new Error('File not found');
     const file = createReadStream(tsPath);
     return new StreamableFile(file);
   }
 
   @UseGuards(AuthGuard)
   @Post('stream')
-  @Header('Accept-Ranges', 'bytes')
-  @Header('Content-Type', 'video/mp4')
   async getStreamM3U8(
     @Headers() headers,
     @Res() res: Response,
@@ -145,7 +143,7 @@ export class VideoController {
       `${videoPathDir}/ts-${fileName}/original.m3u8`,
       'utf8',
     );
-    const temporaryID = await this.videoService.createM3U8Key();
+    const temporaryID = await this.videoService.createRandomID();
 
     // create key info file
     if (!fs.existsSync(`/tmp/Dsessential-Videos`))
@@ -197,7 +195,7 @@ export class VideoController {
     // create key for m3u8
     await fs.writeFileSync(
       `${videoPathDir}/ts-${fileName}/key.key`,
-      await this.videoService.createM3U8Key().toString('base64'),
+      await this.videoService.createM3U8Key(),
     );
 
     // create key info file
@@ -223,6 +221,7 @@ export class VideoController {
         '-hls_list_size 0',
         '-hls_segment_filename',
         `${videoPathDir}/ts-${fileName}/streamingvid-%d.ts`,
+        '-hls_playlist_type vod',
         '-hls_key_info_file',
         `${videoPathDir}/ts-${fileName}/key.keyinfo`,
       ])
@@ -232,6 +231,7 @@ export class VideoController {
       })
       .on('error', function (err, stdout, stderr) {
         console.log('An error occurred: ' + err.message, err, stderr);
+        fs.unlinkSync(`${videoPathDir}/ts-${fileName}/progress.txt`);
         throw err;
       })
       .on('codecData', (data) => {
@@ -252,7 +252,7 @@ export class VideoController {
       })
       .on('end', function () {
         fs.unlinkSync(`${videoPathDir}/ts-${fileName}/progress.txt`);
-        fs.unlinkSync(`${videoPathDir}/ts-${fileName}/key.keyinfo`);
+        // fs.unlinkSync(`${videoPathDir}/ts-${fileName}/key.keyinfo`);
       })
       .run();
   }
