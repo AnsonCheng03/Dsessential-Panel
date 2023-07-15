@@ -1,9 +1,17 @@
-import { type Signal, component$, $, useSignal } from "@builder.io/qwik";
+import {
+  type Signal,
+  component$,
+  $,
+  useSignal,
+  useServerData,
+  useVisibleTask$,
+} from "@builder.io/qwik";
 import styles from "./videoList.module.css";
 import { server$ } from "@builder.io/qwik-city";
 import { useAuthSession } from "~/routes/plugin@auth";
 import { CircularWithValueLabel } from "~/components/react/CircularWithValueLabel";
-import { randomUUID } from "crypto";
+// import { hls } from "~/plugins/hls";
+import Hls from "hls.js";
 
 export default component$(
   ({
@@ -17,6 +25,8 @@ export default component$(
     selectedMonth: Signal<string | null>;
     searchValue: Signal<string>;
   }) => {
+    const nonce = useServerData<string | undefined>("nonce");
+
     const session = useAuthSession();
     const accessToken = (session.value as any).accessToken;
 
@@ -56,6 +66,10 @@ export default component$(
 
     return (
       <>
+        <script nonce={nonce}>
+          {/* https://cdn.jsdelivr.net/npm/hls.js@latest */}
+          {/* {hls} */}
+        </script>
         <div class={[styles.videoPlayerContainer, styles.playerHidden]}>
           <video controls class={styles.videoPlayer} />
           {loadingPercent.value !== null && (
@@ -143,10 +157,38 @@ export default component$(
                                   loadingPercent.value = null;
 
                                   if (videoElement) {
-                                    videoElement.src = URL.createObjectURL(
-                                      await video.blob()
-                                    );
-                                    videoElement.load();
+                                    if (Hls.isSupported()) {
+                                      const hls = new Hls();
+                                      hls.loadSource(
+                                        URL.createObjectURL(await video.blob())
+                                      );
+                                      hls.attachMedia(videoElement);
+                                      hls.on(
+                                        Hls.Events.MANIFEST_PARSED,
+                                        function () {
+                                          console.log("MANIFEST_PARSED");
+                                          videoElement.play();
+                                        }
+                                      );
+                                    } else if (
+                                      videoElement.canPlayType(
+                                        "application/vnd.apple.mpegurl"
+                                      )
+                                    ) {
+                                      videoElement.src = URL.createObjectURL(
+                                        await video.blob()
+                                      );
+                                      videoElement.addEventListener(
+                                        "loadedmetadata",
+                                        function () {
+                                          console.log("loadedmetadata");
+                                          videoElement.play();
+                                        }
+                                      );
+                                    } else {
+                                      alert("Your browser is not supported");
+                                    }
+
                                     videoElement.classList.remove(
                                       styles.playerHidden
                                     );
