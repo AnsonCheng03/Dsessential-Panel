@@ -215,22 +215,10 @@ export default component$(
                                         "application/vnd.apple.mpegurl"
                                       )
                                     ) {
-                                      // remove all source from video element
-                                      while (videoElement.firstChild) {
-                                        videoElement.removeChild(
-                                          videoElement.firstChild
-                                        );
-                                      }
                                       // add video source
-                                      const source =
-                                        document.createElement("source");
-                                      source.src = URL.createObjectURL(
+                                      videoElement.src = URL.createObjectURL(
                                         await video.blob()
                                       );
-                                      source.type =
-                                        "application/vnd.apple.mpegurl";
-
-                                      videoElement.appendChild(source);
 
                                       videoElement.addEventListener(
                                         "loadedmetadata",
