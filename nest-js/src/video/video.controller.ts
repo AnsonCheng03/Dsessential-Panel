@@ -252,7 +252,7 @@ export class VideoController {
       })
       .on('end', function () {
         fs.unlinkSync(`${videoPathDir}/ts-${fileName}/progress.txt`);
-        // fs.unlinkSync(`${videoPathDir}/ts-${fileName}/key.keyinfo`);
+        fs.unlinkSync(`${videoPathDir}/ts-${fileName}/key.keyinfo`);
       })
       .run();
   }
