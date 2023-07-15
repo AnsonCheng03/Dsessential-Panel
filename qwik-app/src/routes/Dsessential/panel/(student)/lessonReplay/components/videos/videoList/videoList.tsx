@@ -1,16 +1,8 @@
-import {
-  type Signal,
-  component$,
-  $,
-  useSignal,
-  useServerData,
-  useVisibleTask$,
-} from "@builder.io/qwik";
+import { type Signal, component$, $, useSignal } from "@builder.io/qwik";
 import styles from "./videoList.module.css";
 import { server$ } from "@builder.io/qwik-city";
 import { useAuthSession } from "~/routes/plugin@auth";
 import { CircularWithValueLabel } from "~/components/react/CircularWithValueLabel";
-// import { hls } from "~/plugins/hls";
 import Hls from "hls.js";
 
 export default component$(
@@ -25,8 +17,6 @@ export default component$(
     selectedMonth: Signal<string | null>;
     searchValue: Signal<string>;
   }) => {
-    const nonce = useServerData<string | undefined>("nonce");
-
     const session = useAuthSession();
     const accessToken = (session.value as any).accessToken;
 
@@ -48,13 +38,28 @@ export default component$(
         }
       );
       return [
-        `${process.env.BACKEND_ADDRESS}:3500/video/stream`,
+        `${process.env.BACKEND_ADDRESS}:3500/video`,
         await rawVideo.text(),
       ];
     });
 
-    const fetchVideo = $(async function (fetchURL: string, url: string) {
-      return await fetch(fetchURL, {
+    const fetchVideo = $(async function (
+      fetchURL: string,
+      url: string,
+      keyBlobURL: string
+    ) {
+      return await fetch(`${fetchURL}/stream`, {
+        method: "POST",
+        headers: {
+          "content-type": "application/json",
+          authorization: `Bearer ${accessToken}`,
+        },
+        body: JSON.stringify({ url, keyBlobURL }),
+      });
+    });
+
+    const fetchVideoKey = $(async function (fetchURL: string, url: string) {
+      return await fetch(`${fetchURL}/getKey`, {
         method: "POST",
         headers: {
           "content-type": "application/json",
@@ -66,10 +71,6 @@ export default component$(
 
     return (
       <>
-        <script nonce={nonce}>
-          {/* https://cdn.jsdelivr.net/npm/hls.js@latest */}
-          {/* {hls} */}
-        </script>
         <div class={[styles.videoPlayerContainer, styles.playerHidden]}>
           <video controls class={styles.videoPlayer} />
           {loadingPercent.value !== null && (
@@ -121,10 +122,38 @@ export default component$(
 
                                   const [fetchURL, rawVideo] =
                                     await fetchVideoLink(url);
-                                  const video = await fetchVideo(
-                                    fetchURL,
-                                    rawVideo
-                                  );
+
+                                  // get key
+                                  let video;
+                                  let keyURL;
+
+                                  try {
+                                    const key = await fetchVideoKey(
+                                      fetchURL,
+                                      rawVideo
+                                    );
+                                    keyURL = URL.createObjectURL(
+                                      await key.blob()
+                                    );
+                                    video = await fetchVideo(
+                                      fetchURL,
+                                      rawVideo,
+                                      keyURL
+                                    );
+                                  } catch (e) {
+                                    video = await fetchVideo(
+                                      fetchURL,
+                                      rawVideo,
+                                      ""
+                                    );
+                                    const key = await fetchVideoKey(
+                                      fetchURL,
+                                      rawVideo
+                                    );
+                                    keyURL = URL.createObjectURL(
+                                      await key.blob()
+                                    );
+                                  }
 
                                   let videoStatus = video.status;
 
@@ -139,7 +168,8 @@ export default component$(
                                     try {
                                       const video = await fetchVideo(
                                         fetchURL,
-                                        rawVideo
+                                        rawVideo,
+                                        keyURL
                                       );
                                       videoStatus = video.status;
                                       loadingPercent.value = (
@@ -158,7 +188,18 @@ export default component$(
 
                                   if (videoElement) {
                                     if (Hls.isSupported()) {
-                                      const hls = new Hls();
+                                      const hls = new Hls({
+                                        xhrSetup: (xhr) => {
+                                          xhr.setRequestHeader(
+                                            "video",
+                                            rawVideo
+                                          );
+                                          xhr.setRequestHeader(
+                                            "authorization",
+                                            `Bearer ${accessToken}`
+                                          );
+                                        },
+                                      });
                                       hls.loadSource(
                                         URL.createObjectURL(await video.blob())
                                       );
@@ -166,26 +207,26 @@ export default component$(
                                       hls.on(
                                         Hls.Events.MANIFEST_PARSED,
                                         function () {
-                                          console.log("MANIFEST_PARSED");
                                           videoElement.play();
                                         }
                                       );
-                                    } else if (
-                                      videoElement.canPlayType(
-                                        "application/vnd.apple.mpegurl"
-                                      )
-                                    ) {
-                                      videoElement.src = URL.createObjectURL(
-                                        await video.blob()
-                                      );
-                                      videoElement.addEventListener(
-                                        "loadedmetadata",
-                                        function () {
-                                          console.log("loadedmetadata");
-                                          videoElement.play();
-                                        }
-                                      );
-                                    } else {
+                                    }
+                                    // else if (
+                                    //   videoElement.canPlayType(
+                                    //     "application/vnd.apple.mpegurl"
+                                    //   )
+                                    // ) {
+                                    //   videoElement.src = URL.createObjectURL(
+                                    //     await video.blob()
+                                    //   );
+                                    //   videoElement.addEventListener(
+                                    //     "loadedmetadata",
+                                    //     function () {
+                                    //       videoElement.play();
+                                    //     }
+                                    //   );
+                                    // }
+                                    else {
                                       alert("Your browser is not supported");
                                     }
 

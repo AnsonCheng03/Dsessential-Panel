@@ -1,11 +1,12 @@
 /** @jsxImportSource react */
 import * as React from "react";
 import { qwikify$ } from "@builder.io/qwik-react";
-import CircularProgress, {
+import {
+  Box,
+  Typography,
+  CircularProgress,
   type CircularProgressProps,
-} from "@mui/material/CircularProgress";
-import Typography from "@mui/material/Typography";
-import Box from "@mui/material/Box";
+} from "@mui/material";
 
 export const CircularWithValueLabel = qwikify$(
   (props: CircularProgressProps & { value: number }) => {

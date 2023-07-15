@@ -13,4 +13,8 @@ export class VideoService {
     const bytes = CryptoJS.AES.decrypt(encryptedData, uuid);
     return bytes.toString(CryptoJS.enc.Utf8);
   }
+
+  createM3U8Key() {
+    return CryptoJS.lib.WordArray.random(16).toString();
+  }
 }

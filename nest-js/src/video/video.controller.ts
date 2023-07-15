@@ -5,12 +5,13 @@ import {
   Res,
   HttpStatus,
   Header,
-  Request,
+  Req,
   UseGuards,
+  Get,
 } from '@nestjs/common';
 import { VideoService } from './video.service';
 import { Headers } from '@nestjs/common';
-import { Response } from 'express';
+import { Response, Request } from 'express';
 import { AuthGuard } from 'src/auth/auth.guard';
 import * as fs from 'fs';
 import * as ffmpeg from 'fluent-ffmpeg';
@@ -22,7 +23,7 @@ export class VideoController {
 
   @UseGuards(AuthGuard)
   @Post('createStream')
-  async createStream(@Request() req, @Body() body) {
+  async createStream(@Req() req, @Body() body) {
     // encrypt uri with uuid
     const uuid = req.user.uuid;
     const url = body.url;
@@ -31,14 +32,46 @@ export class VideoController {
   }
 
   @UseGuards(AuthGuard)
+  @Post('getKey')
+  async getKey(@Req() req, @Body() body, @Res() res: Response) {
+    const videoPath = await this.videoService.decrypt(body.url, req.user.uuid);
+    const videoPathDir = videoPath.split('/').slice(0, -1).join('/');
+    const fileName = videoPath.split('/').pop()?.split('.')[0];
+    const keyPath = `${videoPathDir}/ts-${fileName}/key.key`;
+    try {
+      const key = fs.readFileSync(keyPath, 'utf8');
+      return res.status(HttpStatus.OK).send(key);
+    } catch (e) {
+      return res.sendStatus(HttpStatus.CREATED);
+    }
+  }
+
+  @UseGuards(AuthGuard)
+  @Get('stream')
+  async getStreamVideo(@Req() req, @Headers() headers) {
+    const videoPath = await this.videoService.decrypt(
+      headers.video,
+      req.user.uuid,
+    );
+    const videoPathDir = videoPath.split('/').slice(0, -1).join('/');
+    const fileName = videoPath.split('/').pop()?.split('.')[0];
+
+    // get query string
+    const tsName = req.query.video;
+    const tsPath = `${videoPathDir}/ts-${fileName}/streamingvid-${tsName}`;
+
+    return await fs.readFileSync(tsPath);
+  }
+
+  @UseGuards(AuthGuard)
   @Post('stream')
   @Header('Accept-Ranges', 'bytes')
   @Header('Content-Type', 'video/mp4')
-  async getStreamVideo(
+  async getStreamM3U8(
     @Headers() headers,
     @Res() res: Response,
     @Body() body,
-    @Request() req,
+    @Req() req,
   ) {
     const videoPath = await this.videoService.decrypt(body.url, req.user.uuid);
     const videoPathDir = videoPath.split('/').slice(0, -1).join('/');
@@ -78,7 +111,13 @@ export class VideoController {
           return res.status(HttpStatus.ACCEPTED).send({ percent: 0 });
         }
         // return the m3u8 file
-        return await this.returnM3U8(videoPathDir, fileName, res);
+        return await this.returnM3U8(
+          videoPathDir,
+          fileName,
+          body.keyBlobURL,
+          res,
+          req,
+        );
       }
     }
 
@@ -89,13 +128,26 @@ export class VideoController {
   private async returnM3U8(
     videoPathDir: any,
     fileName: any,
+    keyBlobURL: string,
     res: Response<any, Record<string, any>>,
+    req: Request<any, Record<string, any>, any, any>,
   ) {
     const m3u8 = await fs.readFileSync(
       `${videoPathDir}/ts-${fileName}/original.m3u8`,
       'utf8',
     );
-    return res.status(HttpStatus.OK).send(m3u8);
+    const m3u8Edit = m3u8
+      .replace(
+        // replace all streamingvid to path
+        /streamingvid-/g,
+        `https://${req.headers.host}/video/stream?video=`,
+      )
+      .replace(
+        // replace key.key to keyBlobURL
+        /key.key/g,
+        keyBlobURL,
+      );
+    return res.status(HttpStatus.OK).send(m3u8Edit);
   }
 
   private async createM3U8(
@@ -107,8 +159,21 @@ export class VideoController {
     const ffmpegAppPath = ffmpegPath.path;
     const ffmpegApp = new ffmpeg();
 
-    // create file progress.txt
     await fs.mkdirSync(`${videoPathDir}/ts-${fileName}`);
+
+    // create key for m3u8
+    await fs.writeFileSync(
+      `${videoPathDir}/ts-${fileName}/key.key`,
+      await this.videoService.createM3U8Key().toString('base64'),
+    );
+
+    // create key info file
+    await fs.writeFileSync(
+      `${videoPathDir}/ts-${fileName}/key.keyinfo`,
+      `key.key\n${videoPathDir}/ts-${fileName}/key.key`,
+    );
+
+    // create file progress.txt
     await fs.writeFileSync(`${videoPathDir}/ts-${fileName}/progress.txt`, '');
 
     let totalTime = 0;
@@ -133,6 +198,8 @@ export class VideoController {
         '-max_muxing_queue_size 1024',
         '-hls_time 1',
         '-hls_list_size 0',
+        '-hls_key_info_file',
+        `${videoPathDir}/ts-${fileName}/key.keyinfo`,
         '-hls_segment_filename',
         `${videoPathDir}/ts-${fileName}/streamingvid-%d.ts`,
       ])
@@ -151,13 +218,18 @@ export class VideoController {
       .on('progress', (progress) => {
         const time = parseInt(progress.timemark.replace(/:/g, ''));
         const percent = (time / totalTime) * 100;
-        fs.writeFileSync(
-          `${videoPathDir}/ts-${fileName}/progress.txt`,
-          percent.toString(),
-        );
+        try {
+          fs.writeFileSync(
+            `${videoPathDir}/ts-${fileName}/progress.txt`,
+            percent.toString(),
+          );
+        } catch (err) {
+          console.log('error', err);
+        }
       })
-      .on('end', function (err, stdout, stderr) {
+      .on('end', function () {
         fs.unlinkSync(`${videoPathDir}/ts-${fileName}/progress.txt`);
+        fs.unlinkSync(`${videoPathDir}/ts-${fileName}/key.keyinfo`);
       })
       .run();
   }
