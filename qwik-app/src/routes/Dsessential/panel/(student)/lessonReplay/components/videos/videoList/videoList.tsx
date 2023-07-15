@@ -180,7 +180,7 @@ export default component$(
                                     }
 
                                     await new Promise((resolve) =>
-                                      setTimeout(resolve, 1000)
+                                      setTimeout(resolve, 500)
                                     );
                                   }
 

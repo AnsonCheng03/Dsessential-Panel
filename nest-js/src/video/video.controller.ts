@@ -95,7 +95,7 @@ export class VideoController {
             `${videoPathDir}/ts-${fileName}/progress.txt`,
             'utf8',
           );
-          const percent = parseInt(progress);
+          const percent = progress;
           return res.status(HttpStatus.ACCEPTED).send({ percent });
         }
       } else {
@@ -177,31 +177,29 @@ export class VideoController {
     await fs.writeFileSync(`${videoPathDir}/ts-${fileName}/progress.txt`, '');
 
     let totalTime = 0;
-
+    {
+      /*  ffmpeg  
+      -i '" . $file_path . "' 
+      -c copy 
+      -map 0 
+      -f segment 
+      -segment_list '" . $file_dir . "/ts-" . $file_name . "/index.m3u8' 
+      -segment_time 10 '" . $file_dir . "/ts-" . $file_name . "/streamingvid-%03d.ts'
+       */
+    }
     ffmpegApp
       .setFfmpegPath(ffmpegAppPath)
       .input(videoPath)
       .outputOptions([
-        '-map 0:0',
-        '-map 0:1',
-        '-map 0:0',
-        '-map 0:1',
-        '-s:v:0 2160x3840',
-        '-c:v:0 libx264',
-        '-b:v:0 2000k',
-        '-s:v:1 960x540',
-        '-c:v:1 libx264',
-        '-b:v:1 365k',
-        // '-var_stream_map', '"v:0,a:0 v:1,a:1"',
-        '-master_pl_name master.m3u8',
+        '-c copy',
+        '-map 0',
         '-f hls',
-        '-max_muxing_queue_size 1024',
-        '-hls_time 1',
-        '-hls_list_size 0',
-        '-hls_key_info_file',
-        `${videoPathDir}/ts-${fileName}/key.keyinfo`,
+        '-hls_time 10',
+
         '-hls_segment_filename',
         `${videoPathDir}/ts-${fileName}/streamingvid-%d.ts`,
+        '-hls_key_info_file',
+        `${videoPathDir}/ts-${fileName}/key.keyinfo`,
       ])
       .output(`${videoPathDir}/ts-${fileName}/original.m3u8`)
       .on('start', function () {

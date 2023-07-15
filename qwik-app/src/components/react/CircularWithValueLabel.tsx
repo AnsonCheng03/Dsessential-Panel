@@ -29,7 +29,7 @@ export const CircularWithValueLabel = qwikify$(
             variant="caption"
             component="div"
             color="text.secondary"
-          >{`${Math.round(props.value)}%`}</Typography>
+          >{`${Math.round(props.value * 1000) / 1000}%`}</Typography>
         </Box>
       </Box>
     );
