@@ -207,6 +207,14 @@ export default component$(
                                       controls: true,
                                       responsive: true,
                                       fluid: true,
+                                      playbackRates: [0.5, 1, 1.5, 2, 3, 4],
+                                      html5: {
+                                        hls: {
+                                          enableLowInitialPlaylist: true,
+                                          smoothQualityChange: true,
+                                          overrideNative: true,
+                                        },
+                                      },
                                     });
                                     videoJS.src({
                                       src: URL.createObjectURL(
