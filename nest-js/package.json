@@ -29,6 +29,7 @@
     "@types/bcrypt": "^5.0.0",
     "bcrypt": "^5.1.0",
     "crypto-js": "^4.1.1",
+    "ffmpeg-installer": "^1.0.2",
     "fluent-ffmpeg": "^2.1.2",
     "ldapjs": "^3.0.3",
     "mysql2": "^3.5.1",
