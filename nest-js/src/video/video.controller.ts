@@ -67,6 +67,7 @@ export class VideoController {
     const tsPath = `${videoPathDir}/${fileName}/streamingvid-${tsName}`;
 
     if (!fs.existsSync(tsPath)) throw new Error('File not found');
+
     const file = createReadStream(tsPath);
     return new StreamableFile(file);
   }
@@ -169,6 +170,15 @@ export class VideoController {
     // make m3u8Edit as a file
     const tempPath = `/tmp/Dsessential-Videos/${temporaryID}.m3u8`;
     await fs.writeFileSync(tempPath, m3u8Edit);
+
+    // get file size
+    const stat = fs.statSync(tempPath);
+    const fileSize = stat.size;
+
+    // set header
+    res.setHeader('Accept-Length', fileSize);
+    res.setHeader('Content-Length', fileSize);
+
     res.status(HttpStatus.OK).sendFile(tempPath);
 
     // scan /tmp/Dsessential-Videos, if there are any file that created more than 3 hour, delete it
