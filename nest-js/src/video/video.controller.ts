@@ -8,6 +8,7 @@ import {
   Req,
   UseGuards,
   Get,
+  StreamableFile,
 } from '@nestjs/common';
 import { VideoService } from './video.service';
 import { Headers } from '@nestjs/common';
@@ -16,6 +17,7 @@ import { AuthGuard } from 'src/auth/auth.guard';
 import * as fs from 'fs';
 import * as ffmpeg from 'fluent-ffmpeg';
 import * as ffmpegPath from '@ffmpeg-installer/ffmpeg';
+import { createReadStream } from 'fs';
 
 @Controller('video')
 export class VideoController {
@@ -48,6 +50,8 @@ export class VideoController {
 
   @UseGuards(AuthGuard)
   @Get('stream')
+  @Header('Accept-Ranges', 'bytes')
+  @Header('Content-Type', 'video/MP2T')
   async getStreamVideo(@Req() req, @Headers() headers) {
     const videoPath = await this.videoService.decrypt(
       headers.video,
@@ -60,7 +64,8 @@ export class VideoController {
     const tsName = req.query.video;
     const tsPath = `${videoPathDir}/ts-${fileName}/streamingvid-${tsName}`;
 
-    return await fs.readFileSync(tsPath);
+    const file = createReadStream(tsPath);
+    return new StreamableFile(file);
   }
 
   @UseGuards(AuthGuard)
@@ -177,25 +182,17 @@ export class VideoController {
     await fs.writeFileSync(`${videoPathDir}/ts-${fileName}/progress.txt`, '');
 
     let totalTime = 0;
-    {
-      /*  ffmpeg  
-      -i '" . $file_path . "' 
-      -c copy 
-      -map 0 
-      -f segment 
-      -segment_list '" . $file_dir . "/ts-" . $file_name . "/index.m3u8' 
-      -segment_time 10 '" . $file_dir . "/ts-" . $file_name . "/streamingvid-%03d.ts'
-       */
-    }
+
     ffmpegApp
       .setFfmpegPath(ffmpegAppPath)
       .input(videoPath)
       .outputOptions([
         '-c copy',
         '-map 0',
+        '-start_number 0',
         '-f hls',
         '-hls_time 10',
-
+        '-hls_list_size 0',
         '-hls_segment_filename',
         `${videoPathDir}/ts-${fileName}/streamingvid-%d.ts`,
         '-hls_key_info_file',
