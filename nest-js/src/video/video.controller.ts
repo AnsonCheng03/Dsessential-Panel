@@ -57,7 +57,7 @@ export class VideoController {
           });
           return res.status(HttpStatus.ACCEPTED).send({ percent: 0 });
         } else {
-          // else return the progress.txt
+          // else return the progress
           const progress = fs.readFileSync(
             `${videoPathDir}/ts-${fileName}/progress.txt`,
             'utf8',
@@ -78,73 +78,87 @@ export class VideoController {
           return res.status(HttpStatus.ACCEPTED).send({ percent: 0 });
         }
         // return the m3u8 file
-        const m3u8 = fs.readFileSync(
-          `${videoPathDir}/ts-${fileName}/original.m3u8`,
-          'utf8',
-        );
-        return res.status(HttpStatus.OK).send(m3u8);
+        return await this.returnM3U8(videoPathDir, fileName, res);
       }
     }
 
     // if folder ${videoPathDir}/ts-${fileName} not exist, create it
-    if (!fs.existsSync(`${videoPathDir}/ts-${fileName}`)) {
-      const ffmpegAppPath = ffmpegPath.path;
-      const ffmpegApp = new ffmpeg();
+    await this.createM3U8(videoPathDir, fileName, videoPath, res);
+  }
 
-      // create file progress.txt
-      await fs.mkdirSync(`${videoPathDir}/ts-${fileName}`);
-      await fs.writeFileSync(`${videoPathDir}/ts-${fileName}/progress.txt`, '');
+  private async returnM3U8(
+    videoPathDir: any,
+    fileName: any,
+    res: Response<any, Record<string, any>>,
+  ) {
+    const m3u8 = await fs.readFileSync(
+      `${videoPathDir}/ts-${fileName}/original.m3u8`,
+      'utf8',
+    );
+    return res.status(HttpStatus.OK).send(m3u8);
+  }
 
-      let totalTime = 0;
+  private async createM3U8(
+    videoPathDir: any,
+    fileName: any,
+    videoPath: any,
+    res: Response<any, Record<string, any>>,
+  ) {
+    const ffmpegAppPath = ffmpegPath.path;
+    const ffmpegApp = new ffmpeg();
 
-      ffmpegApp
-        .setFfmpegPath(ffmpegAppPath)
-        .input(videoPath)
-        .outputOptions([
-          '-map 0:0',
-          '-map 0:1',
-          '-map 0:0',
-          '-map 0:1',
-          '-s:v:0 2160x3840',
-          '-c:v:0 libx264',
-          '-b:v:0 2000k',
-          '-s:v:1 960x540',
-          '-c:v:1 libx264',
-          '-b:v:1 365k',
-          // '-var_stream_map', '"v:0,a:0 v:1,a:1"',
-          '-master_pl_name master.m3u8',
-          '-f hls',
-          '-max_muxing_queue_size 1024',
-          '-hls_time 1',
-          '-hls_list_size 0',
-          '-hls_segment_filename',
-          `${videoPathDir}/ts-${fileName}/streamingvid-%d.ts`,
-        ])
-        .output(`${videoPathDir}/ts-${fileName}/original.m3u8`)
-        .on('start', function () {
-          return res.status(HttpStatus.ACCEPTED).send({ percent: 0 });
-        })
-        .on('error', function (err, stdout, stderr) {
-          console.log('An error occurred: ' + err.message, err, stderr);
-          throw err;
-        })
-        .on('codecData', (data) => {
-          // HERE YOU GET THE TOTAL TIME
-          totalTime = parseInt(data.duration.replace(/:/g, ''));
-        })
-        .on('progress', (progress) => {
-          const time = parseInt(progress.timemark.replace(/:/g, ''));
-          const percent = (time / totalTime) * 100;
-          fs.writeFileSync(
-            `${videoPathDir}/ts-${fileName}/progress.txt`,
-            percent.toString(),
-          );
-        })
-        .on('end', function (err, stdout, stderr) {
-          console.log('Finished processing!', err, stdout, stderr);
-          fs.unlinkSync(`${videoPathDir}/ts-${fileName}/progress.txt`);
-        })
-        .run();
-    }
+    // create file progress.txt
+    await fs.mkdirSync(`${videoPathDir}/ts-${fileName}`);
+    await fs.writeFileSync(`${videoPathDir}/ts-${fileName}/progress.txt`, '');
+
+    let totalTime = 0;
+
+    ffmpegApp
+      .setFfmpegPath(ffmpegAppPath)
+      .input(videoPath)
+      .outputOptions([
+        '-map 0:0',
+        '-map 0:1',
+        '-map 0:0',
+        '-map 0:1',
+        '-s:v:0 2160x3840',
+        '-c:v:0 libx264',
+        '-b:v:0 2000k',
+        '-s:v:1 960x540',
+        '-c:v:1 libx264',
+        '-b:v:1 365k',
+        // '-var_stream_map', '"v:0,a:0 v:1,a:1"',
+        '-master_pl_name master.m3u8',
+        '-f hls',
+        '-max_muxing_queue_size 1024',
+        '-hls_time 1',
+        '-hls_list_size 0',
+        '-hls_segment_filename',
+        `${videoPathDir}/ts-${fileName}/streamingvid-%d.ts`,
+      ])
+      .output(`${videoPathDir}/ts-${fileName}/original.m3u8`)
+      .on('start', function () {
+        return res.status(HttpStatus.ACCEPTED).send({ percent: 0 });
+      })
+      .on('error', function (err, stdout, stderr) {
+        console.log('An error occurred: ' + err.message, err, stderr);
+        throw err;
+      })
+      .on('codecData', (data) => {
+        // HERE YOU GET THE TOTAL TIME
+        totalTime = parseInt(data.duration.replace(/:/g, ''));
+      })
+      .on('progress', (progress) => {
+        const time = parseInt(progress.timemark.replace(/:/g, ''));
+        const percent = (time / totalTime) * 100;
+        fs.writeFileSync(
+          `${videoPathDir}/ts-${fileName}/progress.txt`,
+          percent.toString(),
+        );
+      })
+      .on('end', function (err, stdout, stderr) {
+        fs.unlinkSync(`${videoPathDir}/ts-${fileName}/progress.txt`);
+      })
+      .run();
   }
 }
