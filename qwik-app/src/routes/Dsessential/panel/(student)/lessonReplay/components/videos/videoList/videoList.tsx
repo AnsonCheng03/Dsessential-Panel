@@ -58,8 +58,8 @@ export default component$(
       <>
         <div class={[styles.videoPlayerContainer, styles.playerHidden]}>
           <video controls class={styles.videoPlayer} />
-          <div class={styles.videoPlayerOverlay}>
-            {loadingPercent.value !== null && (
+          {loadingPercent.value !== null && (
+            <div class={styles.videoPlayerOverlay}>
               <div class={styles.loadingContainer}>
                 <p>{`你係第一個開呢條片！準備緊～`}</p>
                 <CircularWithValueLabel
@@ -67,8 +67,8 @@ export default component$(
                   size={100}
                 />
               </div>
-            )}
-          </div>
+            </div>
+          )}
         </div>
         {Object.entries(videoList).map((videoType: any) => {
           if (searchValue.value !== "" || videoType[0] === selectedType.value)
@@ -117,27 +117,30 @@ export default component$(
                                   const loopID = new Date().getTime();
                                   currentLoopID.value = loopID;
 
+                                  // fetch again until it status is 200
                                   while (
                                     videoStatus === 202 &&
                                     loopID === currentLoopID.value
                                   ) {
-                                    const video = await fetchVideo(
-                                      fetchURL,
-                                      rawVideo
-                                    );
-                                    videoStatus = video.status;
-                                    loadingPercent.value = (
-                                      await video.json()
-                                    ).percent;
-
-                                    if (videoStatus === 202) {
-                                      await new Promise((resolve) =>
-                                        setTimeout(resolve, 1000)
+                                    try {
+                                      const video = await fetchVideo(
+                                        fetchURL,
+                                        rawVideo
                                       );
+                                      videoStatus = video.status;
+                                      loadingPercent.value = (
+                                        await video.json()
+                                      ).percent;
+                                    } catch (e) {
+                                      console.log(e);
                                     }
+
+                                    await new Promise((resolve) =>
+                                      setTimeout(resolve, 1000)
+                                    );
                                   }
 
-                                  // fetch again until it status is 200
+                                  loadingPercent.value = null;
 
                                   if (videoElement) {
                                     videoElement.src = URL.createObjectURL(
