@@ -44,6 +44,53 @@ export class VideoController {
     const videoPathDir = videoPath.split('/').slice(0, -1).join('/');
     const fileName = videoPath.split('/').pop()?.split('.')[0];
 
+    // return fs.rmSync(`${videoPathDir}/ts-${fileName}`, {
+    //   recursive: true,
+    //   force: true,
+    // });
+
+    if (fs.existsSync(`${videoPathDir}/ts-${fileName}`)) {
+      if (fs.existsSync(`${videoPathDir}/ts-${fileName}/progress.txt`)) {
+        const stat = fs.statSync(`${videoPathDir}/ts-${fileName}/progress.txt`);
+        const now = new Date().getTime();
+        const endTime = new Date(stat.ctime).getTime() + 3 * 60 * 60 * 1000;
+        if (now > endTime) {
+          // if progress.txt exists and its created time is more than 3 hour, delete the folder
+          fs.rmSync(`${videoPathDir}/ts-${fileName}`, {
+            recursive: true,
+            force: true,
+          });
+          return res.status(HttpStatus.ACCEPTED).send({ percent: 0 });
+        } else {
+          // else return the progress.txt
+          const progress = fs.readFileSync(
+            `${videoPathDir}/ts-${fileName}/progress.txt`,
+            'utf8',
+          );
+          const percent = parseInt(progress);
+          return res.status(HttpStatus.ACCEPTED).send({ percent });
+        }
+      } else {
+        // if there are no any m3u8 file, delete the folder
+        if (
+          !fs.existsSync(`${videoPathDir}/ts-${fileName}/original.m3u8`) ||
+          !fs.existsSync(`${videoPathDir}/ts-${fileName}/streamingvid-0.ts`)
+        ) {
+          fs.rmSync(`${videoPathDir}/ts-${fileName}`, {
+            recursive: true,
+            force: true,
+          });
+          return res.status(HttpStatus.ACCEPTED).send({ percent: 0 });
+        }
+        // return the m3u8 file
+        const m3u8 = fs.readFileSync(
+          `${videoPathDir}/ts-${fileName}/original.m3u8`,
+          'utf8',
+        );
+        return res.status(HttpStatus.OK).send(m3u8);
+      }
+    }
+
     // if folder ${videoPathDir}/ts-${fileName} not exist, create it
     if (!fs.existsSync(`${videoPathDir}/ts-${fileName}`)) {
       const ffmpegAppPath = ffmpegPath.path;
@@ -103,26 +150,6 @@ export class VideoController {
           fs.unlinkSync(`${videoPathDir}/ts-${fileName}/progress.txt`);
         })
         .run();
-    } else {
-      //   return fs.rmdirSync(`${videoPathDir}/ts-${fileName}`, {
-      //     recursive: true,
-      //   });
-
-      if (fs.existsSync(`${videoPathDir}/ts-${fileName}/progress.txt`)) {
-        const progress = fs.readFileSync(
-          `${videoPathDir}/ts-${fileName}/progress.txt`,
-          'utf8',
-        );
-        const percent = parseInt(progress);
-        return res.status(HttpStatus.ACCEPTED).send({ percent });
-      } else {
-        // return the m3u8 file
-        const m3u8 = fs.readFileSync(
-          `${videoPathDir}/ts-${fileName}/original.m3u8`,
-          'utf8',
-        );
-        return res.status(HttpStatus.OK).send(m3u8);
-      }
     }
 
     // const { size } = statSync(videoPath);

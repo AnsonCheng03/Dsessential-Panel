@@ -2,6 +2,8 @@ import { type Signal, component$, $, useSignal } from "@builder.io/qwik";
 import styles from "./videoList.module.css";
 import { server$ } from "@builder.io/qwik-city";
 import { useAuthSession } from "~/routes/plugin@auth";
+import { CircularWithValueLabel } from "~/components/react/CircularWithValueLabel";
+import { randomUUID } from "crypto";
 
 export default component$(
   ({
@@ -19,6 +21,7 @@ export default component$(
     const accessToken = (session.value as any).accessToken;
 
     const loadingPercent = useSignal<string | null>(null);
+    const currentLoopID = useSignal(0);
 
     const fetchVideoLink = server$(async function (url: string) {
       const rawVideo = await fetch(
@@ -53,10 +56,20 @@ export default component$(
 
     return (
       <>
-        {loadingPercent.value && (
-          <div class={styles.loadingContainer}>{`你係第一個開呢條片！等等，準備緊～${loadingPercent.value}%`}</div>
-        )}
-        <video controls class={[styles.videoPlayer, styles.playerHidden]} />
+        <div class={[styles.videoPlayerContainer, styles.playerHidden]}>
+          <video controls class={styles.videoPlayer} />
+          <div class={styles.videoPlayerOverlay}>
+            {loadingPercent.value !== null && (
+              <div class={styles.loadingContainer}>
+                <p>{`你係第一個開呢條片！準備緊～`}</p>
+                <CircularWithValueLabel
+                  value={Number(loadingPercent.value || 0)}
+                  size={100}
+                />
+              </div>
+            )}
+          </div>
+        </div>
         {Object.entries(videoList).map((videoType: any) => {
           if (searchValue.value !== "" || videoType[0] === selectedType.value)
             return Object.entries(videoType[1]).map((episode: any) => {
@@ -85,6 +98,13 @@ export default component$(
                                 key={url}
                                 class={styles.videoButton}
                                 onClick$={async () => {
+                                  const videoElement =
+                                    document.querySelector("video");
+                                  videoElement?.parentElement?.classList.remove(
+                                    styles.playerHidden
+                                  );
+                                  loadingPercent.value = null;
+
                                   const [fetchURL, rawVideo] =
                                     await fetchVideoLink(url);
                                   const video = await fetchVideo(
@@ -94,7 +114,13 @@ export default component$(
 
                                   let videoStatus = video.status;
 
-                                  while (videoStatus === 202) {
+                                  const loopID = new Date().getTime();
+                                  currentLoopID.value = loopID;
+
+                                  while (
+                                    videoStatus === 202 &&
+                                    loopID === currentLoopID.value
+                                  ) {
                                     const video = await fetchVideo(
                                       fetchURL,
                                       rawVideo
@@ -113,8 +139,6 @@ export default component$(
 
                                   // fetch again until it status is 200
 
-                                  const videoElement =
-                                    document.querySelector("video");
                                   if (videoElement) {
                                     videoElement.src = URL.createObjectURL(
                                       await video.blob()
