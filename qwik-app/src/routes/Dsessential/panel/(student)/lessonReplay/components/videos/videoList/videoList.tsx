@@ -113,9 +113,10 @@ export default component$(
                                 key={url}
                                 class={styles.videoButton}
                                 onClick$={async () => {
-                                  const videoElement =
-                                    document.querySelector("video");
-                                  videoElement?.parentElement?.classList.remove(
+                                  const videoContainer = document.querySelector(
+                                    `.${styles.videoPlayerContainer}`
+                                  );
+                                  videoContainer?.classList.remove(
                                     styles.playerHidden
                                   );
                                   loadingPercent.value = null;
@@ -186,20 +187,11 @@ export default component$(
 
                                   loadingPercent.value = null;
 
+                                  const videoElement =
+                                    document.querySelector("video");
                                   if (videoElement) {
                                     if (Hls.isSupported()) {
-                                      const hls = new Hls({
-                                        xhrSetup: (xhr) => {
-                                          xhr.setRequestHeader(
-                                            "video",
-                                            rawVideo
-                                          );
-                                          xhr.setRequestHeader(
-                                            "authorization",
-                                            `Bearer ${accessToken}`
-                                          );
-                                        },
-                                      });
+                                      const hls = new Hls();
                                       hls.loadSource(
                                         URL.createObjectURL(await video.blob())
                                       );
@@ -226,6 +218,7 @@ export default component$(
                                       );
                                     } else {
                                       alert("Your browser is not supported");
+                                      return;
                                     }
 
                                     videoElement.classList.remove(

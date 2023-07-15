@@ -49,7 +49,6 @@ export class VideoController {
     }
   }
 
-  @UseGuards(AuthGuard)
   @Get('stream/:videoKey')
   @Header('Accept-Ranges', 'bytes')
   @Header('Content-Type', 'video/MP2T')
