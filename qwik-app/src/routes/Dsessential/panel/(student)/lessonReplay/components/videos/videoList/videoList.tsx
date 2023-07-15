@@ -210,23 +210,21 @@ export default component$(
                                           videoElement.play();
                                         }
                                       );
-                                    }
-                                    // else if (
-                                    //   videoElement.canPlayType(
-                                    //     "application/vnd.apple.mpegurl"
-                                    //   )
-                                    // ) {
-                                    //   videoElement.src = URL.createObjectURL(
-                                    //     await video.blob()
-                                    //   );
-                                    //   videoElement.addEventListener(
-                                    //     "loadedmetadata",
-                                    //     function () {
-                                    //       videoElement.play();
-                                    //     }
-                                    //   );
-                                    // }
-                                    else {
+                                    } else if (
+                                      videoElement.canPlayType(
+                                        "application/vnd.apple.mpegurl"
+                                      )
+                                    ) {
+                                      videoElement.src = URL.createObjectURL(
+                                        await video.blob()
+                                      );
+                                      videoElement.addEventListener(
+                                        "loadedmetadata",
+                                        function () {
+                                          videoElement.play();
+                                        }
+                                      );
+                                    } else {
                                       alert("Your browser is not supported");
                                     }
 

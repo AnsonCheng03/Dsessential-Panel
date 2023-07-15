@@ -9,6 +9,8 @@ import {
   UseGuards,
   Get,
   StreamableFile,
+  Inject,
+  Param,
 } from '@nestjs/common';
 import { VideoService } from './video.service';
 import { Headers } from '@nestjs/common';
@@ -49,20 +51,24 @@ export class VideoController {
   }
 
   @UseGuards(AuthGuard)
-  @Get('stream')
+  @Get('stream/:videoKey')
   @Header('Accept-Ranges', 'bytes')
   @Header('Content-Type', 'video/MP2T')
-  async getStreamVideo(@Req() req, @Headers() headers) {
-    const videoPath = await this.videoService.decrypt(
-      headers.video,
-      req.user.uuid,
-    );
+  async getStreamVideo(
+    @Req() req,
+    @Headers() headers,
+    @Param('videoKey') videoKey: string,
+  ) {
+    const videoPath = fs.readFileSync(`/tmp/Dsessential-Videos/${videoKey}`, {
+      encoding: 'utf8',
+    });
+
     const videoPathDir = videoPath.split('/').slice(0, -1).join('/');
     const fileName = videoPath.split('/').pop()?.split('.')[0];
 
     // get query string
     const tsName = req.query.video;
-    const tsPath = `${videoPathDir}/ts-${fileName}/streamingvid-${tsName}`;
+    const tsPath = `${videoPathDir}/${fileName}/streamingvid-${tsName}`;
 
     const file = createReadStream(tsPath);
     return new StreamableFile(file);
@@ -141,18 +147,43 @@ export class VideoController {
       `${videoPathDir}/ts-${fileName}/original.m3u8`,
       'utf8',
     );
+    const temporaryID = await this.videoService.createM3U8Key();
+    console.log('temporaryID', temporaryID);
+
+    // create key info file
+    if (!fs.existsSync(`/tmp/Dsessential-Videos`))
+      fs.mkdirSync(`/tmp/Dsessential-Videos`);
+    await fs.writeFileSync(
+      `/tmp/Dsessential-Videos/${temporaryID}`,
+      `${videoPathDir}/ts-${fileName}`,
+    );
+
     const m3u8Edit = m3u8
       .replace(
         // replace all streamingvid to path
         /streamingvid-/g,
-        `https://${req.headers.host}/video/stream?video=`,
+        `https://${req.headers.host}/video/stream/${temporaryID}?video=`,
       )
       .replace(
         // replace key.key to keyBlobURL
         /key.key/g,
         keyBlobURL,
       );
-    return res.status(HttpStatus.OK).send(m3u8Edit);
+    res.status(HttpStatus.OK).send(m3u8Edit);
+
+    // scan /tmp/Dsessential-Videos, if there are any file that created more than 3 hour, delete it
+    const files = fs.readdirSync(`/tmp/Dsessential-Videos`);
+    files.forEach((file) => {
+      const stat = fs.statSync(`/tmp/Dsessential-Videos/${file}`);
+      const now = new Date().getTime();
+      const endTime = new Date(stat.ctime).getTime() + 3 * 60 * 60 * 1000;
+      if (now > endTime) {
+        fs.rmSync(`/tmp/Dsessential-Videos/${file}`, {
+          recursive: true,
+          force: true,
+        });
+      }
+    });
   }
 
   private async createM3U8(
