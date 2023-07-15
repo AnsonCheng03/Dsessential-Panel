@@ -49,8 +49,7 @@ export class VideoController {
 
   @Get('stream/:videoKey')
   @Header('Accept-Ranges', 'bytes')
-  @Header('Content-Type', 'application/x-mpegURL')
-  @Header('Cache-Control', 'max-age=0')
+  @Header('Content-Type', 'video/MP2T')
   async getStreamVideo(
     @Req() req,
     @Headers() headers,
@@ -74,6 +73,8 @@ export class VideoController {
 
   @UseGuards(AuthGuard)
   @Post('stream')
+  @Header('Accept-Ranges', 'bytes')
+  @Header('Content-Type', 'application/x-mpegURL')
   async getStreamM3U8(
     @Headers() headers,
     @Res() res: Response,
@@ -164,7 +165,11 @@ export class VideoController {
         /key.key/g,
         keyBlobURL,
       );
-    res.status(HttpStatus.OK).send(m3u8Edit);
+
+    // make m3u8Edit as a file
+    const tempPath = `/tmp/Dsessential-Videos/${temporaryID}.m3u8`;
+    await fs.writeFileSync(tempPath, m3u8Edit);
+    res.status(HttpStatus.OK).sendFile(tempPath);
 
     // scan /tmp/Dsessential-Videos, if there are any file that created more than 3 hour, delete it
     const files = fs.readdirSync(`/tmp/Dsessential-Videos`);
