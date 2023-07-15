@@ -9,7 +9,6 @@ import {
   UseGuards,
   Get,
   StreamableFile,
-  Inject,
   Param,
 } from '@nestjs/common';
 import { VideoService } from './video.service';
@@ -148,7 +147,6 @@ export class VideoController {
       'utf8',
     );
     const temporaryID = await this.videoService.createM3U8Key();
-    console.log('temporaryID', temporaryID);
 
     // create key info file
     if (!fs.existsSync(`/tmp/Dsessential-Videos`))
