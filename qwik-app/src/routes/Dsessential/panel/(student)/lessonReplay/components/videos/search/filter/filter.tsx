@@ -3,13 +3,13 @@ import styles from "./filter.module.css";
 
 export default component$(
   ({
-    selectedYear,
+    selectedType,
     selectedMonth,
     availableMonth,
     searchValue,
   }: {
-    selectedYear: Signal<string>;
-    selectedMonth: Signal<string>;
+    selectedType: Signal<string>;
+    selectedMonth: Signal<string | null>;
     availableMonth: (string | string[])[][];
     searchValue: Signal<string>;
   }) => {
@@ -22,20 +22,21 @@ export default component$(
         }
       >
         <div class={styles.yearContainer}>
-          <div class={styles.yearDescription}>年份</div>
+          <div class={styles.yearDescription}>類別</div>
           <div class={styles.yearSelection}>
             {availableMonth.map((year) => {
               return (
                 <div
                   key={year[0] as string}
                   class={
-                    selectedYear.value === year[0]
+                    selectedType.value === year[0]
                       ? [styles.yearSelect, styles.Selected]
                       : styles.yearSelect
                   }
                   onClick$={() => {
-                    selectedYear.value = year[0] as string;
-                    selectedMonth.value = year[1][0];
+                    selectedType.value = year[0] as string;
+                    if (selectedMonth.value !== null)
+                      selectedMonth.value = year[1][0];
                   }}
                 >
                   {year[0]}
@@ -46,10 +47,10 @@ export default component$(
         </div>
 
         <div class={styles.monthContainer}>
-          <div class={styles.monthDescription}>月份</div>
+          <div class={styles.monthDescription}>篩選</div>
           <div class={styles.monthSelection}>
             {availableMonth.map((year) => {
-              if (year[0] === selectedYear.value)
+              if (year[0] === selectedType.value)
                 return (
                   <>
                     {(year[1] as string[]).map((month) => {
@@ -62,7 +63,9 @@ export default component$(
                               : styles.monthSelect
                           }
                           onClick$={() => {
-                            selectedMonth.value = month;
+                            if (selectedMonth.value === month)
+                              selectedMonth.value = null;
+                            else selectedMonth.value = month;
                           }}
                         >
                           {month}
@@ -76,5 +79,5 @@ export default component$(
         </div>
       </div>
     );
-  },
+  }
 );

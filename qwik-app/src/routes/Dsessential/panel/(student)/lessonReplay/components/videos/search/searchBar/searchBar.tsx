@@ -1,6 +1,6 @@
 import { type Signal, component$ } from "@builder.io/qwik";
 import styles from "./searchBar.module.css";
-import { AutoCompleteBox } from "~/components/autoComplete/reactSearchBar";
+import { AutoCompleteBox } from "~/components/react/SearchBar";
 
 export default component$(
   ({

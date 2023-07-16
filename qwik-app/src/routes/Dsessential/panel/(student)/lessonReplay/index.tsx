@@ -15,7 +15,7 @@ export const useGetVideoList = routeLoader$(async (requestEvent) => {
         headers: {
           authorization: `Bearer ${accessToken}`,
         },
-      },
+      }
     );
     return await res.json();
   } catch (error) {
@@ -29,7 +29,9 @@ export default component$(() => {
   return (
     <>
       {videoList && !["New", "Not Found", "Expired"]?.includes(videoList[0]) ? (
-        <Videos videoList={videoList} />
+        <>
+          <Videos videoList={videoList} />
+        </>
       ) : (
         <div class={styles.errorBox}>
           {videoList &&

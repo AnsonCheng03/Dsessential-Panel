@@ -1,0 +1,82 @@
+.episodeContainer {
+  margin: 5px 20px 15px 20px;
+  background-color: #fff;
+  border-radius: 5px;
+}
+
+.episodeTitle {
+  padding: 10px 15px;
+  border-radius: 5px 5px 0 0;
+  background-color: #60b4df;
+  color: #fff;
+  text-align: left;
+}
+
+.buttonContainer {
+  display: flex;
+  padding: 10px 25px;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.videoButton {
+  border: 2px solid #60b4df;
+  color: #60b4df;
+  background: transparent;
+  outline: none;
+  cursor: pointer;
+  border-radius: 50px;
+  padding: 5px 15px;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  overflow: hidden;
+}
+
+.videoPlayerContainer {
+  position: relative;
+  width: calc(100vw - 40px);
+  height: calc((100vw - 40px) / 16 * 9);
+  object-fit: cover;
+  border-radius: 5px;
+  margin: 10px 20px 15px 20px;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
+  transition:
+    height 1s ease-in-out,
+    margin 1s ease-in-out,
+    box-shadow 1s ease-in-out;
+  overflow: hidden;
+}
+
+.playerHidden {
+  max-height: 0;
+  margin: 0 20px;
+}
+
+.videoPlayer {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  border-radius: 5px;
+  object-fit: fill;
+}
+
+.videoPlayerOverlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  border-radius: inherit;
+  background-color: rgba(255, 255, 255, 0.8);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  cursor: pointer;
+}
+
+.loadingContainer p {
+  color: #000;
+  margin-bottom: 30px;
+}
