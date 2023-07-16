@@ -25,18 +25,30 @@ export class VideoController {
 
   @UseGuards(AuthGuard)
   @Post('createStream')
-  async createStream(@Req() req, @Body() body) {
-    // encrypt uri with uuid
-    const uuid = req.user.uuid;
-    const url = body.url;
-    const video = await this.videoService.encrypt(url, uuid);
-    return video;
+  async createStream(@Res() res, @Body() body) {
+    // create route with randomID
+    const temporaryID = await this.videoService.createRandomID();
+
+    // create routing file
+    if (!fs.existsSync(`/tmp/Dsessential-Videos`))
+      fs.mkdirSync(`/tmp/Dsessential-Videos`);
+    await fs.writeFileSync(`/tmp/Dsessential-Videos/${temporaryID}`, body.url);
+    res.status(HttpStatus.CREATED).send(temporaryID);
+
+    this.videoService.removeExpiredFile();
   }
 
   @UseGuards(AuthGuard)
-  @Post('getKey')
-  async getKey(@Req() req, @Body() body, @Res() res: Response) {
-    const videoPath = await this.videoService.decrypt(body.url, req.user.uuid);
+  @Post('getKey/:videoKey')
+  async getKey(
+    @Req() req,
+    @Body() body,
+    @Res() res: Response,
+    @Param('videoKey') videoKey: string,
+  ) {
+    const videoPath = fs.readFileSync(`/tmp/Dsessential-Videos/${videoKey}`, {
+      encoding: 'utf8',
+    });
     const videoPathDir = videoPath.split('/').slice(0, -1).join('/');
     const fileName = videoPath.split('/').pop()?.split('.')[0];
     const keyPath = `${videoPathDir}/ts-${fileName}/key.key`;
@@ -45,42 +57,19 @@ export class VideoController {
     return res.status(HttpStatus.OK).sendFile(keyPath);
   }
 
-  @Get('stream/:videoKey')
+  @UseGuards(AuthGuard)
+  @Post('stream/:videoKey')
   @Header('Accept-Ranges', 'bytes')
-  @Header('Content-Type', 'video/MP2T')
-  async getStreamVideo(
+  @Header('Content-Type', 'application/vnd.apple.mpegurl')
+  async getStreamM3U8(
+    @Res() res: Response,
+    @Body() body,
     @Req() req,
-    @Headers() headers,
     @Param('videoKey') videoKey: string,
   ) {
     const videoPath = fs.readFileSync(`/tmp/Dsessential-Videos/${videoKey}`, {
       encoding: 'utf8',
     });
-
-    const videoPathDir = videoPath.split('/').slice(0, -1).join('/');
-    const fileName = videoPath.split('/').pop()?.split('.')[0];
-
-    // get query string
-    const tsName = req.query.video;
-    const tsPath = `${videoPathDir}/${fileName}/streamingvid-${tsName}`;
-
-    if (!fs.existsSync(tsPath)) throw new Error('File not found');
-
-    const file = createReadStream(tsPath);
-    return new StreamableFile(file);
-  }
-
-  @UseGuards(AuthGuard)
-  @Post('stream')
-  @Header('Accept-Ranges', 'bytes')
-  @Header('Content-Type', 'application/vnd.apple.mpegurl')
-  async getStreamM3U8(
-    @Headers() headers,
-    @Res() res: Response,
-    @Body() body,
-    @Req() req,
-  ) {
-    const videoPath = await this.videoService.decrypt(body.url, req.user.uuid);
     const videoPathDir = videoPath.split('/').slice(0, -1).join('/');
     const fileName = videoPath.split('/').pop()?.split('.')[0];
 
@@ -121,7 +110,8 @@ export class VideoController {
         return await this.videoService.returnM3U8(
           videoPathDir,
           fileName,
-          body.keyBlobURL,
+          videoKey,
+          atob(body.keyBlobURL),
           res,
           req,
         );
@@ -130,5 +120,52 @@ export class VideoController {
 
     // if folder ${videoPathDir}/ts-${fileName} not exist, create it
     await this.videoService.createM3U8(videoPathDir, fileName, videoPath, res);
+  }
+
+  @Get('streamList/:videoKey')
+  async getStreamList(
+    @Body() body,
+    @Res() res: Response,
+    @Req() req,
+    @Param('videoKey') videoKey: string,
+  ) {
+    const videoPath = fs.readFileSync(`/tmp/Dsessential-Videos/${videoKey}`, {
+      encoding: 'utf8',
+    });
+    const videoPathDir = videoPath.split('/').slice(0, -1).join('/');
+    const fileName = videoPath.split('/').pop()?.split('.')[0];
+    await this.videoService.returnM3U8(
+      videoPathDir,
+      fileName,
+      videoKey,
+      atob(req.query.key),
+      res,
+      req,
+    );
+  }
+
+  @Get('stream/:videoKey')
+  @Header('Accept-Ranges', 'bytes')
+  @Header('Content-Type', 'video/MP2T')
+  async getStreamVideo(
+    @Req() req,
+    @Headers() headers,
+    @Param('videoKey') videoKey: string,
+  ) {
+    const videoPath = fs.readFileSync(`/tmp/Dsessential-Videos/${videoKey}`, {
+      encoding: 'utf8',
+    });
+
+    const videoPathDir = videoPath.split('/').slice(0, -1).join('/');
+    const fileName = videoPath.split('/').pop()?.split('.')[0];
+
+    // get query string
+    const tsName = req.query.video;
+    const tsPath = `${videoPathDir}/ts-${fileName}/streamingvid-${tsName}`;
+
+    if (!fs.existsSync(tsPath)) throw new Error('File not found');
+
+    const file = createReadStream(tsPath);
+    return new StreamableFile(file);
   }
 }

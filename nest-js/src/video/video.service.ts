@@ -120,8 +120,9 @@ export class VideoService {
   }
 
   async returnM3U8(
-    videoPathDir: any,
-    fileName: any,
+    videoPathDir: string,
+    fileName: string,
+    videoKey: string,
     keyBlobURL: string,
     res: Response<any, Record<string, any>>,
     req: Request<any, Record<string, any>, any, any>,
@@ -130,27 +131,20 @@ export class VideoService {
       `${videoPathDir}/ts-${fileName}/original.m3u8`,
       'utf8',
     );
-    const temporaryID = await this.createRandomID();
-
-    // create key info file
-    if (!fs.existsSync(`/tmp/Dsessential-Videos`))
-      fs.mkdirSync(`/tmp/Dsessential-Videos`);
-    await fs.writeFileSync(
-      `/tmp/Dsessential-Videos/${temporaryID}`,
-      `${videoPathDir}/ts-${fileName}`,
-    );
 
     const m3u8Edit = m3u8
       .replace(
         // replace all streamingvid to path
         /streamingvid-/g,
-        `https://${req.headers.host}/video/stream/${temporaryID}?video=`,
+        `https://${req.headers.host}/video/stream/${videoKey}?video=`,
       )
       .replace(
         // replace key.key to keyBlobURL
         /key.key/g,
         keyBlobURL,
       );
+
+    const temporaryID = await this.createRandomID();
 
     // make m3u8Edit as a file
     const tempPath = `/tmp/Dsessential-Videos/${temporaryID}.m3u8`;
@@ -166,6 +160,10 @@ export class VideoService {
 
     res.status(HttpStatus.OK).sendFile(tempPath);
 
+    this.removeExpiredFile();
+  }
+
+  async removeExpiredFile() {
     // scan /tmp/Dsessential-Videos, if there are any file that created more than 3 hour, delete it
     const files = fs.readdirSync(`/tmp/Dsessential-Videos`);
     files.forEach((file) => {

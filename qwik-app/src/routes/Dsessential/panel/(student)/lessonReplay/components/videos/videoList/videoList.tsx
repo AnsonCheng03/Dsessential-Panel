@@ -1,4 +1,10 @@
-import { type Signal, component$, $, useSignal } from "@builder.io/qwik";
+import {
+  type Signal,
+  component$,
+  $,
+  useSignal,
+  noSerialize,
+} from "@builder.io/qwik";
 import styles from "./videoList.module.css";
 import { server$ } from "@builder.io/qwik-city";
 import { useAuthSession } from "~/routes/plugin@auth";
@@ -21,7 +27,7 @@ export default component$(
     const accessToken = (session.value as any).accessToken;
 
     const loadingPercent = useSignal<string | null>(null);
-    const currentLoopID = useSignal(0);
+    const currentVideoID = useSignal("0");
 
     const fetchVideoLink = server$(async function (url: string) {
       const rawVideo = await fetch(
@@ -43,30 +49,110 @@ export default component$(
       ];
     });
 
-    const fetchVideo = $(async function (
+    const fetchVideoKey = $(async function (
       fetchURL: string,
-      url: string,
-      keyBlobURL: string
+      videoKey: string
     ) {
-      return await fetch(`${fetchURL}/stream`, {
+      const keyObject = await fetch(`${fetchURL}/getKey/${videoKey}`, {
         method: "POST",
         headers: {
           "content-type": "application/json",
           authorization: `Bearer ${accessToken}`,
         },
-        body: JSON.stringify({ url, keyBlobURL }),
+      });
+      if (keyObject.status !== 200) throw new Error("Key not found");
+      const key = await keyObject.blob();
+      return key;
+    });
+
+    const fetchVideo = $(async function (
+      fetchURL: string,
+      videoKey: string,
+      keyBlobURL: string
+    ) {
+      return await fetch(`${fetchURL}/stream/${videoKey}`, {
+        method: "POST",
+        headers: {
+          "content-type": "application/json",
+          authorization: `Bearer ${accessToken}`,
+        },
+        body: JSON.stringify({ keyBlobURL: btoa(keyBlobURL) }),
       });
     });
 
-    const fetchVideoKey = $(async function (fetchURL: string, url: string) {
-      return await fetch(`${fetchURL}/getKey`, {
-        method: "POST",
-        headers: {
-          "content-type": "application/json",
-          authorization: `Bearer ${accessToken}`,
-        },
-        body: JSON.stringify({ url }),
-      });
+    const videoButtonClickHandler = $(async (url: string) => {
+      // Init value
+      const videoElement = document.querySelector("video");
+      videoElement?.parentElement?.classList.remove(styles.playerHidden);
+      loadingPercent.value = null;
+
+      const [backendURL, videoID] = await fetchVideoLink(url);
+      currentVideoID.value = videoID;
+
+      // get key
+      let video;
+      let keyURL;
+
+      try {
+        const key = await fetchVideoKey(backendURL, currentVideoID.value);
+        console.log(key);
+        keyURL = URL.createObjectURL(key);
+        video = await fetchVideo(backendURL, currentVideoID.value, keyURL);
+      } catch (e) {
+        video = await fetchVideo(backendURL, currentVideoID.value, "");
+        const key = await fetchVideoKey(backendURL, currentVideoID.value);
+        keyURL = URL.createObjectURL(key);
+      }
+
+      let videoStatus = video.status;
+      const loopID = currentVideoID.value;
+
+      // fetch again until it status is 200
+      while (videoStatus !== 200 && loopID === currentVideoID.value) {
+        try {
+          const video = await fetchVideo(
+            backendURL,
+            currentVideoID.value,
+            keyURL
+          );
+          videoStatus = video.status;
+          loadingPercent.value = (await video.json()).percent;
+        } catch (e) {
+          console.log(e);
+        }
+
+        await new Promise((resolve) => setTimeout(resolve, 500));
+      }
+
+      loadingPercent.value = null;
+
+      if (videoElement) {
+        if (Hls.isSupported()) {
+          const hls = new Hls();
+          hls.loadSource(URL.createObjectURL(await video.blob()));
+
+          hls.attachMedia(videoElement);
+          hls.on(Hls.Events.MANIFEST_PARSED, function () {
+            videoElement.play();
+          });
+        } else if (videoElement.canPlayType("application/vnd.apple.mpegurl")) {
+          // add video source
+          videoElement.src = `${backendURL}/streamList/${
+            currentVideoID.value
+          }?key=${btoa(keyURL)}`;
+
+          videoElement.addEventListener("loadedmetadata", function () {
+            videoElement.play();
+          });
+        } else {
+          alert("Your browser is not supported");
+        }
+
+        videoElement.classList.remove(styles.playerHidden);
+        videoElement.scrollIntoView({
+          behavior: "smooth",
+        });
+      }
     });
 
     return (
@@ -113,130 +199,7 @@ export default component$(
                                 key={url}
                                 class={styles.videoButton}
                                 onClick$={async () => {
-                                  const videoElement =
-                                    document.querySelector("video");
-                                  videoElement?.parentElement?.classList.remove(
-                                    styles.playerHidden
-                                  );
-                                  loadingPercent.value = null;
-
-                                  const [fetchURL, rawVideo] =
-                                    await fetchVideoLink(url);
-
-                                  // get key
-                                  let video;
-                                  let keyURL;
-
-                                  try {
-                                    const key = await fetchVideoKey(
-                                      fetchURL,
-                                      rawVideo
-                                    );
-                                    keyURL = URL.createObjectURL(
-                                      await key.blob()
-                                    );
-                                    video = await fetchVideo(
-                                      fetchURL,
-                                      rawVideo,
-                                      keyURL
-                                    );
-                                  } catch (e) {
-                                    video = await fetchVideo(
-                                      fetchURL,
-                                      rawVideo,
-                                      ""
-                                    );
-                                    const key = await fetchVideoKey(
-                                      fetchURL,
-                                      rawVideo
-                                    );
-                                    keyURL = URL.createObjectURL(
-                                      await key.blob()
-                                    );
-                                  }
-
-                                  let videoStatus = video.status;
-
-                                  const loopID = new Date().getTime();
-                                  currentLoopID.value = loopID;
-
-                                  // fetch again until it status is 200
-                                  while (
-                                    videoStatus === 202 &&
-                                    loopID === currentLoopID.value
-                                  ) {
-                                    try {
-                                      const video = await fetchVideo(
-                                        fetchURL,
-                                        rawVideo,
-                                        keyURL
-                                      );
-                                      videoStatus = video.status;
-                                      loadingPercent.value = (
-                                        await video.json()
-                                      ).percent;
-                                    } catch (e) {
-                                      console.log(e);
-                                    }
-
-                                    await new Promise((resolve) =>
-                                      setTimeout(resolve, 500)
-                                    );
-                                  }
-
-                                  loadingPercent.value = null;
-
-                                  if (videoElement) {
-                                    if (Hls.isSupported()) {
-                                      const hls = new Hls({
-                                        xhrSetup: (xhr) => {
-                                          xhr.setRequestHeader(
-                                            "video",
-                                            rawVideo
-                                          );
-                                          xhr.setRequestHeader(
-                                            "authorization",
-                                            `Bearer ${accessToken}`
-                                          );
-                                        },
-                                      });
-                                      hls.loadSource(
-                                        URL.createObjectURL(await video.blob())
-                                      );
-                                      hls.attachMedia(videoElement);
-                                      hls.on(
-                                        Hls.Events.MANIFEST_PARSED,
-                                        function () {
-                                          videoElement.play();
-                                        }
-                                      );
-                                    } else if (
-                                      videoElement.canPlayType(
-                                        "application/vnd.apple.mpegurl"
-                                      )
-                                    ) {
-                                      // add video source
-                                      videoElement.src = URL.createObjectURL(
-                                        await video.blob()
-                                      );
-
-                                      videoElement.addEventListener(
-                                        "loadedmetadata",
-                                        function () {
-                                          videoElement.play();
-                                        }
-                                      );
-                                    } else {
-                                      alert("Your browser is not supported");
-                                    }
-
-                                    videoElement.classList.remove(
-                                      styles.playerHidden
-                                    );
-                                    videoElement.scrollIntoView({
-                                      behavior: "smooth",
-                                    });
-                                  }
+                                  videoButtonClickHandler(url);
                                 }}
                               >
                                 {fileName}
