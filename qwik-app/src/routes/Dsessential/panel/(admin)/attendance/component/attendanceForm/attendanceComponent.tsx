@@ -1,11 +1,43 @@
-import { component$, useSignal, useTask$ } from "@builder.io/qwik";
+import { component$, useSignal, $ } from "@builder.io/qwik";
 import { AutoCompleteBox } from "~/components/react/SearchBar";
 import styles from "./attendanceComponent.module.css";
 import { Toggle } from "~/components/react/ToggleButton";
 import { Form, globalAction$ } from "@builder.io/qwik-city";
 
-export const useFormSubmit = globalAction$((data, requestEvent) => {
-  console.log(data);
+export const useFormSubmit = globalAction$((input, requestEvent) => {
+  const output: Record<string, any> = {};
+
+  for (const key in input) {
+    const [prefix, suffix] = key.split("_");
+
+    if (output[prefix]) {
+      if (Array.isArray(output[prefix])) {
+        output[prefix].push(input[key]);
+      } else {
+        output[prefix] = [output[prefix] as string, input[key]];
+      }
+    } else {
+      if (suffix === undefined) {
+        output[prefix] = input[key];
+      } else {
+        output[prefix] = [input[key]];
+      }
+    }
+  }
+
+  output["ipAddress"] = requestEvent.clientConn.ip;
+
+  fetch(`${process.env.BACKEND_ADDRESS}:3500/attendance/sendForm`, {
+    method: "POST",
+    cache: "no-store",
+    headers: {
+      "Content-Type": "application/json",
+      authorization: `Bearer ${
+        requestEvent.sharedMap.get("session").accessToken
+      }`,
+    },
+    body: JSON.stringify(output),
+  });
   return "done";
 });
 
@@ -23,16 +55,16 @@ export default component$(({ options }: { options: string[] }) => {
 
   const handleSubmit = useFormSubmit();
 
-  useTask$(({ track }) => {
-    track(() => {
-      handleSubmit.value;
-    });
-
-    console.log(handleSubmit.value, "handleSubmit.value");
+  const handleAfterSubmit = $(() => {
+    console.log("done");
   });
 
   return (
-    <Form class={styles.container} action={handleSubmit}>
+    <Form
+      class={styles.container}
+      action={handleSubmit}
+      onSubmitCompleted$={handleAfterSubmit}
+    >
       <div class={[styles.containerRows, styles.studentDetails]}>
         <AutoCompleteBox
           size="small"

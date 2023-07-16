@@ -9,12 +9,12 @@ export const AutoCompleteBox = qwikify$(
     searchValue,
     options,
     placeholder,
-    size = "",
+    size,
   }: {
     searchValue: Signal<string>;
     options: string[];
     placeholder: string;
-    size?: string;
+    size?: "small" | "medium";
   }) => {
     return (
       <Autocomplete
