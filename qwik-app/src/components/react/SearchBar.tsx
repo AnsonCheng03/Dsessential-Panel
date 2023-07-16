@@ -9,14 +9,17 @@ export const AutoCompleteBox = qwikify$(
     searchValue,
     options,
     placeholder,
+    size = "",
   }: {
     searchValue: Signal<string>;
     options: string[];
     placeholder: string;
+    size?: string;
   }) => {
     return (
       <Autocomplete
         disablePortal
+        size={size}
         disableClearable
         options={[...new Set(options)]}
         onChange={(e, value) => {

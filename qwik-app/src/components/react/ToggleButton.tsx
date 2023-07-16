@@ -9,18 +9,21 @@ export const Toggle = qwikify$(
     onChange,
     options,
     inputOption,
+    multiSelection = false,
   }: {
-    selectValue: string;
+    selectValue: string | string[];
     onChange: (v: string) => any;
     options: string[];
     inputOption?: string;
+    multiSelection?: boolean;
   }) {
     const [inputValue, setInputValue] = React.useState(false);
     return (
       <ToggleButtonGroup
         color="primary"
-        exclusive
+        size="small"
         fullWidth
+        exclusive={!multiSelection}
         value={selectValue}
         onChange={(_e, v) => {
           v && onChange(v);
@@ -41,8 +44,10 @@ export const Toggle = qwikify$(
                 border: "none",
                 outline: "none",
                 backgroundColor: "transparent",
-                color: "rgba(0, 0, 0, 0.54);",
+                color: inputValue ? "#1976d2" : "rgba(0, 0, 0, 0.54)",
+                fontSize: "0.8125rem",
                 textAlign: "center",
+                textDecoration: inputValue ? "underline" : "none",
               }}
               placeholder={inputOption}
               value={inputValue ? selectValue : ""}
