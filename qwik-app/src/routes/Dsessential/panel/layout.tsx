@@ -54,6 +54,20 @@ export default component$(() => {
     */
           [
             "List",
+            "學生專區",
+            "#",
+            [
+              [
+                "List",
+                "學生資源",
+                "#",
+                [["Item", "課堂重播", "/panel/lessonReplay"]],
+              ],
+            ],
+          ],
+
+          [
+            "List",
             "學生管理",
             "#",
             [
