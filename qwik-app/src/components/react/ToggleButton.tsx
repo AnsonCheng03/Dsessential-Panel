@@ -18,6 +18,15 @@ export const Toggle = qwikify$(
     multiSelection?: boolean;
   }) {
     const [inputValue, setInputValue] = React.useState(false);
+
+    function isNumeric(str: any) {
+      if (typeof str != "string") return false; // we only process strings!
+      return (
+        !isNaN(str as any) && // use type coercion to parse the _entirety_ of the string (`parseFloat` alone does not do this)...
+        !isNaN(parseFloat(str))
+      ); // ...and ensure strings of whitespace fail
+    }
+
     return (
       <ToggleButtonGroup
         color="primary"
@@ -36,7 +45,13 @@ export const Toggle = qwikify$(
           </ToggleButton>
         ))}
         {inputOption && (
-          <ToggleButton value="input">
+          <ToggleButton
+            value={
+              isNumeric(options[options.length - 1])
+                ? parseInt(options[options.length - 1]) + 1
+                : options[0]
+            }
+          >
             <input
               style={{
                 width: "100%",

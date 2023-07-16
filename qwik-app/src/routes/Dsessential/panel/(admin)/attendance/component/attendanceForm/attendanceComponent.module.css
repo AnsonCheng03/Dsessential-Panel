@@ -72,3 +72,7 @@
 .otherItemsAmount::placeholder {
   color: rgba(0, 0, 0, 0.54);
 }
+
+.hiddenInput {
+  display: none;
+}
