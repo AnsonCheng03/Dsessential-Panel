@@ -6,10 +6,10 @@ import {
   Request,
   UseGuards,
 } from '@nestjs/common';
+import { AuthGuard } from 'src/auth/auth.guard';
+import { LessonReplayService } from './lesson-replay.service';
 import { GoogleSpreadsheet } from 'google-spreadsheet';
 import { JWT } from 'google-auth-library';
-import { LessonReplayService } from './lesson-replay.service';
-import { AuthGuard } from 'src/auth/auth.guard';
 import * as googleCredentials from '../google-credentials.json';
 
 @Controller('lesson-replay')
@@ -38,8 +38,7 @@ export class LessonReplayController {
         '1dBCGDIgnBKqVR6WCyIrESQqQzcqhIse0KFOLhCJrHDM',
         serviceAccountAuth,
       );
-
-      await doc.loadInfo(); // loads document properties and worksheets
+      await doc.loadInfo();
       const sheet = doc.sheetsByTitle['Access'];
       const sheetValue = (await sheet.getCellsInRange('A1:N1'))[0];
 
