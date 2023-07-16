@@ -13,7 +13,7 @@ import {
 } from '@nestjs/common';
 import { VideoService } from './video.service';
 import { Headers } from '@nestjs/common';
-import { Response, Request } from 'express';
+import { Response } from 'express';
 import { AuthGuard } from 'src/auth/auth.guard';
 import * as fs from 'fs';
 

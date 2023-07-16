@@ -1,5 +1,5 @@
 .episodeContainer {
-  margin: 5px 2.5% 15px 2.5%;
+  margin: 5px 20px 15px 20px;
   background-color: #fff;
   border-radius: 5px;
 }
@@ -34,11 +34,11 @@
 
 .videoPlayerContainer {
   position: relative;
-  width: 95vw;
-  height: calc(95vw / 16 * 9);
+  width: calc(100vw - 40px);
+  height: calc((100vw - 40px) / 16 * 9);
   object-fit: cover;
   border-radius: 5px;
-  margin: 10px 2.5vw;
+  margin: 10px 20px 15px 20px;
   box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
   transition:
     height 1s ease-in-out,
@@ -49,7 +49,7 @@
 
 .playerHidden {
   max-height: 0;
-  margin: 0 2.5vw;
+  margin: 0 20px;
 }
 
 .videoPlayer {
