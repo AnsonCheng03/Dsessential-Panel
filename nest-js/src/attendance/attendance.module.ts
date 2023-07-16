@@ -1,12 +1,12 @@
 import { Module } from '@nestjs/common';
-import { LessonReplayController } from './lesson-replay.controller';
-import { LessonReplayService } from './lesson-replay.service';
 import { GoogleSheetModule } from 'nest-google-sheet-connector';
+import { AttendanceController } from './attendance.controller';
+import { AttendanceService } from './attendance.service';
 import * as googleCredentials from '../google-credentials.json';
 
 @Module({
   imports: [GoogleSheetModule.register(googleCredentials)],
-  providers: [LessonReplayService],
-  controllers: [LessonReplayController],
+  controllers: [AttendanceController],
+  providers: [AttendanceService],
 })
-export class LessonReplayModule {}
+export class AttendanceModule {}
