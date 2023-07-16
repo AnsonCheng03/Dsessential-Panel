@@ -124,7 +124,6 @@ export class VideoController {
 
   @Get('streamList/:videoKey')
   async getStreamList(
-    @Body() body,
     @Res() res: Response,
     @Req() req,
     @Param('videoKey') videoKey: string,

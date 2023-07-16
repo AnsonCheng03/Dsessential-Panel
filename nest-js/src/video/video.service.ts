@@ -1,24 +1,9 @@
 import { Injectable } from '@nestjs/common';
-import {
-  Controller,
-  Post,
-  Body,
-  Res,
-  HttpStatus,
-  Header,
-  Req,
-  UseGuards,
-  Get,
-  StreamableFile,
-  Param,
-} from '@nestjs/common';
-import { Headers } from '@nestjs/common';
+import { HttpStatus } from '@nestjs/common';
 import { Response, Request } from 'express';
-import { AuthGuard } from 'src/auth/auth.guard';
 import * as fs from 'fs';
 import * as ffmpeg from 'fluent-ffmpeg';
 import * as ffmpegPath from '@ffmpeg-installer/ffmpeg';
-import { createReadStream } from 'fs';
 import * as CryptoJS from 'crypto-js';
 import * as crypto from 'crypto';
 

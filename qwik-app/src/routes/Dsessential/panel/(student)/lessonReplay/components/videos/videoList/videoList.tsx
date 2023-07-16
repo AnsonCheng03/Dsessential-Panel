@@ -1,10 +1,4 @@
-import {
-  type Signal,
-  component$,
-  $,
-  useSignal,
-  noSerialize,
-} from "@builder.io/qwik";
+import { type Signal, component$, $, useSignal } from "@builder.io/qwik";
 import styles from "./videoList.module.css";
 import { server$ } from "@builder.io/qwik-city";
 import { useAuthSession } from "~/routes/plugin@auth";
