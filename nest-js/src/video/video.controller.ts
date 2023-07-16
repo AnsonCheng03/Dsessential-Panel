@@ -75,7 +75,7 @@ export class VideoController {
   @UseGuards(AuthGuard)
   @Post('stream')
   @Header('Accept-Ranges', 'bytes')
-  @Header('Content-Type', 'application/x-mpegURL')
+  @Header('Content-Type', 'application/vnd.apple.mpegurl')
   async getStreamM3U8(
     @Headers() headers,
     @Res() res: Response,
