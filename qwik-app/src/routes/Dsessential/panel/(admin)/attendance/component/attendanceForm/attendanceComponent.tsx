@@ -4,7 +4,7 @@ import styles from "./attendanceComponent.module.css";
 import { Toggle } from "~/components/react/ToggleButton";
 import { Form, globalAction$ } from "@builder.io/qwik-city";
 
-export const useFormSubmit = globalAction$((input, requestEvent) => {
+export const useFormSubmit = globalAction$(async (input, requestEvent) => {
   const output: Record<string, any> = {};
 
   for (const key in input) {
@@ -27,18 +27,27 @@ export const useFormSubmit = globalAction$((input, requestEvent) => {
 
   output["ipAddress"] = requestEvent.clientConn.ip;
 
-  fetch(`${process.env.BACKEND_ADDRESS}:3500/attendance/sendForm`, {
-    method: "POST",
-    cache: "no-store",
-    headers: {
-      "Content-Type": "application/json",
-      authorization: `Bearer ${
-        requestEvent.sharedMap.get("session").accessToken
-      }`,
-    },
-    body: JSON.stringify(output),
-  });
-  return "done";
+  try {
+    const res = await fetch(
+      `${process.env.BACKEND_ADDRESS}:3500/attendance/sendForm`,
+      {
+        method: "POST",
+        cache: "no-store",
+        headers: {
+          "Content-Type": "application/json",
+          authorization: `Bearer ${
+            requestEvent.sharedMap.get("session").accessToken
+          }`,
+        },
+        body: JSON.stringify(output),
+      }
+    );
+    const data = await res.json();
+    console.log(data);
+    return data;
+  } catch (error) {
+    return "error";
+  }
 });
 
 export default component$(({ options }: { options: string[] }) => {
