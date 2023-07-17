@@ -1,5 +1,10 @@
 import { component$, useSignal } from "@builder.io/qwik";
 import AttendanceComponent from "./attendanceComponent";
+import { Alert } from "@mui/material";
+import styles from "./attendanceForm.module.css";
+import { qwikify$ } from "@builder.io/qwik-react";
+
+const MUIAlert = qwikify$(Alert);
 
 export default component$(({ options }: { options: Object[] }) => {
   // make options from object to array
@@ -16,6 +21,12 @@ export default component$(({ options }: { options: Object[] }) => {
   return (
     <>
       <div>
+        <div class={styles.alert}>
+          <MUIAlert severity="warning">
+            如果上面有空白行，入新資料有機會去左最頂嘅空白行而唔係最底。會盡快處理～
+            [Issue status: Noticed, Not Urgent]
+          </MUIAlert>
+        </div>
         {Array.from(Array(formAmount.value).keys())
           .reverse()
           .map((i) => (
