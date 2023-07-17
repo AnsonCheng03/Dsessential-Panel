@@ -9,19 +9,25 @@ export const AutoCompleteBox = qwikify$(
     searchValue,
     options,
     placeholder,
+    size,
+    freeSolo,
+    disabled = false,
   }: {
     searchValue: Signal<string>;
     options: string[];
     placeholder: string;
+    size?: "small" | "medium";
+    freeSolo?: boolean;
+    disabled?: boolean;
   }) => {
     return (
       <Autocomplete
         disablePortal
+        size={size}
+        freeSolo={freeSolo}
         disableClearable
+        disabled={disabled}
         options={[...new Set(options)]}
-        onChange={(e, value) => {
-          if (value) searchValue.value = value;
-        }}
         renderInput={(params) => (
           <TextField
             {...params}

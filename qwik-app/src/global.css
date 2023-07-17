@@ -33,8 +33,7 @@ html {
     "Segoe UI Emoji",
     "Segoe UI Symbol",
     "Noto Color Emoji";
-  min-height: 650px;
-  min-width: 320px;
+
   margin: 0;
   padding: 0;
   text-align: center;
@@ -82,8 +81,8 @@ input:focus::placeholder {
 }
 
 ::placeholder {
-  color: #000;
-  opacity: 0.7;
+  font-size: 0.8125rem;
+  color: rgba(0, 0, 0, 0.54);
 }
 
 ::-webkit-credentials-auto-fill-button {

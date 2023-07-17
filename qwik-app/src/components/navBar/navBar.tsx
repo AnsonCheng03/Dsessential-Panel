@@ -94,11 +94,12 @@ export default component$(({ navlist }: { navlist: any }) => {
                                               >
                                                 <Link
                                                   href={
-                                                    (items[2]
+                                                    ((items[2]
                                                       .toLowerCase()
-                                                      .indexOf("stream") === -1
+                                                      .startsWith("http")
                                                       ? ""
-                                                      : baseURL) + items[2]
+                                                      : baseURL) +
+                                                      items[2]) as string
                                                   }
                                                 >
                                                   {items[1]}
