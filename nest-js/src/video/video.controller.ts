@@ -25,7 +25,7 @@ export class VideoController {
 
   @UseGuards(AuthGuard)
   @Post('createStream')
-  async createStream(@Res() res, @Body() body) {
+  async createStream(@Res() res, @Body() body, @Req() req) {
     // create route with randomID
     const temporaryID = await this.videoService.createRandomID();
 
@@ -35,7 +35,20 @@ export class VideoController {
     await fs.writeFileSync(`/tmp/Dsessential-Videos/${temporaryID}`, body.url);
     res.status(HttpStatus.CREATED).send(temporaryID);
 
+    const fileName = body.url.split('/').pop()?.split('.')[0];
+    this.videoService.logUser(req.user.username, fileName);
+
     this.videoService.removeExpiredFile();
+  }
+
+  @UseGuards(AuthGuard)
+  @Post('viewLog')
+  async viewLog(@Res() res, @Body() body, @Req() req) {
+    if (req.user.role !== 'admin')
+      return res.sendStatus(HttpStatus.UNAUTHORIZED);
+
+    const log = await this.videoService.viewLog();
+    return res.status(HttpStatus.OK).send(log);
   }
 
   @UseGuards(AuthGuard)
