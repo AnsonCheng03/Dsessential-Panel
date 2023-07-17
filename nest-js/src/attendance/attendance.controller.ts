@@ -18,15 +18,10 @@ export class AttendanceController {
   async sendForm(@Body() body, @Req() req) {
     if (req.user.role !== 'admin') throw new UnauthorizedException();
 
-    console.log('body', body);
-
-    //日期	IP	卡/電話/名	出席堂數	狀態	功課份數	款項	在中心支付	無限Video	折扣	其他項目	其他項目總價
     const data = {
       日期: new Date().toLocaleString('en-US', { timeZone: 'Asia/Hong_Kong' }),
       IP: `${body.ipAddress}(${req.user.username})`,
-      '卡/電話/名': !isNaN(body.studentName)
-        ? body.studentName
-        : parseInt(body.studentName),
+      '卡/電話/名': body.studentName,
       出席堂數: body.lessonCount,
       狀態: body.studentStatus === '出席' ? '' : body.studentStatus,
       功課份數: body.homeworkCount,
@@ -44,6 +39,7 @@ export class AttendanceController {
       (key) => data[key] === undefined && delete data[key],
     );
 
+    if (body.rowNumber) return this.service.modifyData(body.rowNumber, data);
     return this.service.createData(data);
   }
 }

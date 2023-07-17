@@ -9,6 +9,7 @@ import { AutoCompleteBox } from "~/components/react/SearchBar";
 import styles from "./attendanceComponent.module.css";
 import { Toggle } from "~/components/react/ToggleButton";
 import { globalAction$ } from "@builder.io/qwik-city";
+import { v4 as UUIDv4 } from "uuid";
 
 export const useFormSubmit = globalAction$(async (input, requestEvent) => {
   const output: Record<string, any> = {};
@@ -49,7 +50,6 @@ export const useFormSubmit = globalAction$(async (input, requestEvent) => {
       }
     );
     const data = await res.json();
-    console.log(data);
     return data;
   } catch (error) {
     return "error";
@@ -74,9 +74,10 @@ export default component$(
     const otherItemsDetails = useSignal<string[]>([]);
     const otherItemsAmount = useSignal("");
     const discountAmount = useSignal("50");
+    const formId = useSignal(`form${Date.now()}`);
 
     const formLoading = useSignal(false);
-    const formMode = useSignal("insert");
+    const rowNumber = useSignal<null | string>(null);
 
     useVisibleTask$(() => {
       setTimeout(() => {
@@ -86,16 +87,39 @@ export default component$(
       }, 50);
     });
 
-    const handleSubmit = useFormSubmit();
-    const handleFormSubmit = $(async (e: any) => {
+    const submitToServer = useFormSubmit();
+
+    const formSubmit = $(async (target: HTMLFormElement) => {
+      const formData = new FormData(target);
+      if (formData.get("studentName") === "") return;
+
       formLoading.value = true;
-      formAmount.value++;
-      const formData = new FormData(e.target as HTMLFormElement);
-      const { value } = await handleSubmit.submit(formData);
-      console.log(value);
-      if (formMode.value === "insert") {
-        formMode.value = "update";
-      }
+      if (!rowNumber.value) formAmount.value++;
+      const { value } = await submitToServer.submit(formData);
+      rowNumber.value = value.rowNumber;
+      formLoading.value = false;
+    });
+
+    const handleFormSubmit = $((e: any) => {
+      formSubmit(e.target);
+    });
+
+    useVisibleTask$(async ({ track }) => {
+      track(() => searchValue.value);
+      track(() => studentStatus.value);
+      track(() => homeworkCount.value);
+      track(() => lessonCount.value);
+      track(() => paymentMethod.value);
+      track(() => paymentAmount.value);
+      track(() => otherItems.value);
+      track(() => otherItemsDetails.value);
+      track(() => otherItemsAmount.value);
+      track(() => discountAmount.value);
+
+      const formElement = document.querySelector<HTMLFormElement>(
+        `#${formId.value}`
+      );
+      if (rowNumber.value) formSubmit(formElement!);
     });
 
     return (
@@ -103,10 +127,20 @@ export default component$(
         class={styles.container}
         preventdefault:submit
         onSubmit$={handleFormSubmit}
+        id={formId.value}
       >
+        {formLoading.value && <div class={styles.loading} />}
+        {rowNumber.value && (
+          <input
+            type="hidden"
+            name="rowNumber"
+            bind:value={rowNumber as Signal<string>}
+          />
+        )}
         <div class={[styles.containerRows, styles.studentDetails]}>
           <AutoCompleteBox
             size="small"
+            disabled={!!rowNumber.value}
             searchValue={searchValue}
             options={options}
             freeSolo
@@ -225,9 +259,15 @@ export default component$(
               />
             </div>
           </div>
-          <button type="submit" class={styles.submitButton}>
-            提交
-          </button>
+          {rowNumber.value ? (
+            <button type="button" class={styles.removeButton}>
+              刪除
+            </button>
+          ) : (
+            <button type="submit" class={styles.submitButton}>
+              提交
+            </button>
+          )}
         </div>
         {otherItems.value.includes("其他項目") && (
           <div class={[styles.containerRows, styles.otherItems]}>

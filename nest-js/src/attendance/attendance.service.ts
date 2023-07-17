@@ -31,4 +31,16 @@ export class AttendanceService {
 
     return { rowNumber: result.rowNumber };
   }
+
+  async modifyData(rowNumber: string, data: any) {
+    const doc = await this.initSheet();
+    const sheet = doc.sheetsByTitle['學生報到機2021.8'];
+    const rows = await sheet.getRows({
+      offset: parseInt(rowNumber) - 2,
+      limit: 1,
+    });
+    rows[0].assign(data);
+    await rows[0].save();
+    return { rowNumber };
+  }
 }

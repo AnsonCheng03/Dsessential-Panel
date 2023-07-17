@@ -31,7 +31,7 @@ export default component$(() => {
   const options = useGetAllUser().value;
   return (
     <>
-      <h1>課堂點名表</h1>
+      <h1 class={styles.title}>課堂點名表</h1>
       <div class={styles.container}>
         <AttendanceForm options={options} />
         <StudentData />
