@@ -13,3 +13,67 @@
   width: 50%;
   padding-bottom: 15px;
 }
+
+/* TODO: fix this mess */
+.linkBox {
+  width: 45%;
+  right: 0%;
+  top: 0%;
+  margin: 5vh 3%;
+  padding: 1% 0px;
+  text-align: center;
+  background-color: #f8f8f8;
+  border-radius: 10px;
+  box-shadow: 0px 15px 15px 0.15px rgba(0, 0, 0, 0.05);
+  position: absolute;
+}
+
+.linkBox span {
+  display: flex;
+  flex-direction: row;
+  flex-wrap: wrap;
+  width: 100%;
+}
+
+.linkBox p {
+  color: #000;
+  display: block;
+  width: 100%;
+  padding: 7px;
+}
+
+.linkBox p::before {
+  content: "~ ";
+}
+
+.linkBox p::after {
+  content: " ~";
+}
+
+.linkBox help {
+  display: block;
+  width: 100%;
+  font-size: 11px;
+  text-align: left;
+  margin-left: 5px;
+}
+
+.linkBox a {
+  display: block;
+  width: 40%;
+  padding: 7px 0 7px 0;
+  margin: 0 5% 3% 5%;
+  border-radius: 5px;
+  background: #60b4df;
+  color: #fff;
+}
+
+.linkBox a:hover {
+  background: #fff;
+  color: #60b4df;
+}
+
+.profilebox img {
+  width: 50%;
+  padding-bottom: 15px;
+}
