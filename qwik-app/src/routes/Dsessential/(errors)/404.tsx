@@ -8,11 +8,13 @@ export default component$(() => {
       <div style={styles.container}>
         <h1>抱歉，好像有點問題！</h1>
         <br />
-        <p>
+        <p class={styles.message}>
           Type: 404 / IP:
           {}
         </p>
-        <p>如問題持續，請聯絡管理員（admin@dsessential.com）</p>
+        <p class={styles.message}>
+          如問題持續，請聯絡管理員（admin@dsessential.com）
+        </p>
       </div>
       <div style={styles.bottom} />
     </main>
