@@ -6,9 +6,21 @@ import * as ffmpeg from 'fluent-ffmpeg';
 import * as ffmpegPath from '@ffmpeg-installer/ffmpeg';
 import * as CryptoJS from 'crypto-js';
 import * as crypto from 'crypto';
+import { createPool } from 'mysql2/promise';
 
 @Injectable()
 export class VideoService {
+  private readonly pool = createPool({
+    host: process.env.DB_HOST || 'localhost',
+    port: parseInt(process.env.DB_PORT) || 3306,
+    user: process.env.DB_USER || 'root',
+    password: process.env.DB_PASSWORD,
+    database: process.env.DB_LOGIN,
+    waitForConnections: true,
+    connectionLimit: 10,
+    queueLimit: 0,
+  });
+
   // Encrypt data
   encrypt(data, uuid) {
     return CryptoJS.AES.encrypt(data, uuid).toString();
@@ -162,5 +174,32 @@ export class VideoService {
         });
       }
     });
+  }
+
+  async logUser(username: string, fileName: string) {
+    const connection = await this.pool.getConnection();
+    try {
+      await connection.execute(
+        'INSERT INTO `VideoLog` \
+        (`UserID`, `VideoName`) VALUES(?, ?)',
+        [username, fileName],
+      );
+    } catch (err) {
+      console.log(err);
+    } finally {
+      connection.release();
+    }
+  }
+
+  async viewLog() {
+    const connection = await this.pool.getConnection();
+    try {
+      const [rows] = await connection.execute('SELECT * FROM `VideoLog`');
+      return rows;
+    } catch (err) {
+      console.log(err);
+    } finally {
+      connection.release();
+    }
   }
 }

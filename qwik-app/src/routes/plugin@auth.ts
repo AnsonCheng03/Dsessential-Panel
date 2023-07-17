@@ -64,7 +64,6 @@ export const { onRequest, useAuthSession, useAuthSignin, useAuthSignout } =
       },
     },
     pages: {
-      // signIn: "/Dsessential/auth/",
       error: "/Dsessential/auth/",
     },
   }));

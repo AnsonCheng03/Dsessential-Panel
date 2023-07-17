@@ -73,6 +73,7 @@ export default component$(() => {
             [
               //    ["Item", "學生資料", "#"],
               ["Item", "點名系統", "/panel/attendance"],
+              ["Item", "影片觀看紀錄", "/panel/viewLog"],
               //    ["Item", "時間表", "#"],
             ],
           ],
