@@ -18,6 +18,8 @@ export class AttendanceController {
   async sendForm(@Body() body, @Req() req) {
     if (req.user.role !== 'admin') throw new UnauthorizedException();
 
+    console.log('body', body);
+
     //日期	IP	卡/電話/名	出席堂數	狀態	功課份數	款項	在中心支付	無限Video	折扣	其他項目	其他項目總價
     const data = {
       日期: new Date().toLocaleString('en-US', { timeZone: 'Asia/Hong_Kong' }),
@@ -27,7 +29,7 @@ export class AttendanceController {
         : parseInt(body.studentName),
       出席堂數: body.lessonCount,
       狀態: body.studentStatus === '出席' ? '' : body.studentStatus,
-      功課份數: body.homework,
+      功課份數: body.homeworkCount,
       款項: body.paymentAmount,
       在中心支付:
         body.paymentMethod === '無' ? '' : body.paymentMethod === '上門支付',

@@ -1,4 +1,4 @@
-import { component$ } from "@builder.io/qwik";
+import { component$, useSignal } from "@builder.io/qwik";
 import AttendanceComponent from "./attendanceComponent";
 
 export default component$(({ options }: { options: Object[] }) => {
@@ -11,10 +11,20 @@ export default component$(({ options }: { options: Object[] }) => {
   });
   newOptions = [...new Set(newOptions)];
 
+  const formAmount = useSignal(1);
+
   return (
     <>
       <div>
-        <AttendanceComponent options={newOptions} />
+        {Array.from(Array(formAmount.value).keys())
+          .reverse()
+          .map((i) => (
+            <AttendanceComponent
+              options={newOptions}
+              key={i}
+              formAmount={formAmount}
+            />
+          ))}
       </div>
     </>
   );
