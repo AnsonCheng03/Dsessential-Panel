@@ -18,7 +18,7 @@ import express from "express";
 import { fileURLToPath } from "node:url";
 import { join } from "node:path";
 import * as fs from "fs";
-// import http from "http";
+import http from "http";
 import https from "https";
 
 declare global {
@@ -28,9 +28,6 @@ declare global {
 // Directories where the static assets are located
 const distDir = join(fileURLToPath(import.meta.url), "..", "..", "dist");
 const buildDir = join(distDir, "build");
-
-// Allow for dynamic port
-const PORT = process.env.PORT ?? 3000;
 
 // Create the Qwik City Node middleware
 const { router, notFound } = createQwikCity({
@@ -44,7 +41,7 @@ const { router, notFound } = createQwikCity({
   //   // https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/X-Forwarded-Host
   //   const host = req.headers["x-forwarded-host"] ?? req.headers.host;
   //   return `${protocol}://${host}`;
-  // }
+  // },
 });
 
 // Create the express server
@@ -69,15 +66,19 @@ app.use(notFound);
 const privateKey = fs.readFileSync(`${process.env.CERT_PATH}/cert.key`, "utf8");
 const certificate = fs.readFileSync(
   `${process.env.CERT_PATH}/cert.crt`,
-  "utf8",
+  "utf8"
 );
 
 const credentials = { key: privateKey, cert: certificate };
 
-// const httpServer = http.createServer(app);
+const httpServer = http.createServer(app);
 const httpsServer = https.createServer(credentials, app);
 
 // Start the express server
-httpsServer.listen(PORT, () => {
-  console.log(`Server started: https://localhost:${PORT}/`);
+httpServer.listen(process.env.HTTP_PORT ?? 80, () => {
+  console.log("HTTP Server started");
+});
+
+httpsServer.listen(process.env.PORT ?? 3000, () => {
+  console.log("HTTPS Server started");
 });
