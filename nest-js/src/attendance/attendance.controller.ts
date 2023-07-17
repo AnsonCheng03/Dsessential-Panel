@@ -42,4 +42,15 @@ export class AttendanceController {
     if (body.rowNumber) return this.service.modifyData(body.rowNumber, data);
     return this.service.createData(data);
   }
+
+  @UseGuards(AuthGuard)
+  @Post('deleteForm')
+  async deleteForm(@Body() body, @Req() req) {
+    if (req.user.role !== 'admin') throw new UnauthorizedException();
+    return this.service.deleteData(
+      body.ipAddress,
+      req.user.username,
+      body.deleteRow,
+    );
+  }
 }

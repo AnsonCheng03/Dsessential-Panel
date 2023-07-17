@@ -9,7 +9,6 @@ import { AutoCompleteBox } from "~/components/react/SearchBar";
 import styles from "./attendanceComponent.module.css";
 import { Toggle } from "~/components/react/ToggleButton";
 import { globalAction$ } from "@builder.io/qwik-city";
-import { v4 as UUIDv4 } from "uuid";
 
 export const useFormSubmit = globalAction$(async (input, requestEvent) => {
   const output: Record<string, any> = {};
@@ -52,6 +51,32 @@ export const useFormSubmit = globalAction$(async (input, requestEvent) => {
     const data = await res.json();
     return data;
   } catch (error) {
+    return { error: "error" };
+  }
+});
+
+export const useFormDelete = globalAction$(async (input, requestEvent) => {
+  try {
+    const res = await fetch(
+      `${process.env.BACKEND_ADDRESS}:3500/attendance/deleteForm`,
+      {
+        method: "POST",
+        cache: "no-store",
+        headers: {
+          "Content-Type": "application/json",
+          authorization: `Bearer ${
+            requestEvent.sharedMap.get("session").accessToken
+          }`,
+        },
+        body: JSON.stringify({
+          deleteRow: input.deleteRow,
+          ipAddress: requestEvent.clientConn.ip,
+        }),
+      }
+    );
+    const data = await res.json();
+    return data;
+  } catch (error) {
     return "error";
   }
 });
@@ -77,6 +102,7 @@ export default component$(
     const formId = useSignal(`form${Date.now()}`);
 
     const formLoading = useSignal(false);
+    const formDeleted = useSignal(false);
     const rowNumber = useSignal<null | string>(null);
 
     useVisibleTask$(() => {
@@ -88,6 +114,7 @@ export default component$(
     });
 
     const submitToServer = useFormSubmit();
+    const deleteFromServer = useFormDelete();
 
     const formSubmit = $(async (target: HTMLFormElement) => {
       const formData = new FormData(target);
@@ -122,9 +149,21 @@ export default component$(
       if (rowNumber.value) formSubmit(formElement!);
     });
 
+    const handleDelete = $(async () => {
+      formLoading.value = true;
+      const { value } = await deleteFromServer.submit({
+        deleteRow: rowNumber.value,
+      });
+      if (value.status === "success") formDeleted.value = true;
+    });
+
     return (
       <form
-        class={styles.container}
+        class={
+          formDeleted.value
+            ? [styles.container, styles.hidden]
+            : styles.container
+        }
         preventdefault:submit
         onSubmit$={handleFormSubmit}
         id={formId.value}
@@ -238,7 +277,7 @@ export default component$(
               onChange$={(v: any) => (otherItems.value = v)}
               options={["無限Video", "其他項目", "折扣"]}
             />
-            <div class={styles.hiddenInput}>
+            <div class={styles.hidden}>
               <input
                 type="checkbox"
                 name="otherItems_0"
@@ -260,7 +299,11 @@ export default component$(
             </div>
           </div>
           {rowNumber.value ? (
-            <button type="button" class={styles.removeButton}>
+            <button
+              type="button"
+              class={styles.removeButton}
+              onClick$={handleDelete}
+            >
               刪除
             </button>
           ) : (
@@ -279,7 +322,7 @@ export default component$(
                 onChange$={(v: any) => (otherItemsDetails.value = v)}
                 options={["模擬試", "操卷班", "範文班", "寫作班", "補課附加費"]}
               />
-              <div class={styles.hiddenInput}>
+              <div class={styles.hidden}>
                 <input
                   type="checkbox"
                   name="otherItemsDetails_0"

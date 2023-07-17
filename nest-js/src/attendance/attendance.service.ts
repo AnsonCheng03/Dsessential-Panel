@@ -43,4 +43,32 @@ export class AttendanceService {
     await rows[0].save();
     return { rowNumber };
   }
+
+  // Warning: there are bugs to empty rows
+  async deleteData(ipAddress: string, username: string, rowNumber: string) {
+    const doc = await this.initSheet();
+    const sheet = doc.sheetsByTitle['學生報到機2021.8'];
+    const rows = await sheet.getRows({
+      offset: parseInt(rowNumber) - 2,
+      limit: 1,
+    });
+    if (rows[0].get('IP') !== `${ipAddress}(${username})`)
+      throw new Error('IP address not match');
+    rows[0].assign({
+      日期: '',
+      IP: '',
+      '卡/電話/名': '',
+      出席堂數: '',
+      狀態: '',
+      功課份數: '',
+      款項: '',
+      在中心支付: '',
+      無限Video: '',
+      折扣: '',
+      其他項目: '',
+      其他項目總價: '',
+    });
+    rows[0].save();
+    return { status: 'success' };
+  }
 }
