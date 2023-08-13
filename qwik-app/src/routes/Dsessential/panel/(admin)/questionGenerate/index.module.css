@@ -1,3 +1,7 @@
+.title {
+  margin: 30px 0;
+}
+
 .queryBar {
   display: grid;
   grid-template-columns: 1fr 100px;
@@ -21,7 +25,7 @@
 }
 
 .conversation {
-  margin: 30px 2% 30px 2%;
+  margin: 30px 10px 30px 10px;
   box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
 }
 
@@ -45,4 +49,13 @@
   word-wrap: break-word;
   text-overflow: ellipsis;
   padding: 0 10px;
+  color: #000;
+}
+
+.bold {
+  font-weight: bold;
+}
+
+.italic {
+  font-style: italic;
 }

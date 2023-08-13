@@ -58,7 +58,6 @@
   "dependencies": {
     "@qwikest/icons": "^0.0.8",
     "chatgpt": "^5.2.5",
-    "hls.js": "^1.4.9",
-    "markdown-to-jsx": "^7.3.2"
+    "hls.js": "^1.4.9"
   }
 }

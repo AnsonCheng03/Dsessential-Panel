@@ -2,11 +2,9 @@ import { $, component$, useSignal } from "@builder.io/qwik";
 import styles from "./index.module.css";
 import { AutoCompleteBox } from "~/components/react/SearchBar";
 import { ChatGPTAPI } from "chatgpt";
-import Markdown from "markdown-to-jsx";
 import { server$ } from "@builder.io/qwik-city";
 import { qwikify$ } from "@builder.io/qwik-react";
 
-const MarkDownJSX = qwikify$(Markdown);
 const gptAPI = new ChatGPTAPI({
   apiKey: process.env.OPENAI_API_KEY!,
 });
@@ -44,7 +42,8 @@ export default component$(() => {
   const submitQuery = $(async () => {
     if (queryOptions.value.length !== 0) queryOptions.value = [];
     const queryElement = document.querySelector(`.${styles.queryBar} input`);
-    if (queryElement) queryValue.value = (queryElement as any).value;
+    if (queryElement && (queryElement as any).value)
+      queryValue.value = (queryElement as any).value;
     if (queryValue.value === "") return;
     conversation.value = [
       ...conversation.value,
@@ -64,7 +63,7 @@ export default component$(() => {
   return (
     <>
       <h1 class={styles.title}>生成問題</h1>
-      <div class={styles.queryBar}>
+      <form class={styles.queryBar} preventdefault:submit>
         <AutoCompleteBox
           searchValue={queryValue}
           freeSolo
@@ -76,7 +75,7 @@ export default component$(() => {
         <button class={styles.button} onClick$={submitQuery}>
           生成
         </button>
-      </div>
+      </form>
       <div class={styles.conversation}>
         {conversation.value.map((item) => (
           <div
@@ -86,9 +85,32 @@ export default component$(() => {
             key={new Date().toISOString()}
           >
             <div class={styles.type}>{item.type}</div>
-            <markDownJSX options={{ forceBlock: true }} class={styles.content}>
-              {item.content}
-            </markDownJSX>
+            <p class={styles.content}>
+              {item.content.split("\n").map((line) => (
+                <>
+                  {line.split("**").map((word, index) => (
+                    <>
+                      {index % 2 === 0 ? (
+                        word
+                          .split("*")
+                          .map((word, index) => (
+                            <>
+                              {index % 2 === 0 ? (
+                                word
+                              ) : (
+                                <span class={styles.italic}>{word}</span>
+                              )}
+                            </>
+                          ))
+                      ) : (
+                        <span class={styles.bold}>{word}</span>
+                      )}
+                    </>
+                  ))}
+                  <br />
+                </>
+              ))}
+            </p>
           </div>
         ))}
       </div>
