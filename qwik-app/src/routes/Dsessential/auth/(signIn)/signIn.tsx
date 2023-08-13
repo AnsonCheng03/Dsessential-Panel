@@ -80,12 +80,12 @@ export default component$(({ adminRole, style, userName }: Props) => {
           onClick$={() => {
             // formState.value = "resetPassword";
             nav(
-              "https://nas.dsessential.com:5000/Dsessential/auth/resetpw.php",
+              "https://nas.dsessential.com:5000/Dsessential/auth/resetpw.php"
             );
           }}
         >
           <div class={style.resetPassword}>
-            按此重設密碼<a class={style.bold}>首次登入請留空密碼</a>
+            按此重設密碼<a class={style.bold}>首次登入請點擊這裡</a>
           </div>
         </div>
       </Form>
