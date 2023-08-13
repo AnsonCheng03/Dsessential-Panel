@@ -78,5 +78,5 @@ export const Toggle = qwikify$(
   },
   {
     eagerness: "hover",
-  }
+  },
 );

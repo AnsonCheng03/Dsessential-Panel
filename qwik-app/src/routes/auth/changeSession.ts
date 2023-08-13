@@ -13,7 +13,7 @@ export const login = $(
     csrfToken: string,
     accessToken: string,
     method: string,
-    loginName: string
+    loginName: string,
   ) => {
     const res = fetch("/api/auth/callback/credentials", {
       method: "POST",
@@ -31,7 +31,7 @@ export const login = $(
     return await (
       await res
     ).status;
-  }
+  },
 );
 
 export const signOut = $(async (csrfToken: string) => {
@@ -55,5 +55,5 @@ export const changeSession = $(
   async (accessToken: string, role: string, loginName: string) => {
     await signOut(await getCSRFToken());
     await login(await getCSRFToken(), accessToken, role, loginName);
-  }
+  },
 );

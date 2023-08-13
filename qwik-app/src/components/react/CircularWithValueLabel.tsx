@@ -36,5 +36,5 @@ export const CircularWithValueLabel = qwikify$(
   },
   {
     eagerness: "visible",
-  }
+  },
 );

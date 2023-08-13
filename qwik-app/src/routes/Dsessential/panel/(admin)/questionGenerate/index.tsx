@@ -3,7 +3,6 @@ import styles from "./index.module.css";
 import { AutoCompleteBox } from "~/components/react/SearchBar";
 import { ChatGPTAPI } from "chatgpt";
 import { server$ } from "@builder.io/qwik-city";
-import { qwikify$ } from "@builder.io/qwik-react";
 
 const gptAPI = new ChatGPTAPI({
   apiKey: process.env.OPENAI_API_KEY!,
