@@ -43,6 +43,8 @@ export default component$(() => {
 
   const submitQuery = $(async () => {
     if (queryOptions.value.length !== 0) queryOptions.value = [];
+    const queryElement = document.querySelector(`.${styles.queryBar} input`);
+    if (queryElement) queryValue.value = (queryElement as any).value;
     if (queryValue.value === "") return;
     conversation.value = [
       ...conversation.value,
