@@ -19,17 +19,16 @@ const isVideoFile = (extension) => {
 export class LessonReplayService {
   async getMonth(user, sheetValue) {
     const userID = user.sub;
-    // const userID = '2260';
 
-    if (sheetValue[0][13].split('|')[0].includes(userID)) return ['New'];
-    if (sheetValue[0][13].split('|')[1].includes(userID)) return ['Expired'];
-    if (sheetValue[0][12].split('|')[0].includes(userID)) return ['Normal'];
-    if (sheetValue[0][12].split('|')[1].split('`')[0].includes(userID))
+    if (sheetValue[13].split('|')[0].includes(userID)) return ['New'];
+    if (sheetValue[13].split('|')[1].includes(userID)) return ['Expired'];
+    if (sheetValue[12].split('|')[0].includes(userID)) return ['Normal'];
+    if (sheetValue[12].split('|')[1].split('`')[0].includes(userID))
       return ['All', 'A'];
-    if (sheetValue[0][12].split('|')[1].split('`')[1].includes(userID))
+    if (sheetValue[12].split('|')[1].split('`')[1].includes(userID))
       return ['All', 'B'];
     try {
-      sheetValue[0].slice(0, 12).forEach((element, index) => {
+      sheetValue.slice(0, 12).forEach((element, index) => {
         const month = index + 1;
         if (element.split('|')[0].includes(userID)) throw ['Normal'];
         if (element.split('|')[1].split('`')[0].includes(userID))

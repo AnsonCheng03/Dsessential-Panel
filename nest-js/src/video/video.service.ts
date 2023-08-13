@@ -194,7 +194,7 @@ export class VideoService {
   async viewLog() {
     const connection = await this.pool.getConnection();
     try {
-      const [rows] = await connection.execute('SELECT * FROM `VideoLog`');
+      const [rows] = await connection.execute('SELECT * FROM `VideoLog` ORDER BY `ID` DESC');
       return rows;
     } catch (err) {
       console.log(err);
