@@ -75,6 +75,7 @@ export default component$(() => {
               ["Item", "點名系統", "/panel/attendance"],
               ["Item", "影片觀看紀錄", "/panel/viewLog"],
               //    ["Item", "時間表", "#"],
+              ["Item", "題目生成", "/panel/questionGenerate"],
             ],
           ],
 

@@ -57,6 +57,7 @@
   },
   "dependencies": {
     "@qwikest/icons": "^0.0.8",
+    "chatgpt": "^5.2.5",
     "hls.js": "^1.4.9"
   }
 }
