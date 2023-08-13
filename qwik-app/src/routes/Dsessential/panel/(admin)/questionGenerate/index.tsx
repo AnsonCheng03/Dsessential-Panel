@@ -7,6 +7,9 @@ import { qwikify$ } from "@builder.io/qwik-react";
 
 const gptAPI = new ChatGPTAPI({
   apiKey: process.env.OPENAI_API_KEY!,
+  // completionParams: {
+  //   model: "gpt-4",
+  // },
 });
 
 const queryGPT = server$(async (query: string, parentID: string | null) => {
