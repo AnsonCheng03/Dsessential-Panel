@@ -2,7 +2,25 @@ import { $, component$, useSignal } from "@builder.io/qwik";
 import styles from "./index.module.css";
 import { AutoCompleteBox } from "~/components/react/SearchBar";
 import { ChatGPTAPI } from "chatgpt";
+import Markdown from "markdown-to-jsx";
 import { server$ } from "@builder.io/qwik-city";
+import { qwikify$ } from "@builder.io/qwik-react";
+
+const MarkDownJSX = qwikify$(Markdown);
+const gptAPI = new ChatGPTAPI({
+  apiKey: process.env.OPENAI_API_KEY!,
+});
+
+const queryGPT = server$(async (query: string, parentID: string | null) => {
+  console.log("query", parentID);
+  const res = parentID
+    ? await gptAPI.sendMessage(query, {
+        parentMessageId: parentID,
+      })
+    : await gptAPI.sendMessage(query);
+  console.log("res", res);
+  return [res.text, res.id];
+});
 
 export default component$(() => {
   const queryValue = useSignal("");
@@ -21,26 +39,23 @@ export default component$(() => {
     "[閱讀理解] - 請以以下文章，撰寫一份40分的閱讀理解題目，並附答案。每1題的分值由2分至6分，每個答案重點值1分。題目需涵蓋分段，段旨，修辭手法運用，寫作手法運用，深度分析題目。撰寫答案時，請標明每1分的出處。",
   ]);
   const conversation = useSignal<{ type: string; content: string }[]>([]);
-
-  const queryGPT = server$(async (query: string) => {
-    console.log("query", query);
-    const api = new ChatGPTAPI({
-      apiKey: process.env.OPENAI_API_KEY!,
-    });
-    const res = await api.sendMessage(query);
-    console.log(res);
-    return res.text;
-  });
+  const parentID = useSignal<string | null>(null);
 
   const submitQuery = $(async () => {
     if (queryOptions.value.length !== 0) queryOptions.value = [];
+    if (queryValue.value === "") return;
     conversation.value = [
       ...conversation.value,
       { type: "user", content: queryValue.value },
     ];
     waitingResponse.value = true;
-    const res = await queryGPT(queryValue.value);
-    conversation.value = [...conversation.value, { type: "bot", content: res }];
+    const res = await queryGPT(queryValue.value, parentID.value);
+    // const res = ["test\n**aa**pple"];
+    parentID.value = res[1];
+    conversation.value = [
+      ...conversation.value,
+      { type: "bot", content: res[0] },
+    ];
     waitingResponse.value = false;
   });
 
@@ -62,9 +77,16 @@ export default component$(() => {
       </div>
       <div class={styles.conversation}>
         {conversation.value.map((item) => (
-          <div class={styles.item} key={new Date().toISOString()}>
+          <div
+            class={
+              item.type === "user" ? styles.item : [styles.item, styles.bot]
+            }
+            key={new Date().toISOString()}
+          >
             <div class={styles.type}>{item.type}</div>
-            <div class={styles.content}>{item.content}</div>
+            <markDownJSX options={{ forceBlock: true }} class={styles.content}>
+              {item.content}
+            </markDownJSX>
           </div>
         ))}
       </div>
