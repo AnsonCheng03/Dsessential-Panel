@@ -81,9 +81,7 @@ const downloadAsWord = $(async function (
 
   // only get responses from the bot
   const botResponses = conversation.filter((item) => item.type === "bot");
-  const botResponsesText = botResponses
-    .map((item) => item.content)
-    .join("\n\n");
+  const botResponsesText = botResponses.map((item) => item.content).join("\n");
 
   const wordToDownload = await fetch(
     `${await backendAddress()}:3500/gpt-generator/downloadRecord`,
