@@ -72,7 +72,9 @@ const downloadAsWord = server$(async function (
 ) {
   // only get responses from the bot
   const botResponses = conversation.filter((item) => item.type === "bot");
-  const botResponsesText = botResponses.map((item) => item.content).join("\n");
+  const botResponsesText = botResponses
+    .map((item) => item.content)
+    .join("\n\n");
 
   const rawVideo = await fetch(
     `${process.env.BACKEND_ADDRESS}:3500/gpt-generator/downloadRecord`,

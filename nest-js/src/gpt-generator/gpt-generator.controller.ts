@@ -1,7 +1,8 @@
 import { Body, Controller, Post, UseGuards } from '@nestjs/common';
 import { GptGeneratorService } from './gpt-generator.service';
 import { AuthGuard } from 'src/auth/auth.guard';
-
+import createReport from 'docx-templates';
+import * as fs from 'fs';
 @Controller('gpt-generator')
 export class GptGeneratorController {
   constructor(private readonly gptGeneratorService: GptGeneratorService) {}
@@ -9,6 +10,20 @@ export class GptGeneratorController {
   @UseGuards(AuthGuard)
   @Post('downloadRecord')
   async downloadRecord(@Body() body) {
-    console.log(body.text);
+    const template = fs.readFileSync(
+      `${process.env.RESOURCE_PATH}/templates/notes.docx`,
+    );
+
+    const buffer = await createReport({
+      template,
+      data: {
+        notes: body.text,
+      },
+    });
+
+    fs.writeFileSync(
+      `${process.env.RESOURCE_PATH}/templates/notes1.docx`,
+      buffer,
+    );
   }
 }
