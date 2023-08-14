@@ -30,7 +30,12 @@ export default component$(({ adminRole, style, userName }: Props) => {
         />
       )}
       <Form action={signIn}>
-        <input type="hidden" name="providerId" value="credentials" />
+        <input
+          type="hidden"
+          class={style.inputProvider}
+          name="providerId"
+          value="credentials"
+        />
         <div class={style.switchToggle}>
           <input
             class={style.input}
@@ -74,7 +79,38 @@ export default component$(({ adminRole, style, userName }: Props) => {
           autoComplete="current-password"
         />
         <br />
-        <button class={style.button}>登入</button>
+        <div class={style.loginBoxContainer}>
+          <button class={style.button}>登入</button>
+          {adminRole.value && (
+            <div
+              class={style.googleSignInButton}
+              control-id="ControlID-1"
+              onClick$={() => {
+                const inputProvider = document.querySelector(
+                  `.${style.inputProvider}`,
+                ) as HTMLInputElement;
+                if (!inputProvider) return;
+                inputProvider.value = "google";
+                console.log("click");
+
+                const submitButton = document.querySelector(
+                  `.${style.button}`,
+                ) as HTMLButtonElement;
+                console.log(submitButton);
+                if (!submitButton) return;
+                submitButton.click();
+              }}
+            >
+              <img
+                loading="lazy"
+                height="24"
+                width="24"
+                src="https://authjs.dev/img/providers/google.svg"
+              />
+              <span>Sign in with Google</span>
+            </div>
+          )}
+        </div>
         <div
           class={style.resetPasswordContainer}
           onClick$={() => {

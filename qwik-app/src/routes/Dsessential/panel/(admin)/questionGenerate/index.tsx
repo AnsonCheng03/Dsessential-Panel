@@ -21,7 +21,7 @@ const gptAPI = new ChatGPTAPI({
 
 export function MaterialSymbolsBookmarkAdd(
   props: QwikIntrinsicElements["svg"],
-  key: string
+  key: string,
 ) {
   return (
     <svg
@@ -40,7 +40,7 @@ export function MaterialSymbolsBookmarkAdd(
 
 export function MaterialSymbolsDeleteForever(
   props: QwikIntrinsicElements["svg"],
-  key: string
+  key: string,
 ) {
   return (
     <svg
@@ -87,7 +87,7 @@ function createProgressEmitter() {
 
 const queryGPT = server$(async function* (
   query: string,
-  parentID: string | null
+  parentID: string | null,
 ) {
   const { generator: progressGenerator, push: pushProgress } =
     createProgressEmitter();
@@ -119,7 +119,7 @@ const downloadAsWord = $(async function (
     content: string;
     id?: string;
   }[],
-  accessToken: string
+  accessToken: string,
 ) {
   if (conversation.length === 0) return;
 
@@ -138,7 +138,7 @@ const downloadAsWord = $(async function (
       body: JSON.stringify({
         text: botResponsesText,
       }),
-    }
+    },
   );
 
   // download the word file
@@ -155,7 +155,7 @@ const downloadAsWord = $(async function (
 
 const getQueryOptions = server$(async function (
   action?: "append" | "remove",
-  value?: string
+  value?: string,
 ) {
   const queryOptions = await fetch(
     `${await backendAddress()}:3500/gpt-generator/queryOptions`,
@@ -169,7 +169,7 @@ const getQueryOptions = server$(async function (
         action,
         value,
       }),
-    }
+    },
   );
   const res = await queryOptions.json();
   const options = res.questions;
@@ -193,7 +193,7 @@ export default component$(() => {
 
   const submitQuery = $(async () => {
     const queryElement = document.querySelector(
-      `.${styles.queryBar} input`
+      `.${styles.queryBar} input`,
     ) as HTMLInputElement;
     if (queryElement.value) queryValue.value = queryElement.value;
     if (queryValue.value === "") return;
@@ -208,7 +208,7 @@ export default component$(() => {
 
       // Check if the id already exists
       const existingIndex = conversation.value.findIndex(
-        (item) => item.id === i[1]
+        (item) => item.id === i[1],
       );
 
       if (existingIndex !== -1) {
@@ -248,7 +248,7 @@ export default component$(() => {
           class={styles.button}
           onClick$={async () => {
             const queryElement = document.querySelector(
-              `.${styles.queryBar} input`
+              `.${styles.queryBar} input`,
             ) as HTMLInputElement;
             const value = queryElement.value;
             if (!value) return;
@@ -262,7 +262,7 @@ export default component$(() => {
           class={styles.button}
           onClick$={async () => {
             const queryElement = document.querySelector(
-              `.${styles.queryBar} input`
+              `.${styles.queryBar} input`,
             ) as HTMLInputElement;
             const value = queryElement.value;
             if (!value || !queryOptions.value.includes(value)) return;

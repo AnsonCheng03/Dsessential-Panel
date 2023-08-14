@@ -1,5 +1,6 @@
 import { serverAuth$ } from "@builder.io/qwik-auth";
 import Credentials from "@auth/core/providers/credentials";
+import Google from "@auth/core/providers/google";
 import type { Provider } from "@auth/core/providers";
 import { authorizeFunction } from "./auth/auth";
 
@@ -21,6 +22,15 @@ export const { onRequest, useAuthSession, useAuthSignin, useAuthSignout } =
     secret: env.get("AUTH_SECRET"),
     trustHost: true,
     providers: [
+      Google({
+        clientId: process.env.GOOGLE_CLIENT_ID,
+        clientSecret: process.env.GOOGLE_CLIENT_SECRET,
+        authorization: {
+          params: {
+            prompt: "consent",
+          },
+        },
+      }),
       Credentials({
         credentials: {
           role: { label: "Role", type: "select", options: ["admin", "user"] },
@@ -46,6 +56,20 @@ export const { onRequest, useAuthSession, useAuthSignin, useAuthSignout } =
       maxAge: 60 * 60 * 8, // seconds
     },
     callbacks: {
+      async signIn({ account, profile }) {
+        if (account && account.provider === "google") {
+          console.log("Google account", profile);
+          if (
+            profile?.email_verified &&
+            (profile?.email?.endsWith("@dsessential.com") ||
+              profile?.email?.endsWith("@bigappletutorial.com"))
+          ) {
+            return true;
+          }
+          return false;
+        }
+        return true; // Do different verification for other providers that don't have `email_verified`
+      },
       async jwt({ token, user }) {
         if (user) {
           token.accessToken = (user as User).access_token;
