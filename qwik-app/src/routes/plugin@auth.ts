@@ -2,12 +2,12 @@ import { serverAuth$ } from "@builder.io/qwik-auth";
 import Credentials from "@auth/core/providers/credentials";
 import Google from "@auth/core/providers/google";
 import type { Provider } from "@auth/core/providers";
-import { authorizeFunction } from "./auth/auth";
+import { authorizeFunction, googleLogin } from "./auth/auth";
 
 interface Credentials {
   role: string;
   username: string;
-  password: string;
+  password?: string;
 }
 
 interface User {
@@ -16,6 +16,8 @@ interface User {
   username: string;
   access_token?: string;
 }
+
+let tmp_access_token:null|string = null;
 
 export const { onRequest, useAuthSession, useAuthSignin, useAuthSignout } =
   serverAuth$(({ env }) => ({
@@ -56,15 +58,17 @@ export const { onRequest, useAuthSession, useAuthSignin, useAuthSignout } =
       maxAge: 60 * 60 * 8, // seconds
     },
     callbacks: {
-      async signIn({ account, profile }) {
+      async signIn({ account, profile}) {
         if (account && account.provider === "google") {
-          console.log("Google account", profile);
           if (
             profile?.email_verified &&
             (profile?.email?.endsWith("@dsessential.com") ||
-              profile?.email?.endsWith("@hkdsessential.com")||
+              profile?.email?.endsWith("@hkdsessential.com") ||
               profile?.email?.endsWith("@bigappletutorial.com"))
           ) {
+            const token = await googleLogin({ username: profile.email });
+            if (!token) return false;
+            tmp_access_token = token.access_token;
             return true;
           }
           return false;
@@ -73,7 +77,7 @@ export const { onRequest, useAuthSession, useAuthSignin, useAuthSignout } =
       },
       async jwt({ token, user }) {
         if (user) {
-          token.accessToken = (user as User).access_token;
+          token.accessToken = tmp_access_token ? tmp_access_token : (user as User).access_token;
           token.user = user;
         }
         return token;
@@ -84,6 +88,7 @@ export const { onRequest, useAuthSession, useAuthSignin, useAuthSignout } =
           (token.user as User).access_token = undefined;
           (session as any).user = token.user;
           token.user = undefined;
+          tmp_access_token = null;
         }
         return session;
       },

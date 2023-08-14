@@ -57,6 +57,21 @@ export class AuthService {
     };
   }
 
+  async googleSignIn(username) {
+    const payload = {
+      uuid: this.generateUUID(),
+      sub: username,
+      username: username,
+      role: 'admin',
+    };
+    const token = await this.jwtService.signAsync(payload);
+    return {
+      token: token,
+      role: 'admin',
+      id: username,
+    };
+  }
+
   async changeRole(user) {
     const payload = {
       uuid: this.generateUUID(),

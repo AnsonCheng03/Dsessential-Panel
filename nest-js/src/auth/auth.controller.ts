@@ -6,6 +6,7 @@ import {
   HttpStatus,
   Post,
   Request,
+  UnauthorizedException,
   UseGuards,
 } from '@nestjs/common';
 import { AuthGuard } from './auth.guard';
@@ -23,6 +24,14 @@ export class AuthController {
       signInDto.username,
       signInDto.password,
     );
+  }
+
+  @HttpCode(HttpStatus.OK)
+  @Post('google-login')
+  googleLogin(@Body() signInDto: Record<string, any>) {
+    if (signInDto.passkey !== process.env.CROSS_SECRET)
+      throw new UnauthorizedException();
+    return this.authService.googleSignIn(signInDto.username);
   }
 
   @UseGuards(AuthGuard)
