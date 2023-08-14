@@ -1,17 +1,61 @@
-import { $, component$, useSignal, useTask$ } from "@builder.io/qwik";
+import {
+  $,
+  type QwikIntrinsicElements,
+  component$,
+  useSignal,
+  useTask$,
+} from "@builder.io/qwik";
 import styles from "./index.module.css";
 import { AutoCompleteBox } from "~/components/react/SearchBar";
 import { ChatGPTAPI } from "chatgpt";
 import { server$ } from "@builder.io/qwik-city";
 import { useAuthSession } from "~/routes/plugin@auth";
-import { BsDatabaseAdd, BsTrashFill } from "@qwikest/icons/bootstrap";
 
 const gptAPI = new ChatGPTAPI({
   apiKey: process.env.OPENAI_API_KEY!,
   completionParams: {
     model: "gpt-3.5-turbo-16k",
+    // model: "gpt-4",
   },
 });
+
+export function MaterialSymbolsBookmarkAdd(
+  props: QwikIntrinsicElements["svg"],
+  key: string
+) {
+  return (
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      viewBox="0 0 24 24"
+      {...props}
+      key={key}
+    >
+      <path
+        fill="currentColor"
+        d="M5 21V5q0-.825.588-1.413T7 3h7q-.5.75-.75 1.438T13 6q0 1.8 1.137 3.175T17 10.9q.575.075 1 .075t1-.075V21l-7-3l-7 3ZM17 9V7h-2V5h2V3h2v2h2v2h-2v2h-2Z"
+      ></path>
+    </svg>
+  );
+}
+
+export function MaterialSymbolsDeleteForever(
+  props: QwikIntrinsicElements["svg"],
+  key: string
+) {
+  return (
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      viewBox="0 0 24 24"
+      {...props}
+      key={key}
+    >
+      <path
+        fill="currentColor"
+        d="m9.4 16.5l2.6-2.6l2.6 2.6l1.4-1.4l-2.6-2.6L16 9.9l-1.4-1.4l-2.6 2.6l-2.6-2.6L8 9.9l2.6 2.6L8 15.1l1.4 1.4ZM7 21q-.825 0-1.413-.588T5 19V6H4V4h5V3h6v1h5v2h-1v13q0 .825-.588 1.413T17 21H7Z"
+      ></path>
+    </svg>
+  );
+}
 
 function createProgressEmitter() {
   let res: any;
@@ -212,7 +256,7 @@ export default component$(() => {
             queryElement.focus();
           }}
         >
-          <BsDatabaseAdd />
+          <MaterialSymbolsBookmarkAdd />
         </button>
         <button
           class={styles.button}
@@ -228,7 +272,7 @@ export default component$(() => {
             queryElement.focus();
           }}
         >
-          <BsTrashFill />
+          <MaterialSymbolsDeleteForever />
         </button>
         <button
           class={styles.button}
