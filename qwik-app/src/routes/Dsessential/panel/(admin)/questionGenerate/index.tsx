@@ -3,6 +3,7 @@ import styles from "./index.module.css";
 import { AutoCompleteBox } from "~/components/react/SearchBar";
 import { ChatGPTAPI } from "chatgpt";
 import { server$ } from "@builder.io/qwik-city";
+import { useAuthSession } from "~/routes/plugin@auth";
 
 const gptAPI = new ChatGPTAPI({
   apiKey: process.env.OPENAI_API_KEY!,
@@ -63,36 +64,55 @@ const queryGPT = server$(async function* (
   }
 });
 
-const downloadAsWord = server$(async function (
+const backendAddress = server$(async function () {
+  return process.env.BACKEND_ADDRESS;
+});
+
+const downloadAsWord = $(async function (
   conversation: {
     type: string;
     content: string;
     id?: string;
-  }[]
+  }[],
+  accessToken: string
 ) {
+  if (conversation.length === 0) return;
+
   // only get responses from the bot
   const botResponses = conversation.filter((item) => item.type === "bot");
   const botResponsesText = botResponses
     .map((item) => item.content)
     .join("\n\n");
 
-  const rawVideo = await fetch(
-    `${process.env.BACKEND_ADDRESS}:3500/gpt-generator/downloadRecord`,
+  const wordToDownload = await fetch(
+    `${await backendAddress()}:3500/gpt-generator/downloadRecord`,
     {
       method: "POST",
       headers: {
         "content-type": "application/json",
-        authorization: `Bearer ${this.sharedMap.get("session").accessToken}`,
+        authorization: `Bearer ${accessToken}`,
       },
       body: JSON.stringify({
         text: botResponsesText,
       }),
     }
   );
-  return [`${process.env.BACKEND_ADDRESS}:3500/video`, await rawVideo.text()];
+
+  // download the word file
+  const blob = await wordToDownload.blob();
+  const url = window.URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = "gpt.docx";
+  document.body.appendChild(a);
+  a.click();
+  a.remove();
+  window.URL.revokeObjectURL(url);
 });
 
 export default component$(() => {
+  const session = useAuthSession();
+  const accessToken = (session.value as any).accessToken;
   const queryValue = useSignal("");
   const waitingResponse = useSignal(false);
   const queryOptions = useSignal([
@@ -176,7 +196,7 @@ export default component$(() => {
         <button
           class={styles.button}
           onClick$={() => {
-            downloadAsWord(conversation.value);
+            downloadAsWord(conversation.value, accessToken);
           }}
           disabled={waitingResponse.value}
         >
