@@ -46,7 +46,7 @@ export const useFormSubmit = globalAction$(async (input, requestEvent) => {
           }`,
         },
         body: JSON.stringify(output),
-      },
+      }
     );
     const data = await res.json();
     return data;
@@ -72,7 +72,7 @@ export const useFormDelete = globalAction$(async (input, requestEvent) => {
           deleteRow: input.deleteRow,
           ipAddress: requestEvent.clientConn.ip,
         }),
-      },
+      }
     );
     const data = await res.json();
     return data;
@@ -93,7 +93,7 @@ export default component$(
     const studentStatus = useSignal("出席");
     const homeworkCount = useSignal("0");
     const lessonCount = useSignal("1");
-    const paymentMethod = useSignal("上門支付");
+    const paymentMethod = useSignal("無");
     const paymentAmount = useSignal("720");
     const otherItems = useSignal(["無限Video"]);
     const otherItemsDetails = useSignal<string[]>([]);
@@ -118,6 +118,7 @@ export default component$(
 
     const formSubmit = $(async (target: HTMLFormElement) => {
       const formData = new FormData(target);
+      console.log("Data", formData.get("studentName"));
       if (formData.get("studentName") === "") return;
 
       formLoading.value = true;
@@ -144,7 +145,7 @@ export default component$(
       track(() => discountAmount.value);
 
       const formElement = document.querySelector<HTMLFormElement>(
-        `#${formId.value}`,
+        `#${formId.value}`
       );
       if (rowNumber.value) formSubmit(formElement!);
     });
@@ -383,5 +384,5 @@ export default component$(
         )}
       </form>
     );
-  },
+  }
 );

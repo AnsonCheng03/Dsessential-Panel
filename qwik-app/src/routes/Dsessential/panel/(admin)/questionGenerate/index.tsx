@@ -11,15 +11,56 @@ const gptAPI = new ChatGPTAPI({
   // },
 });
 
-const queryGPT = server$(async (query: string, parentID: string | null) => {
-  console.log("query", parentID);
-  const res = parentID
-    ? await gptAPI.sendMessage(query, {
-        parentMessageId: parentID,
-      })
-    : await gptAPI.sendMessage(query);
-  console.log("res", res);
-  return [res.text, res.id];
+function createProgressEmitter() {
+  let res: any;
+  const queue: any = [];
+
+  async function* internalGenerator() {
+    while (true) {
+      if (queue.length > 0) {
+        yield queue.shift();
+      } else {
+        await new Promise((resolve) => {
+          res = resolve;
+        });
+      }
+    }
+  }
+
+  return {
+    generator: internalGenerator(),
+    push: (value: any) => {
+      queue.push(value);
+      if (res) {
+        res();
+        res = null;
+      }
+    },
+  };
+}
+
+const queryGPT = server$(async function* (
+  query: string,
+  parentID: string | null
+) {
+  const { generator: progressGenerator, push: pushProgress } =
+    createProgressEmitter();
+  // Start the API call
+  gptAPI
+    .sendMessage(query, {
+      ...(parentID ? { parentMessageId: parentID } : {}),
+      onProgress: (progress) => {
+        pushProgress([progress.text, progress.id]);
+      },
+    })
+    .then((res) => {
+      // Once done, push the result to the generator
+      pushProgress([res.text, res.id, "END"]);
+    });
+
+  for await (const update of progressGenerator) {
+    yield update;
+  }
 });
 
 export default component$(() => {
@@ -38,7 +79,13 @@ export default component$(() => {
     "[句式判斷] - 請出5句句式判斷練習，並附答案。每題題目中，只有一種句式。考生需判斷該句用了什麼手法。答案範圍：反問句 疑問句 設問句",
     "[閱讀理解] - 請以以下文章，撰寫一份40分的閱讀理解題目，並附答案。每1題的分值由2分至6分，每個答案重點值1分。題目需涵蓋分段，段旨，修辭手法運用，寫作手法運用，深度分析題目。撰寫答案時，請標明每1分的出處。",
   ]);
-  const conversation = useSignal<{ type: string; content: string }[]>([]);
+  const conversation = useSignal<
+    {
+      type: string;
+      content: string;
+      id?: string;
+    }[]
+  >([]);
   const parentID = useSignal<string | null>(null);
 
   const submitQuery = $(async () => {
@@ -53,12 +100,29 @@ export default component$(() => {
     ];
     waitingResponse.value = true;
     const res = await queryGPT(queryValue.value, parentID.value);
-    // const res = ["test\n**aa**pple"];
-    parentID.value = res[1];
-    conversation.value = [
-      ...conversation.value,
-      { type: "bot", content: res[0] },
-    ];
+    for await (const i of res) {
+      parentID.value = i[1];
+
+      // Check if the id already exists
+      const existingIndex = conversation.value.findIndex(
+        (item) => item.id === i[1]
+      );
+
+      if (existingIndex !== -1) {
+        // ID exists, replace content
+        conversation.value[existingIndex].content = i[0];
+        // refresh the array
+        conversation.value = [...conversation.value];
+      } else {
+        // ID doesn't exist, add a new entry
+        conversation.value = [
+          ...conversation.value,
+          { type: "bot", content: i[0], id: i[1] },
+        ];
+      }
+      console.log(i);
+      if (i[2] === "END") break;
+    }
     waitingResponse.value = false;
   });
 
@@ -74,7 +138,11 @@ export default component$(() => {
           placeholder="請輸入問題"
           disabled={waitingResponse.value}
         />
-        <button class={styles.button} onClick$={submitQuery}>
+        <button
+          class={styles.button}
+          onClick$={submitQuery}
+          disabled={waitingResponse.value}
+        >
           生成
         </button>
       </form>
