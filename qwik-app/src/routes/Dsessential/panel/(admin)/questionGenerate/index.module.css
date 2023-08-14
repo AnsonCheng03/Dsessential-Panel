@@ -1,0 +1,61 @@
+.title {
+  margin: 30px 0;
+}
+
+.queryBar {
+  display: grid;
+  grid-template-columns: 1fr 40px 40px 80px 80px;
+  gap: 5px;
+  padding: 0 10px;
+}
+
+.button {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background-color: transparent;
+  border: 1px solid rgb(112, 169, 179);
+  border-radius: 5px;
+  cursor: pointer;
+  transition: all 0.3s ease-in-out;
+}
+
+.button:hover {
+  border: 1px solid #000;
+}
+
+.conversation {
+  margin: 30px 10px 30px 10px;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+}
+
+.item {
+  display: grid;
+  align-items: center;
+  grid-template-columns: 100px 1fr;
+  background-color: transparent;
+  padding: 30px 0;
+  background-color: #fff;
+  cursor: pointer;
+  transition: all 0.3s ease-in-out;
+}
+
+.bot {
+  background: rgb(247, 247, 248);
+}
+
+.content {
+  text-align: left;
+  word-wrap: break-word;
+  text-overflow: ellipsis;
+  padding: 0 10px;
+  color: #000;
+}
+
+.bold {
+  font-weight: bold;
+}
+
+.italic {
+  font-style: italic;
+}

@@ -15,7 +15,7 @@ export const useGetVideoList = routeLoader$(async (requestEvent) => {
         headers: {
           authorization: `Bearer ${accessToken}`,
         },
-      }
+      },
     );
     return await res.json();
   } catch (error) {

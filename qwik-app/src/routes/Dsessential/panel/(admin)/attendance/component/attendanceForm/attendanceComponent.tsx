@@ -93,7 +93,7 @@ export default component$(
     const studentStatus = useSignal("出席");
     const homeworkCount = useSignal("0");
     const lessonCount = useSignal("1");
-    const paymentMethod = useSignal("上門支付");
+    const paymentMethod = useSignal("無");
     const paymentAmount = useSignal("720");
     const otherItems = useSignal(["無限Video"]);
     const otherItemsDetails = useSignal<string[]>([]);
@@ -118,6 +118,7 @@ export default component$(
 
     const formSubmit = $(async (target: HTMLFormElement) => {
       const formData = new FormData(target);
+      console.log("Data", formData.get("studentName"));
       if (formData.get("studentName") === "") return;
 
       formLoading.value = true;
@@ -357,7 +358,7 @@ export default component$(
             </div>
             <input
               class={styles.otherItemsAmount}
-              bind: value={otherItemsAmount}
+              bind:value={otherItemsAmount}
               name="otherItemsAmount"
               placeholder="總價錢"
             />

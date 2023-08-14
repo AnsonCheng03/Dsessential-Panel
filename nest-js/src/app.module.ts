@@ -12,6 +12,8 @@ import { AttendanceService } from './attendance/attendance.service';
 import { AttendanceModule } from './attendance/attendance.module';
 import { ScheduleModule } from '@nestjs/schedule';
 import { CronjobsModule } from './cronjobs/cronjobs.module';
+import { GptGeneratorController } from './gpt-generator/gpt-generator.controller';
+import { GptGeneratorService } from './gpt-generator/gpt-generator.service';
 
 @Module({
   imports: [
@@ -23,7 +25,12 @@ import { CronjobsModule } from './cronjobs/cronjobs.module';
     AttendanceModule,
     CronjobsModule,
   ],
-  controllers: [AppController, VideoController, AttendanceController],
-  providers: [AppService, VideoService, AttendanceService],
+  controllers: [
+    AppController,
+    VideoController,
+    AttendanceController,
+    GptGeneratorController,
+  ],
+  providers: [AppService, VideoService, AttendanceService, GptGeneratorService],
 })
 export class AppModule {}

@@ -23,7 +23,7 @@ export const authorizeFunction = async (credentials: Credentials) => {
                 authorization: `Bearer ${loginBody.password}`,
               },
               body: JSON.stringify(loginBody),
-            }
+            },
           )
         : await fetch(`${process.env.BACKEND_ADDRESS}:3500/auth/login`, {
             method: "POST",
