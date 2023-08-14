@@ -59,15 +59,6 @@ app.use(express.static(distDir, { redirect: false }));
 // Use Qwik City's page and endpoint request handler
 app.use(router);
 
-app.enable("trust proxy");
-app.use(function (request, response, next) {
-  if (process.env.NODE_ENV != "development" && !request.secure) {
-    return response.redirect("https://" + request.headers.host + request.url);
-  }
-
-  next();
-});
-
 // Use Qwik City's 404 handler
 app.use(notFound);
 
@@ -80,14 +71,21 @@ const certificate = fs.readFileSync(
 
 const credentials = { key: privateKey, cert: certificate };
 
-const httpServer = http.createServer(app);
 const httpsServer = https.createServer(credentials, app);
-
-// Start the express server
-httpServer.listen(process.env.HTTP_PORT ?? 80, () => {
-  console.log("HTTP Server started");
-});
 
 httpsServer.listen(process.env.PORT ?? 3000, () => {
   console.log("HTTPS Server started");
+});
+
+// set up plain http server
+const httpServer = express();
+
+// set up a route to redirect http to https
+httpServer.get("*", function (req, res) {
+  res.redirect("https://" + req.headers.host + req.url);
+});
+
+// have it listen on 8080
+httpServer.listen(process.env.HTTP_PORT ?? 80, () => {
+  console.log("HTTP Server started");
 });
