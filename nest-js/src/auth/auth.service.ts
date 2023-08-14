@@ -101,4 +101,24 @@ export class AuthService {
       id: user.sub,
     };
   }
+
+  isIntranetIp(ip: string): boolean {
+    if (ip === '127.0.0.1' || ip === '::1') return true;
+
+    const segments = ip.split('.').map((segment) => parseInt(segment, 10));
+
+    if (segments.length !== 4) return false;
+
+    // // Check 10.0.0.0/8
+    // if (segments[0] === 10) return true;
+
+    // Check 172.16.0.0/12
+    if (segments[0] === 172 && segments[1] >= 16 && segments[1] <= 31)
+      return true;
+
+    // // Check 192.168.0.0/16
+    // if (segments[0] === 192 && segments[1] === 168) return true;
+
+    return false;
+  }
 }

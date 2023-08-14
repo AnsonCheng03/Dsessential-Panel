@@ -8,6 +8,7 @@ import {
   Request,
   UnauthorizedException,
   UseGuards,
+  Ip,
 } from '@nestjs/common';
 import { AuthGuard } from './auth.guard';
 import { AuthService } from './auth.service';
@@ -28,7 +29,10 @@ export class AuthController {
 
   @HttpCode(HttpStatus.OK)
   @Post('google-login')
-  googleLogin(@Body() signInDto: Record<string, any>) {
+  googleLogin(@Body() signInDto: Record<string, any>, @Ip() ip: string) {
+    if (!this.authService.isIntranetIp(ip)) {
+      throw new UnauthorizedException(`Invalid IP: ${ip}`);
+    }
     if (signInDto.passkey !== process.env.CROSS_SECRET)
       throw new UnauthorizedException();
     return this.authService.googleSignIn(signInDto.username);
