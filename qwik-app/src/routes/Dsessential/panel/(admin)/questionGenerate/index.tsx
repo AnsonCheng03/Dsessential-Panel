@@ -6,9 +6,9 @@ import { server$ } from "@builder.io/qwik-city";
 
 const gptAPI = new ChatGPTAPI({
   apiKey: process.env.OPENAI_API_KEY!,
-  // completionParams: {
-  //   model: "gpt-4",
-  // },
+  completionParams: {
+    model: "gpt-3.5-turbo-16k",
+  },
 });
 
 function createProgressEmitter() {
@@ -61,6 +61,33 @@ const queryGPT = server$(async function* (
   for await (const update of progressGenerator) {
     yield update;
   }
+});
+
+const downloadAsWord = server$(async function (
+  conversation: {
+    type: string;
+    content: string;
+    id?: string;
+  }[]
+) {
+  // only get responses from the bot
+  const botResponses = conversation.filter((item) => item.type === "bot");
+  const botResponsesText = botResponses.map((item) => item.content).join("\n");
+
+  const rawVideo = await fetch(
+    `${process.env.BACKEND_ADDRESS}:3500/gpt-generator/downloadRecord`,
+    {
+      method: "POST",
+      headers: {
+        "content-type": "application/json",
+        authorization: `Bearer ${this.sharedMap.get("session").accessToken}`,
+      },
+      body: JSON.stringify({
+        text: botResponsesText,
+      }),
+    }
+  );
+  return [`${process.env.BACKEND_ADDRESS}:3500/video`, await rawVideo.text()];
 });
 
 export default component$(() => {
@@ -120,7 +147,6 @@ export default component$(() => {
           { type: "bot", content: i[0], id: i[1] },
         ];
       }
-      console.log(i);
       if (i[2] === "END") break;
     }
     waitingResponse.value = false;
@@ -144,6 +170,15 @@ export default component$(() => {
           disabled={waitingResponse.value}
         >
           生成
+        </button>
+        <button
+          class={styles.button}
+          onClick$={() => {
+            downloadAsWord(conversation.value);
+          }}
+          disabled={waitingResponse.value}
+        >
+          下載
         </button>
       </form>
       <div class={styles.conversation}>
