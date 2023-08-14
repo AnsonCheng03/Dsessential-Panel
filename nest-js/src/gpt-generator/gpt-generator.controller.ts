@@ -25,4 +25,28 @@ export class GptGeneratorController {
 
     return new StreamableFile(buffer);
   }
+
+  @UseGuards(AuthGuard)
+  @Post('queryOptions')
+  async queryOptions(@Body() body) {
+    const questionsPath = fs.readFileSync(
+      `${process.env.RESOURCE_PATH}/templates/gptQuestions.json`,
+    );
+    const questionJSON = JSON.parse(questionsPath.toString());
+    if (body.action) {
+      if (body.action === 'append') {
+        if (questionJSON.questions.includes(body.value)) return questionJSON;
+        questionJSON.questions.push(body.value);
+      } else if (body.action === 'remove') {
+        questionJSON.questions = questionJSON.questions.filter(
+          (question) => question !== body.value,
+        );
+      }
+      fs.writeFileSync(
+        `${process.env.RESOURCE_PATH}/templates/gptQuestions.json`,
+        JSON.stringify(questionJSON),
+      );
+    }
+    return questionJSON;
+  }
 }
