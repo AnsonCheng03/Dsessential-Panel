@@ -77,15 +77,13 @@ httpsServer.listen(process.env.PORT ?? 3000, () => {
   console.log("HTTPS Server started");
 });
 
-// set up plain http server
-const httpServer = express();
-
-// set up a route to redirect http to https
-httpServer.get("*", function (req, res) {
-  res.redirect("https://" + req.headers.host + req.url);
-});
-
-// have it listen on 8080
-httpServer.listen(process.env.HTTP_PORT ?? 80, () => {
-  console.log("HTTP Server started");
-});
+http
+  .createServer(function (req, res) {
+    res.writeHead(301, {
+      Location: "https://" + req.headers["host"] + req.url,
+    });
+    res.end();
+  })
+  .listen(process.env.HTTP_PORT ?? 80, () => {
+    console.log("HTTP Server started");
+  });
