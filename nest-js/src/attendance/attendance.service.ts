@@ -25,11 +25,23 @@ export class AttendanceService {
   async createData(data: any) {
     const doc = await this.initSheet();
     const sheet = doc.sheetsByTitle['學生報到機2021.8'];
+
     const result = await sheet.addRow(data, {
       insert: true,
     });
 
-    return { rowNumber: result.rowNumber };
+    const rowNumber = result.rowNumber;
+    await sheet.loadCells(`N${rowNumber}:P${rowNumber}`);
+    let studentData: string | false = false;
+
+    if (!sheet.getCellByA1(`N${rowNumber}`).errorValue)
+      studentData = sheet.getCellByA1(`N${rowNumber}`).value as string;
+    else if (!sheet.getCellByA1(`O${rowNumber}`).errorValue)
+      studentData = sheet.getCellByA1(`O${rowNumber}`).value as string;
+    else if (!sheet.getCellByA1(`P${rowNumber}`).errorValue)
+      studentData = sheet.getCellByA1(`P${rowNumber}`).value as string;
+
+    return { rowNumber: rowNumber, studentData };
   }
 
   async modifyData(rowNumber: string, data: any) {
@@ -41,7 +53,18 @@ export class AttendanceService {
     });
     rows[0].assign(data);
     await rows[0].save();
-    return { rowNumber };
+
+    await sheet.loadCells(`N${rowNumber}:P${rowNumber}`);
+    let studentData: string | false = false;
+
+    if (!sheet.getCellByA1(`N${rowNumber}`).errorValue)
+      studentData = sheet.getCellByA1(`N${rowNumber}`).value as string;
+    else if (!sheet.getCellByA1(`O${rowNumber}`).errorValue)
+      studentData = sheet.getCellByA1(`O${rowNumber}`).value as string;
+    else if (!sheet.getCellByA1(`P${rowNumber}`).errorValue)
+      studentData = sheet.getCellByA1(`P${rowNumber}`).value as string;
+
+    return { rowNumber, studentData };
   }
 
   // Warning: there are bugs to empty rows
