@@ -62,6 +62,7 @@ export const { onRequest, useAuthSession, useAuthSignin, useAuthSignout } =
           if (
             profile?.email_verified &&
             (profile?.email?.endsWith("@dsessential.com") ||
+              profile?.email?.endsWith("@hkdsessential.com")||
               profile?.email?.endsWith("@bigappletutorial.com"))
           ) {
             return true;
