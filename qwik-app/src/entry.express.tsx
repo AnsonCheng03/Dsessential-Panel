@@ -59,6 +59,15 @@ app.use(express.static(distDir, { redirect: false }));
 // Use Qwik City's page and endpoint request handler
 app.use(router);
 
+app.enable("trust proxy");
+app.use(function (request, response, next) {
+  if (process.env.NODE_ENV != "development" && !request.secure) {
+    return response.redirect("https://" + request.headers.host + request.url);
+  }
+
+  next();
+});
+
 // Use Qwik City's 404 handler
 app.use(notFound);
 
@@ -66,7 +75,7 @@ app.use(notFound);
 const privateKey = fs.readFileSync(`${process.env.CERT_PATH}/cert.key`, "utf8");
 const certificate = fs.readFileSync(
   `${process.env.CERT_PATH}/cert.crt`,
-  "utf8",
+  "utf8"
 );
 
 const credentials = { key: privateKey, cert: certificate };
