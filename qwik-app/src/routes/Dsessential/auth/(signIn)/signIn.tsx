@@ -1,5 +1,5 @@
 import { type Signal, component$, $ } from "@builder.io/qwik";
-import { Form, useLocation, useNavigate } from "@builder.io/qwik-city";
+import { Form, server$, useLocation, useNavigate } from "@builder.io/qwik-city";
 import Prompt from "~/components/prompt/prompt";
 import { useAuthSignin } from "~/routes/plugin@auth";
 
@@ -9,6 +9,10 @@ interface Props {
   style: CSSModuleClasses;
   userName: Signal<string | undefined>;
 }
+
+const getCallbackUrl = server$(async () => {
+  return `${process.env.ORIGIN}/Dsessential`;
+});
 
 export default component$(({ adminRole, style, userName }: Props) => {
   const signIn = useAuthSignin();
@@ -88,6 +92,9 @@ export default component$(({ adminRole, style, userName }: Props) => {
               onClick$={async () =>
                 signIn.submit({
                   providerId: "google",
+                  options: {
+                    callbackUrl: await getCallbackUrl(),
+                  },
                 })
               }
             >
@@ -106,7 +113,7 @@ export default component$(({ adminRole, style, userName }: Props) => {
           onClick$={() => {
             // formState.value = "resetPassword";
             nav(
-              "https://nas.dsessential.com:5000/Dsessential/auth/resetpw.php",
+              "https://nas.dsessential.com:5000/Dsessential/auth/resetpw.php"
             );
           }}
         >
