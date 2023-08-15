@@ -51,6 +51,7 @@ export const { onRequest, useAuthSession, useAuthSignin, useAuthSignout } =
             prompt: "consent",
           },
         },
+        redirectProxyUrl: `${process.env.ORIGIN}/api/auth`,
       }),
     ] as Provider[],
     session: {
@@ -58,7 +59,7 @@ export const { onRequest, useAuthSession, useAuthSignin, useAuthSignout } =
       maxAge: 60 * 60 * 8, // seconds
     },
     callbacks: {
-      async signIn({ account, profile}) {
+      async signIn({ account, profile }) {
         if (account && account.provider === "google") {
           if (
             profile?.email_verified &&
