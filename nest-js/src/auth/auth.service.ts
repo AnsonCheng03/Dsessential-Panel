@@ -154,7 +154,7 @@ export class AuthService {
 
     if (parts[0] === 172 && parts[1] >= 16 && parts[1] <= 31) return true;
 
-    if (parts[0] === 192 && parts[1] === 160) return true;
+    if (parts[0] === 192 && parts[1] === 168) return true;
 
     return false;
   }
