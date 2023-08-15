@@ -1,6 +1,7 @@
 import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { UsersService } from '../users/users.service';
 import { JwtService } from '@nestjs/jwt';
+import { createPool } from 'mysql2/promise';
 
 @Injectable()
 export class AuthService {
@@ -8,6 +9,17 @@ export class AuthService {
     private usersService: UsersService,
     private jwtService: JwtService,
   ) {}
+
+  private readonly pool = createPool({
+    host: process.env.DB_HOST || 'localhost',
+    port: parseInt(process.env.DB_PORT) || 3306,
+    user: process.env.DB_USER || 'root',
+    password: process.env.DB_PASSWORD,
+    database: process.env.DB_LOGIN,
+    waitForConnections: true,
+    connectionLimit: 10,
+    queueLimit: 0,
+  });
 
   generateUUID() {
     // Public Domain/MIT
@@ -100,6 +112,35 @@ export class AuthService {
       role: user.role,
       id: user.sub,
     };
+  }
+
+  async logUser(username: string) {
+    const connection = await this.pool.getConnection();
+    try {
+      await connection.execute(
+        'INSERT INTO `loginLog` \
+        (`Account`) VALUES(?)',
+        [username],
+      );
+    } catch (err) {
+      console.log(err);
+    } finally {
+      connection.release();
+    }
+  }
+
+  async loginLog() {
+    const connection = await this.pool.getConnection();
+    try {
+      const [rows] = await connection.execute(
+        'SELECT * FROM `loginLog` ORDER BY `Time` DESC',
+      );
+      return rows;
+    } catch (err) {
+      console.log(err);
+    } finally {
+      connection.release();
+    }
   }
 
   isIntranetIp(ip: string): boolean {

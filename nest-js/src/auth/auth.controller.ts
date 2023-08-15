@@ -2,6 +2,8 @@ import {
   Body,
   Controller,
   Get,
+  Res,
+  Req,
   HttpCode,
   HttpStatus,
   Post,
@@ -22,6 +24,7 @@ export class AuthController {
   signIn(@Body() signInDto: Record<string, any>) {
     if (!signInDto.username || !signInDto.password)
       throw new UnauthorizedException();
+    this.authService.logUser(signInDto.username);
     return this.authService.signIn(
       signInDto.role,
       signInDto.username,
@@ -37,6 +40,7 @@ export class AuthController {
     }
     if (signInDto.passkey !== process.env.CROSS_SECRET)
       throw new UnauthorizedException();
+    this.authService.logUser(signInDto.username);
     return this.authService.googleSignIn(signInDto.username);
   }
 
@@ -53,5 +57,15 @@ export class AuthController {
   @Get('profile')
   getProfile(@Request() req) {
     return req.user;
+  }
+
+  @UseGuards(AuthGuard)
+  @Post('login-log')
+  async loginLog(@Res() res, @Body() body, @Req() req) {
+    if (req.user.role !== 'admin')
+      return res.sendStatus(HttpStatus.UNAUTHORIZED);
+
+    const log = await this.authService.loginLog();
+    return res.status(HttpStatus.OK).send(log);
   }
 }

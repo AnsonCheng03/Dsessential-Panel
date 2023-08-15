@@ -22,7 +22,6 @@ export const googleLogin = async (credentials: Credentials) => {
       },
     );
 
-
     if (loginResponse.status !== 200 && loginResponse.status !== 201)
       return null;
 
@@ -59,13 +58,16 @@ export const authorizeFunction = async (credentials: Credentials) => {
               body: JSON.stringify(loginBody),
             },
           )
-        : await fetch(`${process.env.SERVER_ADDRESS}:${process.env.BACKEND_PORT}/auth/login`, {
-            method: "POST",
-            headers: {
-              "Content-Type": "application/json",
+        : await fetch(
+            `${process.env.SERVER_ADDRESS}:${process.env.BACKEND_PORT}/auth/login`,
+            {
+              method: "POST",
+              headers: {
+                "Content-Type": "application/json",
+              },
+              body: JSON.stringify(loginBody),
             },
-            body: JSON.stringify(loginBody),
-          });
+          );
 
     if (loginResponse.status !== 200 && loginResponse.status !== 201)
       return null;

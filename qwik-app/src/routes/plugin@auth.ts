@@ -17,14 +17,14 @@ interface User {
   access_token?: string;
 }
 
-let tmp_access_token:null|string = null;
+let tmp_access_token: null | string = null;
 
 export const { onRequest, useAuthSession, useAuthSignin, useAuthSignout } =
   serverAuth$(({ env }) => ({
     secret: env.get("AUTH_SECRET"),
     trustHost: true,
     providers: [
-            Credentials({
+      Credentials({
         credentials: {
           role: { label: "Role", type: "select", options: ["admin", "user"] },
           username: { label: "Username" },
@@ -79,7 +79,9 @@ export const { onRequest, useAuthSession, useAuthSignin, useAuthSignout } =
       },
       async jwt({ token, user }) {
         if (user) {
-          token.accessToken = tmp_access_token ? tmp_access_token : (user as User).access_token;
+          token.accessToken = tmp_access_token
+            ? tmp_access_token
+            : (user as User).access_token;
           token.user = user;
         }
         return token;

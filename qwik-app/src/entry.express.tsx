@@ -66,7 +66,7 @@ app.use(notFound);
 const privateKey = fs.readFileSync(`${process.env.CERT_PATH}/cert.key`, "utf8");
 const certificate = fs.readFileSync(
   `${process.env.CERT_PATH}/cert.crt`,
-  "utf8"
+  "utf8",
 );
 
 const credentials = { key: privateKey, cert: certificate };
