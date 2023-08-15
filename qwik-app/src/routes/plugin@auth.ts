@@ -51,7 +51,6 @@ export const { onRequest, useAuthSession, useAuthSignin, useAuthSignout } =
             prompt: "consent",
           },
         },
-        redirectProxyUrl: `${env.get("SERVER_ADDRESS")}:${env.get("FRONTEND_PORT")}/api/auth`,
       }),
     ] as Provider[],
     session: {

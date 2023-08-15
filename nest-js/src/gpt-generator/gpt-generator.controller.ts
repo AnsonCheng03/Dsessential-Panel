@@ -1,4 +1,10 @@
-import { Body, Controller, Post, StreamableFile, UseGuards } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Post,
+  StreamableFile,
+  UseGuards,
+} from '@nestjs/common';
 import { GptGeneratorService } from './gpt-generator.service';
 import { AuthGuard } from 'src/auth/auth.guard';
 import createReport from 'docx-templates';
