@@ -10,10 +10,6 @@ interface Props {
   userName: Signal<string | undefined>;
 }
 
-const getCallbackUrl = server$(() => {
-  return `${process.env.ORIGIN}/Dsessential/auth`;
-});
-
 export default component$(({ adminRole, style, userName }: Props) => {
   const signIn = useAuthSignin();
   const nav = useNavigate();
@@ -92,9 +88,6 @@ export default component$(({ adminRole, style, userName }: Props) => {
               onClick$={async () =>
                 signIn.submit({
                   providerId: "google",
-                  options: {
-                    callbackUrl: await getCallbackUrl(),
-                  },
                 })
               }
             >

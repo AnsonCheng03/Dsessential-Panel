@@ -49,9 +49,10 @@ export const { onRequest, useAuthSession, useAuthSignin, useAuthSignout } =
         authorization: {
           params: {
             prompt: "consent",
+            access_type: "offline",
+            response_type: "code",
           },
         },
-        redirectProxyUrl: `${process.env.ORIGIN}/api/auth`,
       }),
     ] as Provider[],
     session: {
