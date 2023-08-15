@@ -35,7 +35,7 @@ export const useFormSubmit = globalAction$(async (input, requestEvent) => {
 
   try {
     const res = await fetch(
-      `${process.env.BACKEND_ADDRESS}:3500/attendance/sendForm`,
+      `${process.env.SERVER_ADDRESS}:${process.env.BACKEND_PORT}/attendance/sendForm`,
       {
         method: "POST",
         cache: "no-store",
@@ -46,7 +46,7 @@ export const useFormSubmit = globalAction$(async (input, requestEvent) => {
           }`,
         },
         body: JSON.stringify(output),
-      },
+      }
     );
     const data = await res.json();
     return data;
@@ -58,7 +58,7 @@ export const useFormSubmit = globalAction$(async (input, requestEvent) => {
 export const useFormDelete = globalAction$(async (input, requestEvent) => {
   try {
     const res = await fetch(
-      `${process.env.BACKEND_ADDRESS}:3500/attendance/deleteForm`,
+      `${process.env.SERVER_ADDRESS}:${process.env.BACKEND_PORT}/attendance/deleteForm`,
       {
         method: "POST",
         cache: "no-store",
@@ -72,7 +72,7 @@ export const useFormDelete = globalAction$(async (input, requestEvent) => {
           deleteRow: input.deleteRow,
           ipAddress: requestEvent.clientConn.ip,
         }),
-      },
+      }
     );
     const data = await res.json();
     return data;
@@ -146,7 +146,7 @@ export default component$(
       track(() => discountAmount.value);
 
       const formElement = document.querySelector<HTMLFormElement>(
-        `#${formId.value}`,
+        `#${formId.value}`
       );
       if (rowNumber.value) formSubmit(formElement!);
     });
@@ -399,5 +399,5 @@ export default component$(
         )}
       </form>
     );
-  },
+  }
 );

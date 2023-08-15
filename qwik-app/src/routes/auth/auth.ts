@@ -12,7 +12,7 @@ export const googleLogin = async (credentials: Credentials) => {
 
   try {
     const loginResponse = await fetch(
-      `${process.env.BACKEND_ADDRESS}:3500/auth/google-login`,
+      `${process.env.SERVER_ADDRESS}:${process.env.BACKEND_PORT}/auth/google-login`,
       {
         method: "POST",
         headers: {
@@ -49,7 +49,7 @@ export const authorizeFunction = async (credentials: Credentials) => {
     const loginResponse =
       loginBody.role === "changeRole" || loginBody.role === "refreshToken"
         ? await fetch(
-            `${process.env.BACKEND_ADDRESS}:3500/auth/protected-login`,
+            `${process.env.SERVER_ADDRESS}:${process.env.BACKEND_PORT}/auth/protected-login`,
             {
               method: "POST",
               headers: {
@@ -59,7 +59,7 @@ export const authorizeFunction = async (credentials: Credentials) => {
               body: JSON.stringify(loginBody),
             },
           )
-        : await fetch(`${process.env.BACKEND_ADDRESS}:3500/auth/login`, {
+        : await fetch(`${process.env.SERVER_ADDRESS}:${process.env.BACKEND_PORT}/auth/login`, {
             method: "POST",
             headers: {
               "Content-Type": "application/json",
@@ -71,6 +71,8 @@ export const authorizeFunction = async (credentials: Credentials) => {
       return null;
 
     const user = await loginResponse.json();
+
+    console.log("user: ", user);
 
     return {
       id: user.id,

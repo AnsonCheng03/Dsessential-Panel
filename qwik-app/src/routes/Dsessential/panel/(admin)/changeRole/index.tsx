@@ -11,14 +11,14 @@ export const useGetAllUser = routeLoader$(async (requestEvent) => {
   const accessToken = requestEvent.sharedMap.get("session").accessToken;
   try {
     const res = await fetch(
-      `${process.env.BACKEND_ADDRESS}:3500/users/getAllUsers`,
+      `${process.env.SERVER_ADDRESS}:${process.env.BACKEND_PORT}/users/getAllUsers`,
       {
         method: "POST",
         cache: "no-store",
         headers: {
           authorization: `Bearer ${accessToken}`,
         },
-      },
+      }
     );
 
     const data = await res.json();
@@ -46,8 +46,8 @@ export default component$(() => {
   } else
     options.map((obj: any) =>
       Object.values(obj).forEach(
-        (value, index) => value && groupOptions[index].push(value as string),
-      ),
+        (value, index) => value && groupOptions[index].push(value as string)
+      )
     );
 
   const clickSwitchUser = $(async () => {

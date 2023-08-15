@@ -24,16 +24,7 @@ export const { onRequest, useAuthSession, useAuthSignin, useAuthSignout } =
     secret: env.get("AUTH_SECRET"),
     trustHost: true,
     providers: [
-      Google({
-        clientId: process.env.GOOGLE_CLIENT_ID,
-        clientSecret: process.env.GOOGLE_CLIENT_SECRET,
-        authorization: {
-          params: {
-            prompt: "consent",
-          },
-        },
-      }),
-      Credentials({
+            Credentials({
         credentials: {
           role: { label: "Role", type: "select", options: ["admin", "user"] },
           username: { label: "Username" },
@@ -51,6 +42,16 @@ export const { onRequest, useAuthSession, useAuthSignin, useAuthSignout } =
             access_token: user.access_token as string,
           };
         },
+      }),
+      Google({
+        clientId: process.env.GOOGLE_CLIENT_ID,
+        clientSecret: process.env.GOOGLE_CLIENT_SECRET,
+        authorization: {
+          params: {
+            prompt: "consent",
+          },
+        },
+        redirectProxyUrl: `${env.get("SERVER_ADDRESS")}:${env.get("FRONTEND_PORT")}/api/auth`,
       }),
     ] as Provider[],
     session: {
