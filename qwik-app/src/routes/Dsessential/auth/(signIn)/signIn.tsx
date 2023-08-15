@@ -1,5 +1,5 @@
 import { type Signal, component$, $ } from "@builder.io/qwik";
-import { Form, server$, useLocation, useNavigate } from "@builder.io/qwik-city";
+import { Form, useLocation, useNavigate } from "@builder.io/qwik-city";
 import Prompt from "~/components/prompt/prompt";
 import { useAuthSignin } from "~/routes/plugin@auth";
 
