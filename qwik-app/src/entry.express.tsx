@@ -37,7 +37,7 @@ const { router, notFound } = createQwikCity({
   getOrigin(req) {
     // If deploying under a proxy, you may need to build the origin from the request headers
     // https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/X-Forwarded-Proto
-    const protocol = req.headers["x-forwarded-proto"] ?? "http";
+    const protocol = req.headers["x-forwarded-proto"] ?? "https";
     // https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/X-Forwarded-Host
     const host = req.headers["x-forwarded-host"] ?? req.headers.host;
     return `${protocol}://${host}`;
