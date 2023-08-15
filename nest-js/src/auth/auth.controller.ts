@@ -20,6 +20,8 @@ export class AuthController {
   @HttpCode(HttpStatus.OK)
   @Post('login')
   signIn(@Body() signInDto: Record<string, any>) {
+    if (!signInDto.username || !signInDto.password)
+      throw new UnauthorizedException();
     return this.authService.signIn(
       signInDto.role,
       signInDto.username,
