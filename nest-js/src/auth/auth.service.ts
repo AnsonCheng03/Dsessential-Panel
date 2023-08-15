@@ -2,7 +2,6 @@ import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { UsersService } from '../users/users.service';
 import { JwtService } from '@nestjs/jwt';
 import { createPool } from 'mysql2/promise';
-import { IpNetwork, parseCIDR } from 'ip6';
 
 @Injectable()
 export class AuthService {
