@@ -74,8 +74,6 @@ export const authorizeFunction = async (credentials: Credentials) => {
 
     const user = await loginResponse.json();
 
-    console.log("user: ", user);
-
     return {
       id: user.id,
       role: user.role,

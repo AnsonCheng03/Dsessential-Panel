@@ -2,6 +2,7 @@ import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { UsersService } from '../users/users.service';
 import { JwtService } from '@nestjs/jwt';
 import { createPool } from 'mysql2/promise';
+import { IpNetwork, parseCIDR } from 'ip6';
 
 @Injectable()
 export class AuthService {
@@ -143,23 +144,47 @@ export class AuthService {
     }
   }
 
-  isIntranetIp(ip: string): boolean {
-    if (ip === '127.0.0.1' || ip === '::1') return true;
+  isLocalIPv4(ip: string): boolean {
+    const parts = ip.split('.').map((part) => parseInt(part, 10));
 
-    const segments = ip.split('.').map((segment) => parseInt(segment, 10));
+    if (parts.length !== 4) return false;
 
-    if (segments.length !== 4) return false;
+    if (ip === '127.0.0.1') return true;
 
-    // // Check 10.0.0.0/8
-    // if (segments[0] === 10) return true;
+    // if (parts[0] === 10) return true;
 
-    // Check 172.16.0.0/12
-    if (segments[0] === 172 && segments[1] >= 16 && segments[1] <= 31)
-      return true;
+    if (parts[0] === 172 && parts[1] >= 16 && parts[1] <= 31) return true;
 
-    // // Check 192.168.0.0/16
-    // if (segments[0] === 192 && segments[1] === 168) return true;
+    if (parts[0] === 192 && parts[1] === 160) return true;
 
     return false;
+  }
+
+  isLocalIPv6(ip: string): boolean {
+    if (ip === '::1') return true;
+
+    if (ip.startsWith('fc00:') || ip.startsWith('fd00:')) return true;
+
+    return false;
+  }
+
+  isMappedIPv4(ip: string): string | null {
+    if (ip.startsWith('::ffff:')) {
+      return ip.replace('::ffff:', '');
+    }
+    return null;
+  }
+
+  isIntranetIp(ip: string): boolean {
+    if (ip.includes(':')) {
+      if (this.isLocalIPv6(ip)) return true;
+
+      const mappedIp = this.isMappedIPv4(ip);
+      if (mappedIp) return this.isLocalIPv4(mappedIp);
+
+      return false;
+    }
+
+    return this.isLocalIPv4(ip);
   }
 }

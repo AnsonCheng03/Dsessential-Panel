@@ -27,8 +27,6 @@ export class GptGeneratorController {
       },
     });
 
-    console.log(buffer);
-
     return new StreamableFile(buffer);
   }
 
