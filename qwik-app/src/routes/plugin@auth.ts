@@ -88,11 +88,15 @@ export const { onRequest, useAuthSession, useAuthSignin, useAuthSignout } =
       },
       async session({ session, token }) {
         if (session.user) {
-          (session as any).accessToken = token.accessToken;
-          (token.user as User).access_token = undefined;
-          (session as any).user = token.user;
-          token.user = undefined;
-          tmp_access_token = null;
+          try {
+            (session as any).accessToken = token.accessToken;
+            (token.user as User).access_token = undefined;
+            (session as any).user = token.user;
+            token.user = undefined;
+            tmp_access_token = null;
+          } catch (e) {
+            console.log(e);
+          }
         }
         return session;
       },

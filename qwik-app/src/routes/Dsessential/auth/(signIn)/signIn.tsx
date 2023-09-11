@@ -10,10 +10,6 @@ interface Props {
   userName: Signal<string | undefined>;
 }
 
-const getCallbackUrl = server$(async () => {
-  return `${process.env.ORIGIN}/Dsessential`;
-});
-
 export default component$(({ adminRole, style, userName }: Props) => {
   const signIn = useAuthSignin();
   const nav = useNavigate();
@@ -93,7 +89,7 @@ export default component$(({ adminRole, style, userName }: Props) => {
                 signIn.submit({
                   providerId: "google",
                   options: {
-                    callbackUrl: await getCallbackUrl(),
+                    callbackUrl: "/Dsessential",
                   },
                 })
               }
@@ -113,7 +109,7 @@ export default component$(({ adminRole, style, userName }: Props) => {
           onClick$={() => {
             // formState.value = "resetPassword";
             nav(
-              "https://nas.dsessential.com:5000/Dsessential/auth/resetpw.php",
+              "https://nas.dsessential.com:5000/Dsessential/auth/resetpw.php"
             );
           }}
         >
