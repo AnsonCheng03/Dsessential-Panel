@@ -14,8 +14,8 @@ import { useAuthSession } from "~/routes/plugin@auth";
 const gptAPI = new ChatGPTAPI({
   apiKey: process.env.OPENAI_API_KEY!,
   completionParams: {
-    model: "gpt-3.5-turbo-16k",
-    // model: "gpt-4",
+    // model: "gpt-3.5-turbo-16k",
+    model: "gpt-4",
   },
 });
 
