@@ -63,10 +63,13 @@ app.use(router);
 app.use(notFound);
 
 // enable https
-const privateKey = fs.readFileSync(`${process.env.CERT_PATH}/cert.key`, "utf8");
+const privateKey = fs.readFileSync(
+  `${process.env.CERT_PATH}/privkey.pem`,
+  "utf8"
+);
 const certificate = fs.readFileSync(
-  `${process.env.CERT_PATH}/cert.crt`,
-  "utf8",
+  `${process.env.CERT_PATH}/cert.pem`,
+  "utf8"
 );
 
 const credentials = { key: privateKey, cert: certificate };
