@@ -85,11 +85,16 @@ export class VideoController {
     });
     const videoPathDir = videoPath.split('/').slice(0, -1).join('/');
     let fileName = videoPath.split('/').pop()?.split('.')[0];
+    const originalExtension = videoPath.split('/').pop()?.split('.')[1];
 
     // check if filename has space replace it with underscore
     if (fileName.includes(' ')) {
       try {
         const newFileName = fileName.replace(/ /g, '_');
+        fs.renameSync(
+          `${videoPathDir}/${fileName}.${originalExtension}`,
+          `${videoPathDir}/${newFileName}.${originalExtension}`,
+        );
         fs.renameSync(
           `${videoPathDir}/ts-${fileName}`,
           `${videoPathDir}/ts-${newFileName}`,
