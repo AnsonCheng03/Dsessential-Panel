@@ -88,16 +88,20 @@ export class VideoController {
 
     // check if filename has space replace it with underscore
     if (fileName.includes(' ')) {
-      const newFileName = fileName.replace(/ /g, '_');
-      fs.renameSync(
-        `${videoPathDir}/ts-${fileName}`,
-        `${videoPathDir}/ts-${newFileName}`,
-      );
-      fs.writeFileSync(
-        `/tmp/Dsessential-Videos/${videoKey}`,
-        `${videoPathDir}/ts-${newFileName}`,
-      );
-      fileName = newFileName;
+      try {
+        const newFileName = fileName.replace(/ /g, '_');
+        fs.renameSync(
+          `${videoPathDir}/ts-${fileName}`,
+          `${videoPathDir}/ts-${newFileName}`,
+        );
+        fs.writeFileSync(
+          `/tmp/Dsessential-Videos/${videoKey}`,
+          `${videoPathDir}/ts-${newFileName}`,
+        );
+        fileName = newFileName;
+      } catch (error) {
+        console.log(error);
+      }
     }
 
     if (fs.existsSync(`${videoPathDir}/ts-${fileName}`)) {
@@ -146,7 +150,7 @@ export class VideoController {
     }
 
     // if folder ${videoPathDir}/ts-${fileName} not exist, create it
-    
+
     await this.videoService.createM3U8(videoPathDir, fileName, videoPath, res);
   }
 
