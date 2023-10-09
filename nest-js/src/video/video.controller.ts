@@ -84,7 +84,21 @@ export class VideoController {
       encoding: 'utf8',
     });
     const videoPathDir = videoPath.split('/').slice(0, -1).join('/');
-    const fileName = videoPath.split('/').pop()?.split('.')[0];
+    let fileName = videoPath.split('/').pop()?.split('.')[0];
+
+    // check if filename has space replace it with underscore
+    if (fileName.includes(' ')) {
+      const newFileName = fileName.replace(/ /g, '_');
+      fs.renameSync(
+        `${videoPathDir}/ts-${fileName}`,
+        `${videoPathDir}/ts-${newFileName}`,
+      );
+      fs.writeFileSync(
+        `/tmp/Dsessential-Videos/${videoKey}`,
+        `${videoPathDir}/ts-${newFileName}`,
+      );
+      fileName = newFileName;
+    }
 
     if (fs.existsSync(`${videoPathDir}/ts-${fileName}`)) {
       if (fs.existsSync(`${videoPathDir}/ts-${fileName}/progress.txt`)) {
@@ -132,6 +146,7 @@ export class VideoController {
     }
 
     // if folder ${videoPathDir}/ts-${fileName} not exist, create it
+    
     await this.videoService.createM3U8(videoPathDir, fileName, videoPath, res);
   }
 
