@@ -27,7 +27,7 @@ export class VideoController {
   @Post('createStream')
   async createStream(@Res() res, @Body() body, @Req() req) {
     // create route with randomID
-    const temporaryID = await this.videoService.createRandomID();
+    let temporaryID = await this.videoService.createRandomID();
 
     while (fs.existsSync(`/tmp/Dsessential-Videos/${temporaryID}`))
       temporaryID = await this.videoService.createRandomID();
