@@ -80,7 +80,7 @@ export class VideoController {
     @Req() req,
     @Param('videoKey') videoKey: string,
   ) {
-    const videoPath = fs.readFileSync(`/tmp/Dsessential-Videos/${videoKey}`, {
+    let videoPath = fs.readFileSync(`/tmp/Dsessential-Videos/${videoKey}`, {
       encoding: 'utf8',
     });
     const videoPathDir = videoPath.split('/').slice(0, -1).join('/');
@@ -91,19 +91,21 @@ export class VideoController {
     if (fileName.includes(' ')) {
       try {
         const newFileName = fileName.replace(/ /g, '_');
+        const newVideoPath = videoPath.replace(fileName, newFileName);
+
         fs.renameSync(
           `${videoPathDir}/${fileName}.${originalExtension}`,
           `${videoPathDir}/${newFileName}.${originalExtension}`,
         );
-        fs.renameSync(
-          `${videoPathDir}/ts-${fileName}`,
-          `${videoPathDir}/ts-${newFileName}`,
-        );
-        fs.writeFileSync(
-          `/tmp/Dsessential-Videos/${videoKey}`,
-          `${videoPathDir}/ts-${newFileName}`,
-        );
+        // remove the ts- folder with old filename if exist
+        if (fs.existsSync(`${videoPathDir}/ts-${fileName}`)) {
+          fs.rmSync(`${videoPathDir}/ts-${fileName}`, {
+            recursive: true,
+            force: true,
+          });
+        }
         fileName = newFileName;
+        videoPath = newVideoPath;
       } catch (error) {
         console.log(error);
       }
