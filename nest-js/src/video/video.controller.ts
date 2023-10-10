@@ -32,7 +32,9 @@ export class VideoController {
     // create routing file
     if (!fs.existsSync(`/tmp/Dsessential-Videos`))
       fs.mkdirSync(`/tmp/Dsessential-Videos`);
-    await fs.writeFileSync(`/tmp/Dsessential-Videos/${temporaryID}`, body.url);
+    // get video url and replace all space with underscore
+    const videoURL = body.url.replace(/ /g, '_');
+    await fs.writeFileSync(`/tmp/Dsessential-Videos/${temporaryID}`, videoURL);
     res.status(HttpStatus.CREATED).send(temporaryID);
 
     const fileName = body.url.split('/').pop()?.split('.')[0];
