@@ -92,11 +92,13 @@ export class VideoController {
       try {
         const newFileName = fileName.replace(/ /g, '_');
         const newVideoPath = videoPath.replace(fileName, newFileName);
-
-        fs.renameSync(
-          `${videoPathDir}/${fileName}.${originalExtension}`,
-          `${videoPathDir}/${newFileName}.${originalExtension}`,
-        );
+        // rename the file if exist
+        if (fs.existsSync(`${videoPathDir}/${fileName}.${originalExtension}`)) {
+          fs.renameSync(
+            `${videoPathDir}/${fileName}.${originalExtension}`,
+            `${videoPathDir}/${newFileName}.${originalExtension}`,
+          );
+        }
         // remove the ts- folder with old filename if exist
         if (fs.existsSync(`${videoPathDir}/ts-${fileName}`)) {
           fs.rmSync(`${videoPathDir}/ts-${fileName}`, {
