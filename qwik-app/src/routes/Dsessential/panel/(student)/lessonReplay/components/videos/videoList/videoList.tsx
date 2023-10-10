@@ -35,7 +35,7 @@ export default component$(
             }`,
           },
           body: JSON.stringify({ url }),
-        },
+        }
       );
       return [
         `${process.env.SERVER_ADDRESS}:${process.env.BACKEND_PORT}/video`,
@@ -45,7 +45,7 @@ export default component$(
 
     const fetchVideoKey = $(async function (
       fetchURL: string,
-      videoKey: string,
+      videoKey: string
     ) {
       const keyObject = await fetch(`${fetchURL}/getKey/${videoKey}`, {
         method: "POST",
@@ -62,7 +62,7 @@ export default component$(
     const fetchVideo = $(async function (
       fetchURL: string,
       videoKey: string,
-      keyBlobURL: string,
+      keyBlobURL: string
     ) {
       return await fetch(`${fetchURL}/stream/${videoKey}`, {
         method: "POST",
@@ -99,14 +99,16 @@ export default component$(
 
       let videoStatus = video.status;
       const loopID = currentVideoID.value;
+      let videoGeneration = false;
 
       // fetch again until it status is 200
       while (videoStatus !== 200 && loopID === currentVideoID.value) {
+        videoGeneration = true;
         try {
           const video = await fetchVideo(
             backendURL,
             currentVideoID.value,
-            keyURL,
+            keyURL
           );
           videoStatus = video.status;
           loadingPercent.value = (await video.json()).percent;
@@ -118,6 +120,12 @@ export default component$(
       }
 
       loadingPercent.value = null;
+
+      if (videoGeneration) {
+        const key = await fetchVideoKey(backendURL, currentVideoID.value);
+        keyURL = URL.createObjectURL(key);
+        video = await fetchVideo(backendURL, currentVideoID.value, keyURL);
+      }
 
       if (videoElement) {
         if (Hls.isSupported()) {
@@ -172,7 +180,7 @@ export default component$(
                   return (
                     (searchValue.value === "" ||
                       [...video[1].video, ...video[1].notes].find((item) =>
-                        item.includes(searchValue.value),
+                        item.includes(searchValue.value)
                       )) && (
                       <div
                         key={`${episode[0]}-${video[0]}`}
@@ -227,5 +235,5 @@ export default component$(
         })}
       </>
     );
-  },
+  }
 );

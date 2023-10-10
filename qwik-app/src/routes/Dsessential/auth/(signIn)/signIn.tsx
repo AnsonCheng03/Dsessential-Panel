@@ -114,7 +114,7 @@ export default component$(({ adminRole, style, userName }: Props) => {
           }}
         >
           <div class={style.resetPassword}>
-            按此重設密碼<a class={style.bold}>首次登入請點擊這裡</a>
+            按此重設密碼<p class={style.bold}>首次登入請點擊這裡</p>
           </div>
         </div>
       </Form>
