@@ -29,6 +29,9 @@ export class VideoController {
     // create route with randomID
     const temporaryID = await this.videoService.createRandomID();
 
+    while (fs.existsSync(`/tmp/Dsessential-Videos/${temporaryID}`))
+      temporaryID = await this.videoService.createRandomID();
+
     // create routing file
     if (!fs.existsSync(`/tmp/Dsessential-Videos`))
       fs.mkdirSync(`/tmp/Dsessential-Videos`);
