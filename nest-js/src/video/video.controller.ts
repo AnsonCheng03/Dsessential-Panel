@@ -33,7 +33,15 @@ export class VideoController {
     if (!fs.existsSync(`/tmp/Dsessential-Videos`))
       fs.mkdirSync(`/tmp/Dsessential-Videos`);
     // get video url and replace all space with underscore
-    const videoURL = body.url.replace(/ /g, '_');
+    let videoURL = body.url;
+
+    if (videoURL.includes(' ')) {
+      if (fs.existsSync(`videoURL`)) {
+        await fs.renameSync(videoURL, videoURL.replace(/ /g, '_'));
+      }
+      videoURL = videoURL.replace(/ /g, '_');
+    }
+
     await fs.writeFileSync(`/tmp/Dsessential-Videos/${temporaryID}`, videoURL);
     res.status(HttpStatus.CREATED).send(temporaryID);
 
@@ -87,36 +95,6 @@ export class VideoController {
     });
     const videoPathDir = videoPath.split('/').slice(0, -1).join('/');
     let fileName = videoPath.split('/').pop()?.split('.')[0];
-    const originalExtension = videoPath.split('/').pop()?.split('.')[1];
-
-    // check if filename has space replace it with underscore
-    if (fileName.includes(' ')) {
-      try {
-        const newFileName = fileName.replace(/ /g, '_');
-        const newVideoPath = videoPath.replace(fileName, newFileName);
-        // rename the file if exist
-        console.log(
-          `rename: ${videoPathDir}/${fileName}.${originalExtension}`,
-        );
-        if (fs.existsSync(`${videoPathDir}/${fileName}.${originalExtension}`)) {
-          await fs.renameSync(
-            `${videoPathDir}/${fileName}.${originalExtension}`,
-            `${videoPathDir}/${newFileName}.${originalExtension}`,
-          );
-        }
-        // remove the ts- folder with old filename if exist
-        if (fs.existsSync(`${videoPathDir}/ts-${fileName}`)) {
-          await fs.rmSync(`${videoPathDir}/ts-${fileName}`, {
-            recursive: true,
-            force: true,
-          });
-        }
-        fileName = newFileName;
-        videoPath = newVideoPath;
-      } catch (error) {
-        console.log(error);
-      }
-    }
 
     if (fs.existsSync(`${videoPathDir}/ts-${fileName}`)) {
       if (fs.existsSync(`${videoPathDir}/ts-${fileName}/progress.txt`)) {
