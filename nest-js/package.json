@@ -29,7 +29,7 @@
     "@nestjs/schedule": "^3.0.1",
     "@types/bcrypt": "^5.0.0",
     "bcrypt": "^5.1.0",
-    "crypto-js": "^4.1.1",
+    "crypto-js": "^4.2.0",
     "docx-templates": "^4.11.3",
     "ffmpeg-installer": "^1.0.2",
     "fluent-ffmpeg": "^2.1.2",
