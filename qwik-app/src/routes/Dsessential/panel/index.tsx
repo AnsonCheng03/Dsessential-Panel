@@ -13,7 +13,7 @@ export const useGetUserData = routeLoader$(async (requestEvent) => {
         headers: {
           authorization: `Bearer ${accessToken}`,
         },
-      },
+      }
     );
 
     const data = await res.json();
@@ -29,7 +29,7 @@ export default component$(() => {
   return (
     <>
       <div class={styles.profileBox}>
-        <img src={logo}></img>
+        <img alt={"logo"} src={logo}></img>
         <br />
         學生編號：{userData?.username} <br />
         角色： {userData?.role === "student" ? "學生" : "管理員"}

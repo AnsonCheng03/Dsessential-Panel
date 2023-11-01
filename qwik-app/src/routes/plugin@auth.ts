@@ -35,11 +35,11 @@ export const { onRequest, useAuthSession, useAuthSignin, useAuthSignout } =
         ): Promise<User | null> {
           const user = await authorizeFunction(credentials as Credentials);
           if (!user) return null;
+          tmp_access_token = user.access_token;
           return {
             id: user.id as string,
             role: user.role as string,
             username: user.id as string,
-            access_token: user.access_token as string,
           };
         },
       }),
@@ -75,28 +75,21 @@ export const { onRequest, useAuthSession, useAuthSignin, useAuthSignout } =
           }
           return false;
         }
-        return true; // Do different verification for other providers that don't have `email_verified`
+        return true;
       },
       async jwt({ token, user }) {
         if (user) {
-          token.accessToken = tmp_access_token
-            ? tmp_access_token
-            : (user as User).access_token;
+          token.accessToken = tmp_access_token;
           token.user = user;
+          tmp_access_token = null;
         }
         return token;
       },
       async session({ session, token }) {
         if (session.user) {
-          try {
-            (session as any).accessToken = token.accessToken;
-            (token.user as User).access_token = undefined;
+          (session as any).accessToken = token.accessToken;
+          if (token.user) 
             (session as any).user = token.user;
-            token.user = undefined;
-            tmp_access_token = null;
-          } catch (e) {
-            console.log(e);
-          }
         }
         return session;
       },
