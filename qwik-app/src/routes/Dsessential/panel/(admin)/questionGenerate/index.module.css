@@ -4,7 +4,7 @@
 
 .queryBar {
   display: grid;
-  grid-template-columns: 1fr 40px 40px 80px 80px;
+  grid-template-columns: 1fr 60px 60px 60px;
   gap: 5px;
   padding: 0 10px;
 }
@@ -21,7 +21,22 @@
 }
 
 .button:hover {
-  border: 1px solid #000;
+  border: 1px solid rgb(3, 138, 255);
+}
+
+.textarea {
+  padding: 5px 10px;
+  font-size: 14px;
+  border-radius: 5px;
+  resize: none;
+  min-height: 18px;
+  border: 1px solid rgb(112, 169, 179);
+}
+
+.textarea:focus,
+.textarea:hover {
+  outline: none;
+  border: 1px solid rgb(3, 138, 255);
 }
 
 .conversation {
@@ -58,4 +73,53 @@
 
 .italic {
   font-style: italic;
+}
+
+.options {
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+  margin: 10px 10px;
+  border-radius: 5px;
+}
+
+.options .subtitle {
+  padding: 10px;
+  margin: 0;
+  background-color: #fff;
+  border-radius: 5px 5px 0 0;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+}
+.options .optionContainer {
+  display: grid;
+  gap: 5px;
+  border-radius: 0 0 5px 5px;
+  background-color: rgb(247, 247, 248);
+  max-height: 55vh;
+  overflow: auto;
+}
+
+.options .option {
+  display: grid;
+  grid-template-columns: 1fr 80px;
+  border-bottom: 1px solid rgb(112, 169, 179);
+  transition: all 0.3s ease-in-out;
+}
+.options .option:last-child {
+  border-bottom: none;
+}
+
+.options .question,
+.options .delete {
+  border: none;
+  outline: none;
+  text-align: left;
+  cursor: pointer;
+  background-color: transparent;
+  padding: 10px 10px;
+}
+
+.options .delete {
+  border: 1px solid rgb(112, 169, 179);
+  border-radius: 5px;
+  text-align: center;
+  margin: 5px;
 }
