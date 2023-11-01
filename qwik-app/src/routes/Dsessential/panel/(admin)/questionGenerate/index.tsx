@@ -56,7 +56,7 @@ const queryGPT = server$(async function* (
     })
     .then((res) => {
       // Once done, push the result to the generator
-      pushProgress([res.text, res.id, "END"]);
+      pushProgress([res.text, res.id, res.detail?.choices[0].finish_reason]);
     });
 
   for await (const update of progressGenerator) {
@@ -147,14 +147,9 @@ export default component$(() => {
   >([]);
   const parentID = useSignal<string | null>(null);
 
-  const submitQuery = $(async () => {
-    if (queryValue.value === "") return;
-    conversation.value = [
-      ...conversation.value,
-      { type: "user", content: queryValue.value },
-    ];
-    waitingResponse.value = true;
-    const res = await queryGPT(queryValue.value, parentID.value);
+  const requestGPT = $(async (requestValue: string) => {
+    console.log("requesting", requestValue, parentID.value);
+    const res = await queryGPT(requestValue, parentID.value);
     for await (const i of res) {
       parentID.value = i[1];
 
@@ -176,12 +171,32 @@ export default component$(() => {
           { type: "bot", content: i[0], id: i[1] },
         ];
       }
-      if (i[2] === "END") {
-        // clear the query
-        queryValue.value = "";
+      if (i[2]) {
+        console.log("done");
+        if (i[2] === "length") return "length";
         break;
       }
     }
+    queryValue.value = "";
+    return "done";
+  });
+
+  const submitQuery = $(async () => {
+    if (queryValue.value === "") return;
+    conversation.value = [
+      ...conversation.value,
+      { type: "user", content: queryValue.value },
+    ];
+    waitingResponse.value = true;
+    let currentQuery = queryValue.value;
+    let status = "";
+    do {
+      console.log(status);
+      status = await requestGPT(currentQuery);
+      if (status === "length") {
+        currentQuery = "continue";
+      }
+    } while (status !== "done");
     waitingResponse.value = false;
   });
 
