@@ -30,7 +30,12 @@ export default component$(({ adminRole, style, userName }: Props) => {
         />
       )}
       <Form action={signIn}>
-        <input type="hidden" name="providerId" value="credentials" />
+        <input
+          type="hidden"
+          class={style.inputProvider}
+          name="providerId"
+          value="credentials"
+        />
         <div class={style.switchToggle}>
           <input
             class={style.input}
@@ -74,7 +79,31 @@ export default component$(({ adminRole, style, userName }: Props) => {
           autoComplete="current-password"
         />
         <br />
-        <button class={style.button}>登入</button>
+        <div class={style.loginBoxContainer}>
+          <button class={style.button}>登入</button>
+          {adminRole.value && (
+            <div
+              class={style.googleSignInButton}
+              control-id="ControlID-1"
+              onClick$={async () =>
+                signIn.submit({
+                  providerId: "google",
+                  options: {
+                    callbackUrl: "/Dsessential",
+                  },
+                })
+              }
+            >
+              <img
+                loading="lazy"
+                height="24"
+                width="24"
+                src="https://authjs.dev/img/providers/google.svg"
+              />
+              <span>Sign in with Google</span>
+            </div>
+          )}
+        </div>
         <div
           class={style.resetPasswordContainer}
           onClick$={() => {
@@ -85,7 +114,7 @@ export default component$(({ adminRole, style, userName }: Props) => {
           }}
         >
           <div class={style.resetPassword}>
-            按此重設密碼<a class={style.bold}>首次登入請點擊這裡</a>
+            按此重設密碼<p class={style.bold}>首次登入請點擊這裡</p>
           </div>
         </div>
       </Form>

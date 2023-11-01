@@ -37,7 +37,7 @@ const { router, notFound } = createQwikCity({
   getOrigin(req) {
     // If deploying under a proxy, you may need to build the origin from the request headers
     // https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/X-Forwarded-Proto
-    const protocol = req.headers["x-forwarded-proto"] ?? "http";
+    const protocol = req.headers["x-forwarded-proto"] ?? "https";
     // https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/X-Forwarded-Host
     const host = req.headers["x-forwarded-host"] ?? req.headers.host;
     return `${protocol}://${host}`;
@@ -63,22 +63,30 @@ app.use(router);
 app.use(notFound);
 
 // enable https
-const privateKey = fs.readFileSync(`${process.env.CERT_PATH}/cert.key`, "utf8");
+const privateKey = fs.readFileSync(
+  `${process.env.CERT_PATH}/privkey.pem`,
+  "utf8",
+);
 const certificate = fs.readFileSync(
-  `${process.env.CERT_PATH}/cert.crt`,
-  "utf8"
+  `${process.env.CERT_PATH}/cert.pem`,
+  "utf8",
 );
 
 const credentials = { key: privateKey, cert: certificate };
 
-const httpServer = http.createServer(app);
 const httpsServer = https.createServer(credentials, app);
-
-// Start the express server
-httpServer.listen(process.env.HTTP_PORT ?? 80, () => {
-  console.log("HTTP Server started");
-});
 
 httpsServer.listen(process.env.PORT ?? 3000, () => {
   console.log("HTTPS Server started");
 });
+
+http
+  .createServer(function (req, res) {
+    res.writeHead(301, {
+      Location: "https://" + req.headers["host"] + req.url,
+    });
+    res.end();
+  })
+  .listen(process.env.HTTP_PORT ?? 80, () => {
+    console.log("HTTP Server started");
+  });

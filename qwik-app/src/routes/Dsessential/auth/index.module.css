@@ -140,3 +140,34 @@
   color: #000;
   margin-top: 10px;
 }
+
+.loginBoxContainer {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+}
+
+.inputProvider {
+  display: none;
+}
+
+.googleSignInButton {
+  background-color: #fff;
+  border: 1px solid #4285f4;
+  border-radius: 5px;
+  color: #4285f4;
+  cursor: pointer;
+  font-size: 14px;
+  height: 50px;
+  width: calc((60% - 50px) / 2);
+  margin: 25px 0px 15px 0px;
+  transition: all 250ms;
+  user-select: none;
+  -webkit-user-select: none;
+  touch-action: manipulation;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+}

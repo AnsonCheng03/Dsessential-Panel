@@ -35,7 +35,7 @@ export const useFormSubmit = globalAction$(async (input, requestEvent) => {
 
   try {
     const res = await fetch(
-      `${process.env.BACKEND_ADDRESS}:3500/attendance/sendForm`,
+      `${process.env.SERVER_ADDRESS}:${process.env.BACKEND_PORT}/attendance/sendForm`,
       {
         method: "POST",
         cache: "no-store",
@@ -46,7 +46,7 @@ export const useFormSubmit = globalAction$(async (input, requestEvent) => {
           }`,
         },
         body: JSON.stringify(output),
-      }
+      },
     );
     const data = await res.json();
     return data;
@@ -58,7 +58,7 @@ export const useFormSubmit = globalAction$(async (input, requestEvent) => {
 export const useFormDelete = globalAction$(async (input, requestEvent) => {
   try {
     const res = await fetch(
-      `${process.env.BACKEND_ADDRESS}:3500/attendance/deleteForm`,
+      `${process.env.SERVER_ADDRESS}:${process.env.BACKEND_PORT}/attendance/deleteForm`,
       {
         method: "POST",
         cache: "no-store",
@@ -72,7 +72,7 @@ export const useFormDelete = globalAction$(async (input, requestEvent) => {
           deleteRow: input.deleteRow,
           ipAddress: requestEvent.clientConn.ip,
         }),
-      }
+      },
     );
     const data = await res.json();
     return data;
@@ -104,6 +104,7 @@ export default component$(
     const formLoading = useSignal(false);
     const formDeleted = useSignal(false);
     const rowNumber = useSignal<null | string>(null);
+    const studentData = useSignal<false | string>(false);
 
     useVisibleTask$(() => {
       setTimeout(() => {
@@ -118,12 +119,12 @@ export default component$(
 
     const formSubmit = $(async (target: HTMLFormElement) => {
       const formData = new FormData(target);
-      console.log("Data", formData.get("studentName"));
       if (formData.get("studentName") === "") return;
 
       formLoading.value = true;
       if (!rowNumber.value) formAmount.value++;
       const { value } = await submitToServer.submit(formData);
+      studentData.value = value.studentData;
       rowNumber.value = value.rowNumber;
       formLoading.value = false;
     });
@@ -145,7 +146,7 @@ export default component$(
       track(() => discountAmount.value);
 
       const formElement = document.querySelector<HTMLFormElement>(
-        `#${formId.value}`
+        `#${formId.value}`,
       );
       if (rowNumber.value) formSubmit(formElement!);
     });
@@ -177,16 +178,30 @@ export default component$(
             bind:value={rowNumber as Signal<string>}
           />
         )}
-        <div class={[styles.containerRows, styles.studentDetails]}>
+        <div
+          class={
+            rowNumber.value
+              ? [styles.containerRows, styles.studentDetails, styles.doneSubmit]
+              : [styles.containerRows, styles.studentDetails]
+          }
+        >
           <AutoCompleteBox
             size="small"
-            disabled={!!rowNumber.value}
             searchValue={searchValue}
             options={options}
             freeSolo
             placeholder="卡號/姓名/電話號碼"
           />
           <input type="hidden" bind:value={searchValue} name="studentName" />
+          <div
+            class={
+              studentData.value
+                ? styles.statusBox
+                : [styles.statusBox, styles.notFound]
+            }
+          >
+            {studentData.value ? studentData.value : "找不到"}
+          </div>
           <Toggle
             selectValue={studentStatus.value}
             onChange$={(v) => (studentStatus.value = v)}
@@ -384,5 +399,5 @@ export default component$(
         )}
       </form>
     );
-  }
+  },
 );

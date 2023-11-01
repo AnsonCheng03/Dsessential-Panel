@@ -36,6 +36,31 @@
   gap: 0 10px;
 }
 
+.statusBox {
+  border: 1px solid #1976d2;
+  color: #1976d2;
+  border-radius: 4px;
+  padding: 11px 10px;
+  font-size: 0.8125rem;
+}
+
+.statusBox.notFound {
+  border: 1px solid #ff4c30;
+  color: #ff4c30;
+}
+
+.studentDetails.doneSubmit {
+  grid-template-columns: 1fr 80px 200px;
+}
+
+.studentDetails .statusBox {
+  display: none;
+}
+
+.doneSubmit .statusBox {
+  display: unset;
+}
+
 .containerBox {
   display: grid;
   grid-template-columns: 1fr;

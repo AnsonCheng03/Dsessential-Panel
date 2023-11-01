@@ -90,6 +90,7 @@ export default component$(() => {
               ["Item", "閉路電視", "#"],
               */
               ["Item", "轉換身分", "/panel/changeRole"],
+              ["Item", "登入紀錄", "/panel/loginLog"],
               /*
               ["List", "系統管理", "#", [
                 ["Item", "訪問紀錄", "#"],

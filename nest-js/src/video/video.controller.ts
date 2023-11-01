@@ -27,12 +27,27 @@ export class VideoController {
   @Post('createStream')
   async createStream(@Res() res, @Body() body, @Req() req) {
     // create route with randomID
-    const temporaryID = await this.videoService.createRandomID();
+    let temporaryID = await this.videoService.createRandomID();
+
+    while (fs.existsSync(`/tmp/Dsessential-Videos/${temporaryID}`))
+      temporaryID = await this.videoService.createRandomID();
 
     // create routing file
     if (!fs.existsSync(`/tmp/Dsessential-Videos`))
       fs.mkdirSync(`/tmp/Dsessential-Videos`);
-    await fs.writeFileSync(`/tmp/Dsessential-Videos/${temporaryID}`, body.url);
+    // get video url and replace all space with underscore
+    let videoURL = body.url;
+
+    if (videoURL.includes(' ')) {
+      console.log('videoURL', videoURL);
+      if (fs.existsSync(videoURL)) {
+        console.log('rename file');
+        await fs.renameSync(videoURL, videoURL.replace(/ /g, '_'));
+      }
+      videoURL = videoURL.replace(/ /g, '_');
+    }
+
+    await fs.writeFileSync(`/tmp/Dsessential-Videos/${temporaryID}`, videoURL);
     res.status(HttpStatus.CREATED).send(temporaryID);
 
     const fileName = body.url.split('/').pop()?.split('.')[0];
@@ -132,6 +147,7 @@ export class VideoController {
     }
 
     // if folder ${videoPathDir}/ts-${fileName} not exist, create it
+
     await this.videoService.createM3U8(videoPathDir, fileName, videoPath, res);
   }
 

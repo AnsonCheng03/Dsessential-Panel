@@ -127,12 +127,12 @@ export default component$(({ navlist }: { navlist: any }) => {
           </div>
 
           <div class={styles.logoutSign}>
-            <a
+            <button
               class={[styles.button, styles.transparent]}
               onClick$={() => signOut.submit({})}
             >
               登出
-            </a>
+            </button>
           </div>
         </div>
 

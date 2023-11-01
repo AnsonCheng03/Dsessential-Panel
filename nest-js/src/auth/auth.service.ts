@@ -1,6 +1,7 @@
 import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { UsersService } from '../users/users.service';
 import { JwtService } from '@nestjs/jwt';
+import { createPool } from 'mysql2/promise';
 
 @Injectable()
 export class AuthService {
@@ -8,6 +9,17 @@ export class AuthService {
     private usersService: UsersService,
     private jwtService: JwtService,
   ) {}
+
+  private readonly pool = createPool({
+    host: process.env.DB_HOST || 'localhost',
+    port: parseInt(process.env.DB_PORT) || 3306,
+    user: process.env.DB_USER || 'root',
+    password: process.env.DB_PASSWORD,
+    database: process.env.DB_LOGIN,
+    waitForConnections: true,
+    connectionLimit: 10,
+    queueLimit: 0,
+  });
 
   generateUUID() {
     // Public Domain/MIT
@@ -57,6 +69,21 @@ export class AuthService {
     };
   }
 
+  async googleSignIn(username) {
+    const payload = {
+      uuid: this.generateUUID(),
+      sub: username,
+      username: username,
+      role: 'admin',
+    };
+    const token = await this.jwtService.signAsync(payload);
+    return {
+      token: token,
+      role: 'admin',
+      id: username,
+    };
+  }
+
   async changeRole(user) {
     const payload = {
       uuid: this.generateUUID(),
@@ -85,5 +112,78 @@ export class AuthService {
       role: user.role,
       id: user.sub,
     };
+  }
+
+  async logUser(username: string) {
+    const connection = await this.pool.getConnection();
+    try {
+      await connection.execute(
+        'INSERT INTO `loginLog` \
+        (`Account`) VALUES(?)',
+        [username],
+      );
+    } catch (err) {
+      console.log(err);
+    } finally {
+      connection.release();
+    }
+  }
+
+  async loginLog() {
+    const connection = await this.pool.getConnection();
+    try {
+      const [rows] = await connection.execute(
+        'SELECT * FROM `loginLog` ORDER BY `Time` DESC',
+      );
+      return rows;
+    } catch (err) {
+      console.log(err);
+    } finally {
+      connection.release();
+    }
+  }
+
+  isLocalIPv4(ip: string): boolean {
+    const parts = ip.split('.').map((part) => parseInt(part, 10));
+
+    if (parts.length !== 4) return false;
+
+    if (ip === '127.0.0.1') return true;
+
+    // if (parts[0] === 10) return true;
+
+    if (parts[0] === 172 && parts[1] >= 16 && parts[1] <= 31) return true;
+
+    if (parts[0] === 192 && parts[1] === 168) return true;
+
+    return false;
+  }
+
+  isLocalIPv6(ip: string): boolean {
+    if (ip === '::1') return true;
+
+    if (ip.startsWith('fc00:') || ip.startsWith('fd00:')) return true;
+
+    return false;
+  }
+
+  isMappedIPv4(ip: string): string | null {
+    if (ip.startsWith('::ffff:')) {
+      return ip.replace('::ffff:', '');
+    }
+    return null;
+  }
+
+  isIntranetIp(ip: string): boolean {
+    if (ip.includes(':')) {
+      if (this.isLocalIPv6(ip)) return true;
+
+      const mappedIp = this.isMappedIPv4(ip);
+      if (mappedIp) return this.isLocalIPv4(mappedIp);
+
+      return false;
+    }
+
+    return this.isLocalIPv4(ip);
   }
 }

@@ -25,7 +25,7 @@ export default component$(
 
     const fetchVideoLink = server$(async function (url: string) {
       const rawVideo = await fetch(
-        `${process.env.BACKEND_ADDRESS}:3500/video/createStream`,
+        `${process.env.SERVER_ADDRESS}:${process.env.BACKEND_PORT}/video/createStream`,
         {
           method: "POST",
           headers: {
@@ -38,7 +38,7 @@ export default component$(
         },
       );
       return [
-        `${process.env.BACKEND_ADDRESS}:3500/video`,
+        `${process.env.SERVER_ADDRESS}:${process.env.BACKEND_PORT}/video`,
         await rawVideo.text(),
       ];
     });
@@ -99,9 +99,11 @@ export default component$(
 
       let videoStatus = video.status;
       const loopID = currentVideoID.value;
+      let videoGeneration = false;
 
       // fetch again until it status is 200
       while (videoStatus !== 200 && loopID === currentVideoID.value) {
+        videoGeneration = true;
         try {
           const video = await fetchVideo(
             backendURL,
@@ -118,6 +120,12 @@ export default component$(
       }
 
       loadingPercent.value = null;
+
+      if (videoGeneration) {
+        const key = await fetchVideoKey(backendURL, currentVideoID.value);
+        keyURL = URL.createObjectURL(key);
+        video = await fetchVideo(backendURL, currentVideoID.value, keyURL);
+      }
 
       if (videoElement) {
         if (Hls.isSupported()) {
@@ -212,7 +220,6 @@ export default component$(
                                 class={styles.videoButton}
                                 onClick$={async () => {
                                   const rawVideo = await fetchVideoLink(url);
-                                  console.log(typeof rawVideo);
                                 }}
                               >
                                 {fileName}

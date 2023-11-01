@@ -6,7 +6,7 @@ export const useGetAllUser = routeLoader$(async (requestEvent) => {
   const accessToken = requestEvent.sharedMap.get("session").accessToken;
   try {
     const res = await fetch(
-      `${process.env.BACKEND_ADDRESS}:3500/video/viewLog`,
+      `${process.env.SERVER_ADDRESS}:${process.env.BACKEND_PORT}/video/viewLog`,
       {
         method: "POST",
         cache: "no-store",

@@ -6,7 +6,6 @@ import {
   useTask$,
 } from "@builder.io/qwik";
 import styles from "./index.module.css";
-import { AutoCompleteBox } from "~/components/react/SearchBar";
 import { ChatGPTAPI } from "chatgpt";
 import { server$ } from "@builder.io/qwik-city";
 import { useAuthSession } from "~/routes/plugin@auth";
@@ -14,8 +13,8 @@ import { useAuthSession } from "~/routes/plugin@auth";
 const gptAPI = new ChatGPTAPI({
   apiKey: process.env.OPENAI_API_KEY!,
   completionParams: {
-    model: "gpt-3.5-turbo-16k",
-    // model: "gpt-4",
+    // model: "gpt-3.5-turbo-16k",
+    model: "gpt-4",
   },
 });
 
@@ -110,7 +109,7 @@ const queryGPT = server$(async function* (
 });
 
 const backendAddress = server$(async function () {
-  return process.env.BACKEND_ADDRESS;
+  return `${process.env.SERVER_ADDRESS}:${process.env.BACKEND_PORT}`;
 });
 
 const downloadAsWord = $(async function (
@@ -128,7 +127,7 @@ const downloadAsWord = $(async function (
   const botResponsesText = botResponses.map((item) => item.content).join("\n");
 
   const wordToDownload = await fetch(
-    `${await backendAddress()}:3500/gpt-generator/downloadRecord`,
+    `${await backendAddress()}/gpt-generator/downloadRecord`,
     {
       method: "POST",
       headers: {
@@ -158,7 +157,7 @@ const getQueryOptions = server$(async function (
   value?: string
 ) {
   const queryOptions = await fetch(
-    `${await backendAddress()}:3500/gpt-generator/queryOptions`,
+    `${await backendAddress()}/gpt-generator/queryOptions`,
     {
       method: "POST",
       headers: {
@@ -192,10 +191,6 @@ export default component$(() => {
   const parentID = useSignal<string | null>(null);
 
   const submitQuery = $(async () => {
-    const queryElement = document.querySelector(
-      `.${styles.queryBar} input`
-    ) as HTMLInputElement;
-    if (queryElement.value) queryValue.value = queryElement.value;
     if (queryValue.value === "") return;
     conversation.value = [
       ...conversation.value,
@@ -236,50 +231,33 @@ export default component$(() => {
     <>
       <h1 class={styles.title}>生成問題</h1>
       <form class={styles.queryBar} preventdefault:submit>
-        <AutoCompleteBox
-          searchValue={queryValue}
-          freeSolo
-          size="small"
-          options={queryOptions.value}
+        <textarea
+          class={styles.textarea}
+          bind:value={queryValue}
           placeholder="請輸入問題"
           disabled={waitingResponse.value}
-        />
-        <button
-          class={styles.button}
-          onClick$={async () => {
-            const queryElement = document.querySelector(
-              `.${styles.queryBar} input`
-            ) as HTMLInputElement;
-            const value = queryElement.value;
-            if (!value) return;
-            queryOptions.value = await getQueryOptions("append", value);
-            queryElement.focus();
-          }}
-        >
-          <MaterialSymbolsBookmarkAdd />
-        </button>
-        <button
-          class={styles.button}
-          onClick$={async () => {
-            const queryElement = document.querySelector(
-              `.${styles.queryBar} input`
-            ) as HTMLInputElement;
-            const value = queryElement.value;
-            if (!value || !queryOptions.value.includes(value)) return;
-            if (!confirm(`確定要刪除「${value}」嗎？\n刪除後將無法復原！`))
-              return;
-            queryOptions.value = await getQueryOptions("remove", value);
-            queryElement.focus();
-          }}
-        >
-          <MaterialSymbolsDeleteForever />
-        </button>
+        ></textarea>
         <button
           class={styles.button}
           onClick$={submitQuery}
           disabled={waitingResponse.value}
         >
           生成
+        </button>
+        <button
+          class={styles.button}
+          onClick$={async () => {
+            const queryElement = document.querySelector(
+              `.${styles.queryBar} textarea`
+            ) as HTMLInputElement;
+            const value = queryValue.value;
+            if (!value) return;
+            queryOptions.value = await getQueryOptions("append", value);
+            queryElement.focus();
+          }}
+          disabled={waitingResponse.value}
+        >
+          收藏
         </button>
         <button
           class={styles.button}
@@ -291,6 +269,45 @@ export default component$(() => {
           下載
         </button>
       </form>
+      {!conversation.value[0] && (
+        <div class={styles.options}>
+          <h3 class={styles.subtitle}>收藏</h3>
+          <div class={styles.optionContainer}>
+            {queryOptions.value.map((item) => {
+              return (
+                <div class={styles.option} key={item}>
+                  <button
+                    class={styles.question}
+                    key={item}
+                    onClick$={() => {
+                      queryValue.value = item;
+                    }}
+                  >
+                    {item}
+                  </button>
+                  <button
+                    class={styles.delete}
+                    onClick$={async () => {
+                      if (
+                        !confirm(
+                          `確定要刪除「${item}」嗎？\n刪除後將無法復原！`
+                        )
+                      )
+                        return;
+                      queryOptions.value = await getQueryOptions(
+                        "remove",
+                        item
+                      );
+                    }}
+                  >
+                    刪除
+                  </button>
+                </div>
+              );
+            })}
+          </div>
+        </div>
+      )}
       <div class={styles.conversation}>
         {conversation.value.map((item) => (
           <div

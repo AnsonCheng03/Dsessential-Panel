@@ -1,12 +1,13 @@
 import { serverAuth$ } from "@builder.io/qwik-auth";
 import Credentials from "@auth/core/providers/credentials";
+import Google from "@auth/core/providers/google";
 import type { Provider } from "@auth/core/providers";
-import { authorizeFunction } from "./auth/auth";
+import { authorizeFunction, googleLogin } from "./auth/auth";
 
 interface Credentials {
   role: string;
   username: string;
-  password: string;
+  password?: string;
 }
 
 interface User {
@@ -15,6 +16,8 @@ interface User {
   username: string;
   access_token?: string;
 }
+
+let tmp_access_token: null | string = null;
 
 export const { onRequest, useAuthSession, useAuthSignin, useAuthSignout } =
   serverAuth$(({ env }) => ({
@@ -32,12 +35,23 @@ export const { onRequest, useAuthSession, useAuthSignin, useAuthSignout } =
         ): Promise<User | null> {
           const user = await authorizeFunction(credentials as Credentials);
           if (!user) return null;
+          tmp_access_token = user.access_token;
           return {
             id: user.id as string,
             role: user.role as string,
             username: user.id as string,
-            access_token: user.access_token as string,
           };
+        },
+      }),
+      Google({
+        clientId: process.env.GOOGLE_CLIENT_ID,
+        clientSecret: process.env.GOOGLE_CLIENT_SECRET,
+        authorization: {
+          params: {
+            prompt: "consent",
+            access_type: "offline",
+            response_type: "code",
+          },
         },
       }),
     ] as Provider[],
@@ -46,19 +60,35 @@ export const { onRequest, useAuthSession, useAuthSignin, useAuthSignout } =
       maxAge: 60 * 60 * 8, // seconds
     },
     callbacks: {
+      async signIn({ account, profile }) {
+        if (account && account.provider === "google") {
+          if (
+            profile?.email_verified &&
+            (profile?.email?.endsWith("@dsessential.com") ||
+              profile?.email?.endsWith("@hkdsessential.com") ||
+              profile?.email?.endsWith("@bigappletutorial.com"))
+          ) {
+            const token = await googleLogin({ username: profile.email });
+            if (!token) return false;
+            tmp_access_token = token.access_token;
+            return true;
+          }
+          return false;
+        }
+        return true;
+      },
       async jwt({ token, user }) {
         if (user) {
-          token.accessToken = (user as User).access_token;
+          token.accessToken = tmp_access_token;
           token.user = user;
+          tmp_access_token = null;
         }
         return token;
       },
       async session({ session, token }) {
         if (session.user) {
           (session as any).accessToken = token.accessToken;
-          (token.user as User).access_token = undefined;
-          (session as any).user = token.user;
-          token.user = undefined;
+          if (token.user) (session as any).user = token.user;
         }
         return session;
       },

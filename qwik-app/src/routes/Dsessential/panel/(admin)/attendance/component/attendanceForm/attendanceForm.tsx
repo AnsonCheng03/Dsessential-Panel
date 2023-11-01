@@ -6,7 +6,7 @@ import { qwikify$ } from "@builder.io/qwik-react";
 
 const MUIAlert = qwikify$(Alert);
 
-export default component$(({ options }: { options: Object[] }) => {
+export default component$(({ options }: { options: any }) => {
   // make options from object to array
   let newOptions: string[] = [];
   options.map((option: any) => {

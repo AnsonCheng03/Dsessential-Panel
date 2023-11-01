@@ -7,7 +7,7 @@ export const useGetUserData = routeLoader$(async (requestEvent) => {
   const accessToken = requestEvent.sharedMap.get("session").accessToken;
   try {
     const res = await fetch(
-      `${process.env.BACKEND_ADDRESS}:3500/auth/profile`,
+      `${process.env.SERVER_ADDRESS}:${process.env.BACKEND_PORT}/auth/profile`,
       {
         cache: "no-store",
         headers: {
@@ -29,7 +29,7 @@ export default component$(() => {
   return (
     <>
       <div class={styles.profileBox}>
-        <img src={logo}></img>
+        <img alt={"logo"} src={logo}></img>
         <br />
         學生編號：{userData?.username} <br />
         角色： {userData?.role === "student" ? "學生" : "管理員"}
