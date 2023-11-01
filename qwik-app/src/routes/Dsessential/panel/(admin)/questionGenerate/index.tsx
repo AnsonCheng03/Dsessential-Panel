@@ -147,20 +147,36 @@ export default component$(() => {
   >([]);
   const parentID = useSignal<string | null>(null);
 
-  const requestGPT = $(async (requestValue: string) => {
+  const requestGPT = $(async (requestValue: string, continueID?: string) => {
     console.log("requesting", requestValue, parentID.value);
     const res = await queryGPT(requestValue, parentID.value);
+    let previousChatContent = "";
     for await (const i of res) {
       parentID.value = i[1];
 
       // Check if the id already exists
       const existingIndex = conversation.value.findIndex(
-        (item) => item.id === i[1]
+        (item) => item.id === (continueID ? continueID : i[1])
       );
+
+      console.log(
+        "conv",
+        continueID,
+        "a",
+        previousChatContent,
+        existingIndex,
+        i,
+        i[1]
+      );
+      if (continueID) {
+        conversation.value[existingIndex].id = i[1];
+        previousChatContent = conversation.value[existingIndex].content;
+        continueID = undefined;
+      }
 
       if (existingIndex !== -1) {
         // ID exists, replace content
-        conversation.value[existingIndex].content = i[0];
+        conversation.value[existingIndex].content = previousChatContent + i[0];
         // refresh the array
         conversation.value = [...conversation.value];
         hideOptions.value = true;
@@ -168,17 +184,17 @@ export default component$(() => {
         // ID doesn't exist, add a new entry
         conversation.value = [
           ...conversation.value,
-          { type: "bot", content: i[0], id: i[1] },
+          { type: "bot", content: previousChatContent + i[0], id: i[1] },
         ];
       }
       if (i[2]) {
         console.log("done");
-        if (i[2] === "length") return "length";
+        if (i[2] === "length") return ["length", i[1]];
         break;
       }
     }
     queryValue.value = "";
-    return "done";
+    return ["done"];
   });
 
   const submitQuery = $(async () => {
@@ -189,14 +205,14 @@ export default component$(() => {
     ];
     waitingResponse.value = true;
     let currentQuery = queryValue.value;
-    let status = "";
+    let status = [""];
     do {
       console.log(status);
-      status = await requestGPT(currentQuery);
-      if (status === "length") {
+      status = await requestGPT(currentQuery, status[1]);
+      if (status[0] === "length") {
         currentQuery = "continue";
       }
-    } while (status !== "done");
+    } while (status[0] !== "done");
     waitingResponse.value = false;
   });
 
@@ -246,7 +262,7 @@ export default component$(() => {
           下載
         </button>
       </form>
-      {
+      {queryOptions.value && (
         <div
           class={
             hideOptions.value
@@ -297,7 +313,7 @@ export default component$(() => {
             })}
           </div>
         </div>
-      }
+      )}
       <div class={styles.conversation}>
         {conversation.value.map((item) => (
           <div
@@ -308,6 +324,8 @@ export default component$(() => {
           >
             <div class={styles.type}>{item.type}</div>
             <p class={styles.content}>
+              {item.id}
+              <br />
               {item.content.split("\n").map((line) => (
                 <>
                   {line.split("**").map((word, index) => (
