@@ -88,8 +88,7 @@ export const { onRequest, useAuthSession, useAuthSignin, useAuthSignout } =
       async session({ session, token }) {
         if (session.user) {
           (session as any).accessToken = token.accessToken;
-          if (token.user) 
-            (session as any).user = token.user;
+          if (token.user) (session as any).user = token.user;
         }
         return session;
       },

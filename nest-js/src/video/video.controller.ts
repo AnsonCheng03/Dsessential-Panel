@@ -95,11 +95,11 @@ export class VideoController {
     @Req() req,
     @Param('videoKey') videoKey: string,
   ) {
-    let videoPath = fs.readFileSync(`/tmp/Dsessential-Videos/${videoKey}`, {
+    const videoPath = fs.readFileSync(`/tmp/Dsessential-Videos/${videoKey}`, {
       encoding: 'utf8',
     });
     const videoPathDir = videoPath.split('/').slice(0, -1).join('/');
-    let fileName = videoPath.split('/').pop()?.split('.')[0];
+    const fileName = videoPath.split('/').pop()?.split('.')[0];
 
     if (fs.existsSync(`${videoPathDir}/ts-${fileName}`)) {
       if (fs.existsSync(`${videoPathDir}/ts-${fileName}/progress.txt`)) {
