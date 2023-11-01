@@ -137,6 +137,7 @@ export default component$(() => {
   const queryValue = useSignal("");
   const waitingResponse = useSignal(false);
   const queryOptions = useSignal<string[]>([""]);
+  const hideOptions = useSignal(false);
   const conversation = useSignal<
     {
       type: string;
@@ -167,6 +168,7 @@ export default component$(() => {
         conversation.value[existingIndex].content = i[0];
         // refresh the array
         conversation.value = [...conversation.value];
+        hideOptions.value = true;
       } else {
         // ID doesn't exist, add a new entry
         conversation.value = [
@@ -174,7 +176,11 @@ export default component$(() => {
           { type: "bot", content: i[0], id: i[1] },
         ];
       }
-      if (i[2] === "END") break;
+      if (i[2] === "END") {
+        // clear the query
+        queryValue.value = "";
+        break;
+      }
     }
     waitingResponse.value = false;
   });
@@ -225,9 +231,22 @@ export default component$(() => {
           下載
         </button>
       </form>
-      {!conversation.value[0] && (
-        <div class={styles.options}>
-          <h3 class={styles.subtitle}>收藏</h3>
+      {
+        <div
+          class={
+            hideOptions.value
+              ? [styles.options, styles.optionsHidden]
+              : styles.options
+          }
+        >
+          <h3
+            class={styles.subtitle}
+            onClick$={() => {
+              hideOptions.value = !hideOptions.value;
+            }}
+          >
+            收藏
+          </h3>
           <div class={styles.optionContainer}>
             {queryOptions.value.map((item) => {
               return (
@@ -263,7 +282,7 @@ export default component$(() => {
             })}
           </div>
         </div>
-      )}
+      }
       <div class={styles.conversation}>
         {conversation.value.map((item) => (
           <div

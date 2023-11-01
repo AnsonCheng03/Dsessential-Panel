@@ -79,9 +79,16 @@
 }
 
 .options {
+  max-height: calc(42px + 55vh);
   box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
   margin: 10px 10px;
   border-radius: 5px;
+  overflow: hidden;
+  transition: max-height 0.3s ease-in-out;
+}
+
+.optionsHidden {
+  max-height: 42px;
 }
 
 .options .subtitle {
@@ -90,7 +97,9 @@
   background-color: #fff;
   border-radius: 5px 5px 0 0;
   box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+  cursor: pointer;
 }
+
 .options .optionContainer {
   display: grid;
   gap: 5px;
