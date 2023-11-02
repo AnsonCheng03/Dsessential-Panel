@@ -148,7 +148,6 @@ export default component$(() => {
   const parentID = useSignal<string | null>(null);
 
   const requestGPT = $(async (requestValue: string, continueID?: string) => {
-    console.log("requesting", requestValue, parentID.value);
     const res = await queryGPT(requestValue, parentID.value);
     let previousChatContent = "";
     for await (const i of res) {
@@ -159,15 +158,6 @@ export default component$(() => {
         (item) => item.id === (continueID ? continueID : i[1])
       );
 
-      console.log(
-        "conv",
-        continueID,
-        "a",
-        previousChatContent,
-        existingIndex,
-        i,
-        i[1]
-      );
       if (continueID) {
         conversation.value[existingIndex].id = i[1];
         previousChatContent = conversation.value[existingIndex].content;
@@ -188,7 +178,6 @@ export default component$(() => {
         ];
       }
       if (i[2]) {
-        console.log("done");
         if (i[2] === "length") return ["length", i[1]];
         break;
       }
@@ -207,7 +196,6 @@ export default component$(() => {
     let currentQuery = queryValue.value;
     let status = [""];
     do {
-      console.log(status);
       status = await requestGPT(currentQuery, status[1]);
       if (status[0] === "length") {
         currentQuery = "continue";
@@ -324,8 +312,6 @@ export default component$(() => {
           >
             <div class={styles.type}>{item.type}</div>
             <p class={styles.content}>
-              {item.id}
-              <br />
               {item.content.split("\n").map((line) => (
                 <>
                   {line.split("**").map((word, index) => (
