@@ -43,24 +43,78 @@ export class GptGeneratorController {
       `${process.env.RESOURCE_PATH}/templates/gptQuestions.json`,
     );
     const questionJSON = JSON.parse(questionsPath.toString());
+    const username = req.user.username;
     if (body.action) {
       if (body.action === 'appendPublic') {
-        if (questionJSON.questions.includes(body.value)) return questionJSON;
+        if (!req.user.username.startsWith('admin@')) {
+          if (questionJSON[username])
+            return {
+              questions: questionJSON.questions,
+              privateQuestions: questionJSON[username],
+            };
+          return {
+            questions: questionJSON.questions,
+            privateQuestions: [],
+          };
+        }
+        if (questionJSON.questions.includes(body.value)) {
+          if (questionJSON[username])
+            return {
+              questions: questionJSON.questions,
+              privateQuestions: questionJSON[username],
+            };
+          return {
+            questions: questionJSON.questions,
+            privateQuestions: [],
+          };
+        }
         questionJSON.questions.push(body.value);
       } else if (body.action === 'append') {
-        if (questionJSON.privateQuestions.includes(body.value))
-          return questionJSON;
-        questionJSON.privateQuestions.push(body.value);
+        // if username not exist, create new array
+        // append private question according to username
+        if (!questionJSON[username]) questionJSON[username] = [];
+        if (questionJSON[username].includes(body.value)) {
+          if (questionJSON[username])
+            return {
+              questions: questionJSON.questions,
+              privateQuestions: questionJSON[username],
+            };
+          return {
+            questions: questionJSON.questions,
+            privateQuestions: [],
+          };
+        }
+        questionJSON[username].push(body.value);
+      } else if (body.action === 'removePublic') {
+        // only allow admin to remove public questions
+        if (req.user.username.startsWith('admin@')) {
+          if (questionJSON.questions.includes(body.value)) {
+            questionJSON.questions = questionJSON.questions.filter(
+              (item) => item !== body.value,
+            );
+          }
+        }
       } else if (body.action === 'remove') {
-        questionJSON.questions = questionJSON.questions.filter(
-          (question) => question !== body.value,
-        );
+        if (questionJSON[username].includes(body.value)) {
+          questionJSON[username] = questionJSON[username].filter(
+            (item) => item !== body.value,
+          );
+        }
       }
       fs.writeFileSync(
         `${process.env.RESOURCE_PATH}/templates/gptQuestions.json`,
         JSON.stringify(questionJSON),
       );
     }
-    return questionJSON;
+    // only return public questions and the user's private questions
+    if (questionJSON[username])
+      return {
+        questions: questionJSON.questions,
+        privateQuestions: questionJSON[username],
+      };
+    return {
+      questions: questionJSON.questions,
+      privateQuestions: [],
+    };
   }
 }

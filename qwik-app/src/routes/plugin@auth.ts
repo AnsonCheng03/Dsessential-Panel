@@ -31,7 +31,7 @@ export const { onRequest, useAuthSession, useAuthSignin, useAuthSignout } =
           password: { label: "Password", type: "password" },
         },
         async authorize(
-          credentials: Partial<Record<"username" | "password", unknown>>,
+          credentials: Partial<Record<"username" | "password", unknown>>
         ): Promise<User | null> {
           const user = await authorizeFunction(credentials as Credentials);
           if (!user) return null;
@@ -68,7 +68,9 @@ export const { onRequest, useAuthSession, useAuthSignin, useAuthSignout } =
               profile?.email?.endsWith("@hkdsessential.com") ||
               profile?.email?.endsWith("@bigappletutorial.com"))
           ) {
-            const token = await googleLogin({ username: profile.email });
+            const token = await googleLogin({
+              username: profile.email,
+            });
             if (!token) return false;
             tmp_access_token = token.access_token;
             return true;

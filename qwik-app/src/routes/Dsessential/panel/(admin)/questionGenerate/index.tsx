@@ -15,7 +15,8 @@ const gptAPI = new ChatGPTAPI({
 
 export const onRequest: RequestHandler = (event) => {
   const session: Session | null = event.sharedMap.get("session");
-  if ((session?.user as any)?.role !== "admin")
+  console.log(session);
+  if ((session?.user as any)?.role === "student")
     throw event.redirect(302, `/Dsessential/panel`);
 };
 
@@ -116,7 +117,7 @@ const downloadAsWord = $(async function (
 });
 
 const getQueryOptions = server$(async function (
-  action?: "append" | "appendPublic" | "remove",
+  action?: "append" | "appendPublic" | "remove" | "removePublic",
   value?: string
 ) {
   const queryOptions = await fetch(
@@ -134,7 +135,7 @@ const getQueryOptions = server$(async function (
     }
   );
   const res = await queryOptions.json();
-  const options = res.questions;
+  const options = [res.questions, res.privateQuestions];
   return options;
 });
 
@@ -143,7 +144,8 @@ export default component$(() => {
   const accessToken = (session.value as any).accessToken;
   const queryValue = useSignal("");
   const waitingResponse = useSignal(false);
-  const queryOptions = useSignal<string[]>([""]);
+  const queryOptionsPublic = useSignal<string[]>([""]);
+  const queryOptionsPrivate = useSignal<string[]>([""]);
   const hideOptions = useSignal(false);
   const conversation = useSignal<
     {
@@ -212,7 +214,8 @@ export default component$(() => {
   });
 
   useTask$(async () => {
-    queryOptions.value = await getQueryOptions();
+    [queryOptionsPublic.value, queryOptionsPrivate.value] =
+      await getQueryOptions();
   });
 
   return (
@@ -241,12 +244,16 @@ export default component$(() => {
             const value = queryValue.value;
             if (!value) return;
             if (
-              // session?.value?.user?.email?.startsWith("admin@") &&
+              session?.value?.user?.email?.startsWith("admin@") &&
               confirm(`確定要把「${value}」新增至公開收藏嗎？`)
             ) {
-              queryOptions.value = await getQueryOptions("appendPublic", value);
+              queryOptionsPublic.value = (
+                await getQueryOptions("appendPublic", value)
+              )[0];
             } else if (confirm(`確定要把「${value}」新增至私人收藏嗎？`)) {
-              queryOptions.value = await getQueryOptions("append", value);
+              queryOptionsPrivate.value = (
+                await getQueryOptions("append", value)
+              )[1];
             }
             queryElement.focus();
           }}
@@ -264,7 +271,7 @@ export default component$(() => {
           下載
         </button>
       </form>
-      {queryOptions.value && (
+      {(queryOptionsPublic.value || queryOptionsPrivate.value) && (
         <div
           class={
             hideOptions.value
@@ -281,38 +288,73 @@ export default component$(() => {
             收藏
           </h3>
           <div class={styles.optionContainer}>
-            {queryOptions.value.map((item) => {
-              return (
-                <div class={styles.option} key={item}>
-                  <button
-                    class={styles.question}
-                    key={item}
-                    onClick$={() => {
-                      queryValue.value = item;
-                    }}
-                  >
-                    {item}
-                  </button>
-                  <button
-                    class={styles.delete}
-                    onClick$={async () => {
-                      if (
-                        !confirm(
-                          `確定要刪除「${item}」嗎？\n刪除後將無法復原！`
+            {queryOptionsPublic.value &&
+              queryOptionsPublic.value.map((item) => {
+                return (
+                  <div class={styles.option} key={item}>
+                    <button
+                      class={styles.question}
+                      key={item}
+                      onClick$={() => {
+                        queryValue.value = item;
+                      }}
+                    >
+                      {item}
+                    </button>
+                    {session?.value?.user?.email?.startsWith("admin@") && (
+                      <button
+                        class={styles.delete}
+                        onClick$={async () => {
+                          if (
+                            !confirm(
+                              `確定要刪除「${item}」嗎？\n刪除後將無法復原！`
+                            )
+                          )
+                            return;
+                          queryOptionsPublic.value = (
+                            await getQueryOptions("removePublic", item)
+                          )[0];
+                        }}
+                      >
+                        刪除
+                      </button>
+                    )}
+                  </div>
+                );
+              })}
+            {queryOptionsPrivate.value && <h3>私人收藏</h3>}
+            {queryOptionsPrivate.value &&
+              queryOptionsPrivate.value.map((item) => {
+                return (
+                  <div class={styles.option} key={item}>
+                    <button
+                      class={styles.question}
+                      key={item}
+                      onClick$={() => {
+                        queryValue.value = item;
+                      }}
+                    >
+                      {item}
+                    </button>
+                    <button
+                      class={styles.delete}
+                      onClick$={async () => {
+                        if (
+                          !confirm(
+                            `確定要刪除「${item}」嗎？\n刪除後將無法復原！`
+                          )
                         )
-                      )
-                        return;
-                      queryOptions.value = await getQueryOptions(
-                        "remove",
-                        item
-                      );
-                    }}
-                  >
-                    刪除
-                  </button>
-                </div>
-              );
-            })}
+                          return;
+                        queryOptionsPrivate.value = (
+                          await getQueryOptions("remove", item)
+                        )[1];
+                      }}
+                    >
+                      刪除
+                    </button>
+                  </div>
+                );
+              })}
           </div>
         </div>
       )}
