@@ -2,7 +2,9 @@ import {
   Body,
   Controller,
   Post,
+  Req,
   StreamableFile,
+  UnauthorizedException,
   UseGuards,
 } from '@nestjs/common';
 import { GptGeneratorService } from './gpt-generator.service';
@@ -15,7 +17,9 @@ export class GptGeneratorController {
 
   @UseGuards(AuthGuard)
   @Post('downloadRecord')
-  async downloadRecord(@Body() body) {
+  async downloadRecord(@Body() body, @Req() req) {
+    if (req.user.role !== 'admin') throw new UnauthorizedException();
+
     const template = fs.readFileSync(
       `${process.env.RESOURCE_PATH}/templates/notes.docx`,
     );
@@ -32,15 +36,21 @@ export class GptGeneratorController {
 
   @UseGuards(AuthGuard)
   @Post('queryOptions')
-  async queryOptions(@Body() body) {
+  async queryOptions(@Body() body, @Req() req) {
+    if (req.user.role !== 'admin') throw new UnauthorizedException();
+
     const questionsPath = fs.readFileSync(
       `${process.env.RESOURCE_PATH}/templates/gptQuestions.json`,
     );
     const questionJSON = JSON.parse(questionsPath.toString());
     if (body.action) {
-      if (body.action === 'append') {
+      if (body.action === 'appendPublic') {
         if (questionJSON.questions.includes(body.value)) return questionJSON;
         questionJSON.questions.push(body.value);
+      } else if (body.action === 'append') {
+        if (questionJSON.privateQuestions.includes(body.value))
+          return questionJSON;
+        questionJSON.privateQuestions.push(body.value);
       } else if (body.action === 'remove') {
         questionJSON.questions = questionJSON.questions.filter(
           (question) => question !== body.value,

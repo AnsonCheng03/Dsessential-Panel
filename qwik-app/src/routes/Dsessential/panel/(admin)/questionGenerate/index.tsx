@@ -1,8 +1,9 @@
 import { $, component$, useSignal, useTask$ } from "@builder.io/qwik";
 import styles from "./index.module.css";
 import { ChatGPTAPI } from "chatgpt";
-import { server$ } from "@builder.io/qwik-city";
 import { useAuthSession } from "~/routes/plugin@auth";
+import { type RequestHandler, server$ } from "@builder.io/qwik-city";
+import type { Session } from "@auth/core/types";
 
 const gptAPI = new ChatGPTAPI({
   apiKey: process.env.OPENAI_API_KEY!,
@@ -11,6 +12,12 @@ const gptAPI = new ChatGPTAPI({
     model: "gpt-4",
   },
 });
+
+export const onRequest: RequestHandler = (event) => {
+  const session: Session | null = event.sharedMap.get("session");
+  if ((session?.user as any)?.role !== "admin")
+    throw event.redirect(302, `/Dsessential/panel`);
+};
 
 function createProgressEmitter() {
   let res: any;
@@ -109,7 +116,7 @@ const downloadAsWord = $(async function (
 });
 
 const getQueryOptions = server$(async function (
-  action?: "append" | "remove",
+  action?: "append" | "appendPublic" | "remove",
   value?: string
 ) {
   const queryOptions = await fetch(
@@ -233,7 +240,14 @@ export default component$(() => {
             ) as HTMLInputElement;
             const value = queryValue.value;
             if (!value) return;
-            queryOptions.value = await getQueryOptions("append", value);
+            if (
+              // session?.value?.user?.email?.startsWith("admin@") &&
+              confirm(`確定要把「${value}」新增至公開收藏嗎？`)
+            ) {
+              queryOptions.value = await getQueryOptions("appendPublic", value);
+            } else if (confirm(`確定要把「${value}」新增至私人收藏嗎？`)) {
+              queryOptions.value = await getQueryOptions("append", value);
+            }
             queryElement.focus();
           }}
           disabled={waitingResponse.value}
