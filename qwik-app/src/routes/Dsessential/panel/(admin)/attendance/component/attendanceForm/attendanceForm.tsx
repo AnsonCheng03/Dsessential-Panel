@@ -1,10 +1,10 @@
 import { component$, useSignal } from "@builder.io/qwik";
 import AttendanceComponent from "./attendanceComponent";
-import { Alert } from "@mui/material";
 import styles from "./attendanceForm.module.css";
-import { qwikify$ } from "@builder.io/qwik-react";
+// import { Alert } from "@mui/material";
+// import { qwikify$ } from "@builder.io/qwik-react";
 
-const MUIAlert = qwikify$(Alert);
+// const MUIAlert = qwikify$(Alert);
 
 export default component$(({ options }: { options: any }) => {
   // make options from object to array
