@@ -46,7 +46,7 @@ export const useFormSubmit = globalAction$(async (input, requestEvent) => {
           }`,
         },
         body: JSON.stringify(output),
-      }
+      },
     );
     const data = await res.json();
     return data;
@@ -72,7 +72,7 @@ export const useFormDelete = globalAction$(async (input, requestEvent) => {
           deleteRow: input.deleteRow,
           ipAddress: requestEvent.clientConn.ip,
         }),
-      }
+      },
     );
     const data = await res.json();
     return data;
@@ -146,7 +146,7 @@ export default component$(
       track(() => discountAmount.value);
 
       const formElement = document.querySelector<HTMLFormElement>(
-        `#${formId.value}`
+        `#${formId.value}`,
       );
       if (rowNumber.value) formSubmit(formElement!);
     });
@@ -419,5 +419,5 @@ export default component$(
         )}
       </form>
     );
-  }
+  },
 );

@@ -1,3 +1,5 @@
+"use client";
+
 export default function autoComplete(inp, arr) {
   var currentFocus;
   inp.addEventListener("input", function () {

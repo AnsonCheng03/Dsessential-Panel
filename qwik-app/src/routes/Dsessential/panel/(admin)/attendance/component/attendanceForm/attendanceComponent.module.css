@@ -143,28 +143,25 @@
   }
 }
 
-
-
 .autoComplete {
   position: relative;
   display: inline-block;
   width: 100%;
-
 }
 
 .autoComplete input {
-    text-align: center;
-    width: 100%;
+  text-align: center;
+  width: 100%;
 
-    border: none;
-    border-radius:4px;
-    background: rgba(0, 0, 0, 0.1);
-    border: 0;
-    box-sizing: border-box;
-    padding: 12px 20px;
-    color: rgba(0, 0, 0, 0.5);
-    outline: none;
-    transition: 0.3s ease;
+  border: none;
+  border-radius: 4px;
+  background: rgba(0, 0, 0, 0.1);
+  border: 0;
+  box-sizing: border-box;
+  padding: 12px 20px;
+  color: rgba(0, 0, 0, 0.5);
+  outline: none;
+  transition: 0.3s ease;
 }
 
 .autoComplete > div {
