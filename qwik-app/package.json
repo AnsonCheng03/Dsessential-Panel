@@ -32,7 +32,6 @@
     "@emotion/styled": "11.11.0",
     "@mui/material": "5.14.16",
     "@mui/x-data-grid": "6.17.0",
-    "@qwik-ui/headless": "^0.1.17",
     "@types/compression": "^1.7.4",
     "@types/eslint": "8.44.6",
     "@types/express": "4.17.20",
