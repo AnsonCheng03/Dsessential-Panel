@@ -22,10 +22,10 @@ export default component$(({ options }: { options: any }) => {
     <>
       <div>
         <div class={styles.alert}>
-          <MUIAlert severity="warning">
+          {/* <MUIAlert severity="warning">
             如果上面有空白行，入新資料有機會去左最頂嘅空白行而唔係最底。會盡快處理～
             [Issue status: Noticed, Not Urgent]
-          </MUIAlert>
+          </MUIAlert> */}
         </div>
         {Array.from(Array(formAmount.value).keys())
           .reverse()

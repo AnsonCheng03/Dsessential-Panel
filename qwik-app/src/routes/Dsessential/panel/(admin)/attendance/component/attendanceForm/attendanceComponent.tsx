@@ -5,10 +5,10 @@ import {
   useVisibleTask$,
   type Signal,
 } from "@builder.io/qwik";
-import { AutoCompleteBox } from "~/components/react/SearchBar";
 import styles from "./attendanceComponent.module.css";
 import { Toggle } from "~/components/react/ToggleButton";
 import { globalAction$ } from "@builder.io/qwik-city";
+import autoComplete from "./autocomplete";
 
 export const useFormSubmit = globalAction$(async (input, requestEvent) => {
   const output: Record<string, any> = {};
@@ -46,7 +46,7 @@ export const useFormSubmit = globalAction$(async (input, requestEvent) => {
           }`,
         },
         body: JSON.stringify(output),
-      },
+      }
     );
     const data = await res.json();
     return data;
@@ -72,7 +72,7 @@ export const useFormDelete = globalAction$(async (input, requestEvent) => {
           deleteRow: input.deleteRow,
           ipAddress: requestEvent.clientConn.ip,
         }),
-      },
+      }
     );
     const data = await res.json();
     return data;
@@ -146,7 +146,7 @@ export default component$(
       track(() => discountAmount.value);
 
       const formElement = document.querySelector<HTMLFormElement>(
-        `#${formId.value}`,
+        `#${formId.value}`
       );
       if (rowNumber.value) formSubmit(formElement!);
     });
@@ -185,14 +185,34 @@ export default component$(
               : [styles.containerRows, styles.studentDetails]
           }
         >
-          <AutoCompleteBox
+          {/* <autoCompleteBox
             size="small"
             searchValue={searchValue}
             options={options}
             freeSolo
             placeholder="卡號/姓名/電話號碼"
-          />
-          <input type="hidden" bind:value={searchValue} name="studentName" />
+          /> */}
+          <div class={styles.autoComplete}>
+            <input
+              type="text"
+              autoComplete={"off"}
+              name="studentName"
+              bind:value={searchValue}
+              placeholder="卡號/電話號碼/中文姓名"
+            ></input>
+            <img
+              src="~/../LoadInput"
+              width={0}
+              height={0}
+              onError$={(e: any) => {
+                const img = e.target;
+                const input = img.previousSibling;
+                img && img.remove();
+                input && input.focus();
+                autoComplete(input, options);
+              }}
+            />
+          </div>
           <div
             class={
               studentData.value
@@ -399,5 +419,5 @@ export default component$(
         )}
       </form>
     );
-  },
+  }
 );
