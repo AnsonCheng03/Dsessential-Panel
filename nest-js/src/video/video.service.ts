@@ -83,7 +83,7 @@ export class VideoService {
         '-hls_list_size 0',
         '-hls_segment_size 500000',
         '-hls_segment_filename',
-        `${videoPathDir}/ts-${fileName}/streamingvid-%d.ts`,
+        `${videoPathDir}/ts-${fileName}/streamVideo-%d.ts`,
         '-hls_playlist_type vod',
         '-hls_key_info_file',
         `${videoPathDir}/ts-${fileName}/key.keyinfo`,
@@ -135,8 +135,8 @@ export class VideoService {
 
     const m3u8Edit = m3u8
       .replace(
-        // replace all streamingvid to path
-        /streamingvid-/g,
+        // replace all streamVideo to path
+        /streamVideo-/g,
         `https://${req.headers.host}/video/stream/${videoKey}?video=`,
       )
       .replace(

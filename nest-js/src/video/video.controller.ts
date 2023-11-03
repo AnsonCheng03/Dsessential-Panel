@@ -126,7 +126,7 @@ export class VideoController {
         // if there are no any m3u8 file, delete the folder
         if (
           !fs.existsSync(`${videoPathDir}/ts-${fileName}/original.m3u8`) ||
-          !fs.existsSync(`${videoPathDir}/ts-${fileName}/streamingvid-0.ts`)
+          !fs.existsSync(`${videoPathDir}/ts-${fileName}/streamVideo-0.ts`)
         ) {
           fs.rmSync(`${videoPathDir}/ts-${fileName}`, {
             recursive: true,
@@ -189,7 +189,7 @@ export class VideoController {
 
     // get query string
     const tsName = req.query.video;
-    const tsPath = `${videoPathDir}/ts-${fileName}/streamingvid-${tsName}`;
+    const tsPath = `${videoPathDir}/ts-${fileName}/streamVideo-${tsName}`;
 
     if (!fs.existsSync(tsPath)) throw new Error('File not found');
 
