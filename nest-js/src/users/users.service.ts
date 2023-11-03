@@ -72,7 +72,7 @@ export class UsersService {
 
     try {
       await new Promise<void>((resolve, reject) => {
-        const loginName = `NAS\\${username}`;
+        const loginName = `Dsessential\\${username}`;
         LDAPclient.bind(loginName, password, (error) => {
           if (error) {
             reject(error);
