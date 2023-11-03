@@ -72,12 +72,16 @@ export class VideoService {
       .setFfmpegPath(ffmpegAppPath)
       .input(videoPath)
       .outputOptions([
-        '-c copy',
-        '-map 0',
+        '-c:a aac',
+        '-map 0:v:0 -s:v:0 1280x720 -c:v:0 libx264 -b:v:0 2000k',
+        '-map 0:v:0 -s:v:1 640x480  -c:v:1 libx264 -b:v:1 1000k',
+        '-map 0:v:0 -s:v:2 320x240  -c:v:2 libx264 -b:v:2 600k',
+        '-map 0:v:0',
         '-start_number 0',
         '-f hls',
-        '-hls_time 10',
+        '-hls_time 2',
         '-hls_list_size 0',
+        '-hls_segment_size 500000',
         '-hls_segment_filename',
         `${videoPathDir}/ts-${fileName}/streamingvid-%d.ts`,
         '-hls_playlist_type vod',
