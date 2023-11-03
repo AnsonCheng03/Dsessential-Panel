@@ -73,9 +73,9 @@ export class VideoService {
       .input(videoPath)
       .outputOptions([
         '-c:a aac',
-        '-map 0:v:0 -s:v:0 1280x720 -c:v:0 libx264 -b:v:0 2000k',
-        '-map 0:v:0 -s:v:1 640x480  -c:v:1 libx264 -b:v:1 1000k',
-        '-map 0:v:0 -s:v:2 320x240  -c:v:2 libx264 -b:v:2 600k',
+        '-s:v:0 1280x720 -c:v:0 libx264 -b:v:0 2000k',
+        '-s:v:1 640x480 -c:v:1 libx264 -b:v:1 1000k',
+        '-s:v:2 320x240 -c:v:2 libx264 -b:v:2 600k',
         '-map 0:v:0',
         '-start_number 0',
         '-f hls',
