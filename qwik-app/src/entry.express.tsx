@@ -64,12 +64,12 @@ app.use(notFound);
 
 // enable https
 const privateKey = fs.readFileSync(
-  `${process.env.CERT_PATH}/privkey.pem`,
-  "utf8",
+  `${process.env.CERT_PATH}/RSA-privkey.pem`,
+  "utf8"
 );
 const certificate = fs.readFileSync(
-  `${process.env.CERT_PATH}/cert.pem`,
-  "utf8",
+  `${process.env.CERT_PATH}/RSA-cert.pem`,
+  "utf8"
 );
 
 const credentials = { key: privateKey, cert: certificate };
