@@ -2,7 +2,6 @@ import { component$ } from "@builder.io/qwik";
 import { routeLoader$, type DocumentHead } from "@builder.io/qwik-city";
 import styles from "./index.module.css";
 import logo from "~/components/logo/logo.png";
-import { useAuthSignout } from "~/routes/plugin@auth";
 
 export const useGetUserData = routeLoader$(async (requestEvent) => {
   const accessToken = requestEvent.sharedMap.get("session").accessToken;
