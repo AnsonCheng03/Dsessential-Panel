@@ -18,7 +18,7 @@ export class LogServiceService {
     const connection = await this.pool.getConnection();
     try {
       await connection.execute(
-        'INSERT INTO `UserEvent` \
+        'INSERT INTO `EventLog` \
         (`UserID`, `Event`, `Notes`) VALUES(?, ?, ?)',
         [username, event, notes],
       );
