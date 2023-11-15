@@ -228,80 +228,116 @@ export default component$(() => {
           placeholder="請輸入問題"
           disabled={waitingResponse.value}
         ></textarea>
-        <button
-          class={styles.button}
-          onClick$={submitQuery}
-          disabled={waitingResponse.value}
-        >
-          生成
-        </button>
-        <button
-          class={styles.button}
-          onClick$={async () => {
-            const queryElement = document.querySelector(
-              `.${styles.queryBar} textarea`
-            ) as HTMLInputElement;
-            const value = queryValue.value;
-            if (!value) return;
-            if (
-              session?.value?.user?.email?.startsWith("admin@") &&
-              confirm(`確定要把「${value}」新增至公開收藏嗎？`)
-            ) {
-              queryOptionsPublic.value = (
-                await getQueryOptions("appendPublic", value)
-              )[0];
-            } else if (confirm(`確定要把「${value}」新增至私人收藏嗎？`)) {
-              queryOptionsPrivate.value = (
-                await getQueryOptions("append", value)
-              )[1];
-            }
-            queryElement.focus();
-          }}
-          disabled={waitingResponse.value}
-        >
-          收藏
-        </button>
-        <button
-          class={styles.button}
-          onClick$={() => {
-            downloadAsWord(conversation.value, accessToken);
-          }}
-          disabled={waitingResponse.value}
-        >
-          下載
-        </button>
-      </form>
-      {(queryOptionsPublic.value || queryOptionsPrivate.value) && (
-        <div
-          class={
-            hideOptions.value
-              ? [styles.options, styles.optionsHidden]
-              : styles.options
-          }
-        >
-          <h3
-            class={styles.subtitle}
+        <div class={styles.optionsButton}>
+          <button
+            class={styles.button}
+            onClick$={async () => {
+              const queryElement = document.querySelector(
+                `.${styles.queryBar} textarea`
+              ) as HTMLInputElement;
+              const value = queryValue.value;
+              if (!value) return;
+              if (
+                session?.value?.user?.email?.startsWith("admin@") &&
+                confirm(`確定要把「${value}」新增至公開收藏嗎？`)
+              ) {
+                queryOptionsPublic.value = (
+                  await getQueryOptions("appendPublic", value)
+                )[0];
+              } else if (confirm(`確定要把「${value}」新增至私人收藏嗎？`)) {
+                queryOptionsPrivate.value = (
+                  await getQueryOptions("append", value)
+                )[1];
+              }
+              queryElement.focus();
+            }}
+            disabled={waitingResponse.value}
+          >
+            收藏此問題
+          </button>
+
+          <button
+            class={styles.button}
             onClick$={() => {
               hideOptions.value = !hideOptions.value;
             }}
+            disabled={waitingResponse.value}
           >
-            收藏
-          </h3>
-          <div class={styles.optionContainer}>
-            {queryOptionsPublic.value &&
-              queryOptionsPublic.value.map((item) => {
-                return (
-                  <div class={styles.option} key={item}>
-                    <button
-                      class={styles.question}
-                      key={item}
-                      onClick$={() => {
-                        queryValue.value = item;
-                      }}
-                    >
-                      {item}
-                    </button>
-                    {session?.value?.user?.email?.startsWith("admin@") && (
+            顯示收藏
+          </button>
+          <button
+            class={styles.button}
+            onClick$={() => {
+              downloadAsWord(conversation.value, accessToken);
+            }}
+            disabled={waitingResponse.value}
+          >
+            下載
+          </button>
+          <button
+            class={styles.button}
+            onClick$={submitQuery}
+            disabled={waitingResponse.value}
+          >
+            生成
+          </button>
+        </div>
+      </form>
+      {!hideOptions.value &&
+        (queryOptionsPublic.value || queryOptionsPrivate.value) && (
+          <div class={styles.options}>
+            <h3>收藏庫</h3>
+            <div class={styles.optionContainer}>
+              {queryOptionsPublic.value &&
+                queryOptionsPublic.value.map((item) => {
+                  return (
+                    <div class={styles.option} key={item}>
+                      <p class={styles.question} key={item}>
+                        {item}
+                      </p>
+                      {session?.value?.user?.email?.startsWith("admin@") && (
+                        <button
+                          class={styles.delete}
+                          onClick$={async () => {
+                            if (
+                              !confirm(
+                                `確定要刪除「${item}」嗎？\n刪除後將無法復原！`
+                              )
+                            )
+                              return;
+                            queryOptionsPublic.value = (
+                              await getQueryOptions("removePublic", item)
+                            )[0];
+                          }}
+                        >
+                          刪除
+                        </button>
+                      )}
+                      <button
+                        class={styles.delete}
+                        key={item}
+                        onClick$={() => {
+                          queryValue.value = item;
+                        }}
+                      >
+                        使用
+                      </button>
+                    </div>
+                  );
+                })}
+              {queryOptionsPrivate.value &&
+                queryOptionsPrivate.value.map((item) => {
+                  return (
+                    <div class={styles.option} key={item}>
+                      <p
+                        class={styles.question}
+                        key={item}
+                        onClick$={() => {
+                          queryValue.value = item;
+                        }}
+                      >
+                        {item}
+                      </p>
                       <button
                         class={styles.delete}
                         onClick$={async () => {
@@ -311,91 +347,76 @@ export default component$(() => {
                             )
                           )
                             return;
-                          queryOptionsPublic.value = (
-                            await getQueryOptions("removePublic", item)
-                          )[0];
+                          queryOptionsPrivate.value = (
+                            await getQueryOptions("remove", item)
+                          )[1];
                         }}
                       >
                         刪除
                       </button>
-                    )}
-                  </div>
-                );
-              })}
-            {queryOptionsPrivate.value && <h3>私人收藏</h3>}
-            {queryOptionsPrivate.value &&
-              queryOptionsPrivate.value.map((item) => {
-                return (
-                  <div class={styles.option} key={item}>
-                    <button
-                      class={styles.question}
-                      key={item}
-                      onClick$={() => {
-                        queryValue.value = item;
-                      }}
-                    >
-                      {item}
-                    </button>
-                    <button
-                      class={styles.delete}
-                      onClick$={async () => {
-                        if (
-                          !confirm(
-                            `確定要刪除「${item}」嗎？\n刪除後將無法復原！`
-                          )
-                        )
-                          return;
-                        queryOptionsPrivate.value = (
-                          await getQueryOptions("remove", item)
-                        )[1];
-                      }}
-                    >
-                      刪除
-                    </button>
-                  </div>
-                );
-              })}
+                      <button
+                        class={styles.delete}
+                        key={item}
+                        onClick$={() => {
+                          queryValue.value = item;
+                        }}
+                      >
+                        使用
+                      </button>
+                    </div>
+                  );
+                })}
+            </div>
           </div>
+        )}
+      {hideOptions.value && (
+        <div class={styles.conversation}>
+          {conversation.value.map((item) => (
+            <div
+              class={
+                item.type === "user" ? styles.item : [styles.item, styles.bot]
+              }
+              key={new Date().toISOString()}
+            >
+              <p class={styles.content}>
+                {item.type === "user" && (
+                  <div class={styles.type}>
+                    {(session?.value as any)?.user?.username
+                      ? `${(session?.value as any)?.user?.username}: `
+                      : session?.value?.user?.email
+                        ? `${session?.value?.user?.email}: `
+                        : "用戶："}
+                  </div>
+                )}
+                {item.content.split("\n").map((line) => (
+                  <>
+                    {line.split("**").map((word, index) => (
+                      <>
+                        {index % 2 === 0 ? (
+                          word
+                            .split("*")
+                            .map((word, index) => (
+                              <>
+                                {index % 2 === 0 ? (
+                                  word
+                                ) : (
+                                  <span class={styles.italic}>{word}</span>
+                                )}
+                              </>
+                            ))
+                        ) : (
+                          <span class={styles.bold}>{word}</span>
+                        )}
+                      </>
+                    ))}
+                    <br />
+                  </>
+                ))}
+              </p>
+            </div>
+          ))}
         </div>
       )}
-      <div class={styles.conversation}>
-        {conversation.value.map((item) => (
-          <div
-            class={
-              item.type === "user" ? styles.item : [styles.item, styles.bot]
-            }
-            key={new Date().toISOString()}
-          >
-            <div class={styles.type}>{item.type}</div>
-            <p class={styles.content}>
-              {item.content.split("\n").map((line) => (
-                <>
-                  {line.split("**").map((word, index) => (
-                    <>
-                      {index % 2 === 0 ? (
-                        word
-                          .split("*")
-                          .map((word, index) => (
-                            <>
-                              {index % 2 === 0 ? (
-                                word
-                              ) : (
-                                <span class={styles.italic}>{word}</span>
-                              )}
-                            </>
-                          ))
-                      ) : (
-                        <span class={styles.bold}>{word}</span>
-                      )}
-                    </>
-                  ))}
-                  <br />
-                </>
-              ))}
-            </p>
-          </div>
-        ))}
-      </div>
     </>
   );
 });

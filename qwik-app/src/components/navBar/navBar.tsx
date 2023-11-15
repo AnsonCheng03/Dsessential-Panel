@@ -28,6 +28,7 @@ export default component$(({ navlist }: { navlist: any }) => {
                 : styles.navLinks
             }
           >
+            <ul />
             {navlist.map((item: any) => {
               return (
                 <ul class={styles.navList} key={item[1]}>
