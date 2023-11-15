@@ -43,7 +43,11 @@ export default component$(() => {
         {options.map((option: any, index: number) => {
           return (
             <div key={index} class={styles.item}>
-              <div>{option.Date}</div>
+              <div>
+                {new Date(option.Date).toLocaleString("en-US", {
+                  timeZone: "Asia/Hong_Kong",
+                })}
+              </div>
               <div>{option.UserID}</div>
               <div>{option.Event}</div>
               <div>{option.Notes}</div>

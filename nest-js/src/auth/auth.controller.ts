@@ -24,8 +24,14 @@ export class AuthController {
   @HttpCode(HttpStatus.OK)
   @Post('login')
   signIn(@Body() signInDto: Record<string, any>) {
-    if (!signInDto.username || !signInDto.password)
+    if (!signInDto.username || !signInDto.password) {
+      this.logService.logEvent(
+        signInDto.username,
+        '登入',
+        `[${signInDto.role}] ${!signInDto.username ? '帳號' : '密碼'}錯誤`,
+      );
       throw new UnauthorizedException();
+    }
     this.logService.logEvent(signInDto.username, '登入', signInDto.role);
     return this.authService.signIn(
       signInDto.role,
@@ -50,8 +56,14 @@ export class AuthController {
   @Post('protected-login')
   protectedLogin(@Request() req) {
     if (req.user.role !== 'admin') throw new UnauthorizedException();
-    if (req.body.role === 'changeRole')
+    if (req.body.role === 'changeRole') {
+      this.logService.logEvent(
+        req.user.username,
+        '變更身分',
+        `${req.body.username} => ${req.body.role}`,
+      );
       return this.authService.changeRole(req.body);
+    }
     return this.authService.refreshToken(req.user);
   }
 
