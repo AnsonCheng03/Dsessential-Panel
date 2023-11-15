@@ -14,7 +14,7 @@ export const useGetAllUser = routeLoader$(async (requestEvent) => {
         headers: {
           authorization: `Bearer ${accessToken}`,
         },
-      }
+      },
     );
 
     const data = await res.json();

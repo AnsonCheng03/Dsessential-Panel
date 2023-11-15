@@ -75,7 +75,7 @@ export default component$(
       track(() => discountAmount.value);
 
       const formElement = document.querySelector<HTMLFormElement>(
-        `#${formId.value}`
+        `#${formId.value}`,
       );
       if (rowNumber.value) formSubmit(formElement!);
     });
@@ -348,5 +348,5 @@ export default component$(
         )}
       </form>
     );
-  }
+  },
 );

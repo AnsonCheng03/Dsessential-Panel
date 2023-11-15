@@ -78,8 +78,8 @@ export default component$(() => {
               selectValue.value === "SID"
                 ? 0
                 : selectValue.value === "姓名"
-                ? 1
-                : 2
+                  ? 1
+                  : 2
             ] as string[]
           }
           placeholder="請選擇學生"
