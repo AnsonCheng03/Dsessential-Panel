@@ -12,6 +12,7 @@ import {
   Param,
 } from '@nestjs/common';
 import { VideoService } from './video.service';
+import { LogServiceService } from 'src/log-service/log-service.service';
 import { Headers } from '@nestjs/common';
 import { Response } from 'express';
 import { AuthGuard } from 'src/auth/auth.guard';
@@ -21,7 +22,10 @@ import { createReadStream } from 'fs';
 
 @Controller('video')
 export class VideoController {
-  constructor(private readonly videoService: VideoService) {}
+  constructor(
+    private readonly videoService: VideoService,
+    private readonly logService: LogServiceService,
+  ) {}
 
   @UseGuards(AuthGuard)
   @Post('createStream')
@@ -51,19 +55,9 @@ export class VideoController {
     res.status(HttpStatus.CREATED).send(temporaryID);
 
     const fileName = body.url.split('/').pop()?.split('.')[0];
-    this.videoService.logUser(req.user.username, fileName);
+    this.logService.logEvent(req.user.username, '觀看影片', fileName);
 
     this.videoService.removeExpiredFile();
-  }
-
-  @UseGuards(AuthGuard)
-  @Post('viewLog')
-  async viewLog(@Res() res, @Body() body, @Req() req) {
-    if (req.user.role !== 'admin')
-      return res.sendStatus(HttpStatus.UNAUTHORIZED);
-
-    const log = await this.videoService.viewLog();
-    return res.status(HttpStatus.OK).send(log);
   }
 
   @UseGuards(AuthGuard)

@@ -114,35 +114,6 @@ export class AuthService {
     };
   }
 
-  async logUser(username: string) {
-    const connection = await this.pool.getConnection();
-    try {
-      await connection.execute(
-        'INSERT INTO `loginLog` \
-        (`Account`) VALUES(?)',
-        [username],
-      );
-    } catch (err) {
-      console.log(err);
-    } finally {
-      connection.release();
-    }
-  }
-
-  async loginLog() {
-    const connection = await this.pool.getConnection();
-    try {
-      const [rows] = await connection.execute(
-        'SELECT * FROM `loginLog` ORDER BY `Time` DESC',
-      );
-      return rows;
-    } catch (err) {
-      console.log(err);
-    } finally {
-      connection.release();
-    }
-  }
-
   isLocalIPv4(ip: string): boolean {
     const parts = ip.split('.').map((part) => parseInt(part, 10));
 
