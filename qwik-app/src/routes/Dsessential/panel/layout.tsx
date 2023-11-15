@@ -11,7 +11,7 @@ export const onRequest: RequestHandler = (event) => {
   if (!session || new Date(session.expires) < new Date()) {
     throw event.redirect(
       302,
-      `/Dsessential/auth?callbackUrl=${event.url.href}`,
+      `/Dsessential/auth?callbackUrl=${event.url.href}`
     );
   }
 };
@@ -73,7 +73,6 @@ export default component$(() => {
             [
               //    ["Item", "學生資料", "#"],
               ["Item", "點名系統", "/panel/attendance"],
-              ["Item", "影片觀看紀錄", "/panel/viewLog"],
               //    ["Item", "時間表", "#"],
               ["Item", "題目生成", "/panel/questionGenerate"],
             ],
@@ -90,7 +89,7 @@ export default component$(() => {
               ["Item", "閉路電視", "#"],
               */
               ["Item", "轉換身分", "/panel/changeRole"],
-              ["Item", "登入紀錄", "/panel/loginLog"],
+              ["Item", "系統紀錄", "/panel/eventLog"],
               /*
               ["List", "系統管理", "#", [
                 ["Item", "訪問紀錄", "#"],

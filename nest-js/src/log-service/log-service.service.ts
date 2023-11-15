@@ -33,7 +33,7 @@ export class LogServiceService {
     const connection = await this.pool.getConnection();
     try {
       const [rows] = await connection.execute(
-        'SELECT * FROM `VideoLog` ORDER BY `ID` DESC',
+        'SELECT * FROM `EventLog` ORDER BY `Date` DESC',
       );
       return rows;
     } catch (err) {
