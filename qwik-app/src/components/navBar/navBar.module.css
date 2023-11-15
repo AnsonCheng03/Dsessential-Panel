@@ -115,22 +115,33 @@
     background-color: rgb(245, 256, 250);
     top: 60px;
     left: 100vw;
-    height: 100vh;
-    height: 100dvh;
-    width: 100%;
+    height: calc(100vh - 70px);
+    height: calc(100dvh - 70px);
+    width: 0;
     flex-direction: column;
     justify-content: start;
     gap: 0px;
-    padding: 10px 30px;
-    transition: left 0.3s ease-in-out;
-  }
-
-  .navItems:hover {
-    max-height: 30px;
+    padding: 0;
+    overflow-y: scroll;
+    overflow-x: hidden;
+    transition:
+      left 0.3s ease-in-out,
+      width 0.3s ease-in-out,
+      padding 0.3s ease-in-out;
   }
 
   .navLinksActive {
     left: 0;
+    width: 100vw;
+    padding: 10px 0 0 0;
+  }
+
+  .navLinks > ul {
+    margin-left: 30px;
+  }
+
+  .navItems:hover {
+    max-height: 30px;
   }
 
   .navSignActive button {

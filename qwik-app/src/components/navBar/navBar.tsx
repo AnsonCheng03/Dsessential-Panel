@@ -33,7 +33,14 @@ export default component$(({ navlist }: { navlist: any }) => {
                 <ul class={styles.navList} key={item[1]}>
                   <li>
                     {item[0] == "Item" ? (
-                      <Link href={baseURL + item[2]}>{item[1]}</Link>
+                      <Link
+                        href={baseURL + item[2]}
+                        onClick$={() => {
+                          openNav.value = false;
+                        }}
+                      >
+                        {item[1]}
+                      </Link>
                     ) : (
                       item[1]
                     )}
@@ -45,7 +52,12 @@ export default component$(({ navlist }: { navlist: any }) => {
                           <ul class={styles.navSubList} key={subItem[1]}>
                             <li>
                               {subItem[0] == "Item" ? (
-                                <Link href={baseURL + subItem[2]}>
+                                <Link
+                                  href={baseURL + subItem[2]}
+                                  onClick$={() => {
+                                    openNav.value = false;
+                                  }}
+                                >
                                   {subItem[1]}
                                 </Link>
                               ) : (
@@ -60,7 +72,12 @@ export default component$(({ navlist }: { navlist: any }) => {
                                     key={subsubItem[1]}
                                   >
                                     <li>
-                                      <Link href={baseURL + subsubItem[2]}>
+                                      <Link
+                                        href={baseURL + subsubItem[2]}
+                                        onClick$={() => {
+                                          openNav.value = false;
+                                        }}
+                                      >
                                         {subsubItem[1]}
                                       </Link>
                                     </li>
