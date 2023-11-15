@@ -22,10 +22,9 @@ export default component$(() => {
       <head>
         <meta charSet="utf-8" />
         <link rel="manifest" href="/manifest.json" />
-        {process.env.PUBLIC_QWIK_INSIGHTS_KEY &&
-          process.env.NODE_ENV !== "development" && (
-            <Insights publicApiKey={process.env.PUBLIC_QWIK_INSIGHTS_KEY} />
-          )}
+        {process.env.PUBLIC_QWIK_INSIGHTS_KEY && (
+          <Insights publicApiKey={process.env.PUBLIC_QWIK_INSIGHTS_KEY} />
+        )}
         <RouterHead />
       </head>
       <body lang="en">
