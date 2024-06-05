@@ -87,10 +87,6 @@ const chatgptProxyOptions = {
     // Remove the leading '/chatgpt' or '/_next' or '/serviceWorkerRegister.js'
     if (path.startsWith("/chatgpt")) {
       return path.replace(/^\/chatgpt/, "");
-    } else if (path.startsWith("/_next")) {
-      return path.replace(/^\/_next/, "/_next");
-    } else if (path === "/serviceWorkerRegister.js") {
-      return "/serviceWorkerRegister.js";
     }
     return path;
   },
