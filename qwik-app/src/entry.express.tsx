@@ -93,7 +93,19 @@ app.use("/chatgpt", createProxyMiddleware(createProxyOptions("")));
 app.use("/_next", createProxyMiddleware(createProxyOptions("/_next")));
 app.use(
   "/serviceWorkerRegister.js",
-  createProxyMiddleware(createProxyOptions("/serviceWorkerRegister.js"))
+  createProxyMiddleware({
+    target: "http://chatgpt-next-web:3000",
+    changeOrigin: true,
+    pathRewrite: (path) => {
+      console.log(
+        `Path: ${path}, replaced: ${path.replace(/^\/serviceWorkerRegister.js/, "/serviceWorkerRegister.js")}`
+      );
+      return path.replace(
+        /^\/serviceWorkerRegister.js/,
+        "/serviceWorkerRegister.js"
+      );
+    },
+  })
 );
 
 // Static asset handlers
