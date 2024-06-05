@@ -84,13 +84,14 @@ const chatgptProxyOptions = {
   target: "http://chatgpt-next-web:3000",
   changeOrigin: true,
   pathRewrite: (path: string): string => {
+    console.log(`Proxying request to: ${path}`);
     // Remove the leading '/chatgpt' or '/_next' or '/serviceWorkerRegister.js'
     if (path.startsWith("/chatgpt")) {
       return path.replace(/^\/chatgpt/, "");
     } else if (path.startsWith("/_next")) {
-      return path;
+      return path.replace(/^\/_next/, "/_next");
     } else if (path === "/serviceWorkerRegister.js") {
-      return path;
+      return "/serviceWorkerRegister.js";
     }
     return path;
   },
