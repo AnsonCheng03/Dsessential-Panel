@@ -93,6 +93,8 @@ const proxyOptions = {
 
 // Apply proxy middleware
 app.use("/chatgpt", createProxyMiddleware(proxyOptions));
+app.use("/_next", createProxyMiddleware(proxyOptions));
+app.use("/serviceWorkerRegister.js", createProxyMiddleware(proxyOptions));
 
 // Static asset handlers
 app.use(`/build`, express.static(buildDir, { immutable: true, maxAge: "1y" }));
