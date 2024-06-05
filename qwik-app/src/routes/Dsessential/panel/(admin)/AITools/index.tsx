@@ -1,5 +1,4 @@
 import { component$, useSignal } from "@builder.io/qwik";
-import styles from "./index.module.css";
 import { type RequestHandler, routeLoader$ } from "@builder.io/qwik-city";
 import type { Session } from "@auth/core/types";
 import { randomBytes } from "crypto";
@@ -38,8 +37,11 @@ export default component$(() => {
   const iframeUrl = useSignal(`/chatgpt?token=${token}`);
 
   return (
-    <div>
-      <iframe class={styles.iframe} src={iframeUrl.value}></iframe>
+    <div style={{ width: "100%", height: "100%", border: "none" }}>
+      <iframe
+        style={{ width: "100%", height: "100%", border: "none" }}
+        src={iframeUrl.value}
+      ></iframe>
     </div>
   );
 });

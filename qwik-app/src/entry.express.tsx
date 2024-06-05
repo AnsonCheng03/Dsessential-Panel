@@ -80,6 +80,24 @@ app.use("/chatgpt", (req: Request, res: Response, next: NextFunction) => {
   }
 });
 
+// Middleware to handle requests for _next and serviceWorkerRegister.js
+app.use(
+  ["/_next", "/serviceWorkerRegister.js"],
+  (req: Request, res: Response, next: NextFunction) => {
+    const forwarded = req.headers["x-forwarded-for"];
+    const ip =
+      typeof forwarded === "string"
+        ? forwarded.split(",")[0]
+        : req.connection.remoteAddress;
+    const clientIp = ip ? ip.split(":").pop() || "" : "";
+    console.log(`Request to ${req.url} from IP: ${clientIp}`);
+
+    // Add custom header or cookie to isolate requests
+    res.setHeader("X-Frame-Options", "SAMEORIGIN");
+    next();
+  }
+);
+
 // Proxy middleware options
 const proxyOptions = {
   target: "http://chatgpt-next-web:3000",
