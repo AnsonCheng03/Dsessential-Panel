@@ -1,12 +1,13 @@
-import { $, component$, useSignal } from "@builder.io/qwik";
+import { component$, useSignal, useVisibleTask$ } from "@builder.io/qwik";
 import styles from "./index.module.css";
 import { type RequestHandler } from "@builder.io/qwik-city";
 import { server$ } from "@builder.io/qwik-city";
 import type { Session } from "@auth/core/types";
+import { randomBytes } from "crypto";
 
 // Server function to generate and send the token to the Express server
 export const generateAndSendToken = server$(async () => {
-  const token = Math.random().toString(36).substr(2);
+  const token = randomBytes(32).toString("hex");
   const response = await fetch("/chatgpt", {
     method: "POST",
     headers: {
@@ -33,8 +34,8 @@ export const onRequest: RequestHandler = (event) => {
 export default component$(() => {
   const iframeUrl = useSignal("/chatgpt");
 
-  // Function to set the token as a cookie and send it to the server
-  const setToken = $(async () => {
+  // Automatically generate and send the token on component mount
+  useVisibleTask$(async () => {
     try {
       const token = await generateAndSendToken();
       document.cookie = `authToken=${token}; path=/`;
@@ -46,7 +47,6 @@ export default component$(() => {
 
   return (
     <div>
-      <button onClick$={setToken}>Access ChatGPT</button>
       <iframe class={styles.iframe} src={iframeUrl.value}></iframe>
     </div>
   );

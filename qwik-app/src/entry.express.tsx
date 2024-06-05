@@ -45,6 +45,10 @@ const validTokens = new Set<string>();
 
 // Middleware to handle token generation and validation
 app.use("/chatgpt", (req: Request, res: Response, next: NextFunction) => {
+  const clientIp =
+    req.headers["x-forwarded-for"] || req.connection.remoteAddress;
+  console.log(`Client IP: ${clientIp}`);
+
   if (req.method === "POST" && req.headers["x-internal-request"] === "true") {
     const { token } = req.body;
     if (token) {
@@ -58,7 +62,7 @@ app.use("/chatgpt", (req: Request, res: Response, next: NextFunction) => {
       validTokens.delete(authToken); // Remove token after it is used
       return next();
     }
-    return res.status(401).send("Authentication required.");
+    return res.redirect("/");
   }
 });
 
