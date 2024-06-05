@@ -14,12 +14,14 @@ import {
 import qwikCityPlan from "@qwik-city-plan";
 import { manifest } from "@qwik-client-manifest";
 import render from "./entry.ssr";
-import express from "express";
+import express, { Request, Response, NextFunction } from "express";
 import { fileURLToPath } from "node:url";
 import { join } from "node:path";
 import * as fs from "fs";
 import http from "http";
 import https from "https";
+import { createProxyMiddleware } from "http-proxy-middleware";
+import cookieParser from "cookie-parser";
 
 declare global {
   interface QwikCityPlatform extends PlatformNode {}
@@ -48,6 +50,35 @@ const { router, notFound } = createQwikCity({
 // https://expressjs.com/
 const app = express();
 
+// Middleware to parse cookies
+app.use(cookieParser());
+
+// Authentication Middleware
+const auth = (req: Request, res: Response, next: NextFunction) => {
+  const authToken = req.cookies.authToken;
+
+  if (authToken === "your_valid_token") {
+    return next();
+  }
+
+  res.status(401).send("Authentication required.");
+};
+
+// Apply authentication middleware for proxy
+app.use("/chatgpt", auth);
+
+// Proxy middleware options
+const proxyOptions = {
+  target: "http://chatgpt-next-web:3000",
+  changeOrigin: true,
+  pathRewrite: {
+    "^/chatgpt": "/",
+  },
+};
+
+// Apply proxy middleware
+app.use("/chatgpt", createProxyMiddleware(proxyOptions));
+
 // Enable gzip compression
 // app.use(compression());
 
@@ -65,11 +96,11 @@ app.use(notFound);
 // enable https
 const privateKey = fs.readFileSync(
   `${process.env.CERT_PATH}/RSA-privkey.pem`,
-  "utf8",
+  "utf8"
 );
 const certificate = fs.readFileSync(
   `${process.env.CERT_PATH}/RSA-cert.pem`,
-  "utf8",
+  "utf8"
 );
 
 const credentials = { key: privateKey, cert: certificate };

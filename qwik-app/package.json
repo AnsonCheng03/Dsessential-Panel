@@ -58,7 +58,11 @@
   "dependencies": {
     "@builder.io/qwik-labs": "github:BuilderIo/qwik-labs-build#main",
     "@qwikest/icons": "^0.0.13",
+    "@types/cookie-parser": "^1.4.7",
+    "@types/http-proxy-middleware": "^1.0.0",
     "chatgpt": "^5.2.5",
-    "hls.js": "^1.4.12"
+    "cookie-parser": "^1.4.6",
+    "hls.js": "^1.4.12",
+    "http-proxy-middleware": "^3.0.0"
   }
 }
