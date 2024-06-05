@@ -18,7 +18,7 @@ export const useGenerateAndSendToken = routeLoader$(async () => {
     return token;
   } else {
     const errorText = await response.text();
-    throw new Error("Failed to authenticate");
+    throw new Error("Failed to authenticate: " + errorText);
   }
 });
 

@@ -49,13 +49,6 @@ const validTokens = new Set<string>();
 
 // Middleware to handle token generation and validation
 app.use("/chatgpt", (req: Request, res: Response, next: NextFunction) => {
-  const forwarded = req.headers["x-forwarded-for"];
-  const ip =
-    typeof forwarded === "string"
-      ? forwarded.split(",")[0]
-      : req.connection.remoteAddress;
-  const clientIp = ip ? ip.split(":").pop() || "" : "";
-
   if (req.method === "POST" && req.headers["x-internal-request"] === "true") {
     const { token } = req.body;
     if (token) {
@@ -93,7 +86,7 @@ const fetchAndReturn = (url: string) => (req: Request, res: Response) => {
       });
     })
     .on("error", (err) => {
-      res.status(500).send(`Error fetching ${url}`);
+      res.status(500).send(`Error fetching ${url} (${err.message})`);
     });
 };
 
