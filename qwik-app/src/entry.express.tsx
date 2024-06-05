@@ -50,7 +50,7 @@ const getClientIp = (req: Request): string => {
     typeof forwarded === "string"
       ? forwarded.split(",")[0]
       : req.connection.remoteAddress;
-  return ip ? ip.split(":").pop() : "";
+  return ip ? ip.split(":").pop() || "" : "";
 };
 
 // Middleware to handle token generation and validation
