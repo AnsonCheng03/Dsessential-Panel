@@ -127,6 +127,10 @@ app.use(
   fetchAndReturn("http://chatgpt-next-web:3000/serviceWorkerRegister.js")
 );
 app.use(
+  "/serviceWorkerRegister.js",
+  fetchAndReturn("http://chatgpt-next-web:3000/serviceWorker.js")
+);
+app.use(
   "/prompts.json",
   fetchAndReturn("http://chatgpt-next-web:3000/prompts.json")
 );
