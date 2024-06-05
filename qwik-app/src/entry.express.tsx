@@ -88,21 +88,26 @@ const chatgptProxyOptions = {
     // Remove the leading '/chatgpt' or '/_next' or '/serviceWorkerRegister.js'
     if (path.startsWith("/chatgpt")) {
       return path.replace(/^\/chatgpt/, "");
-    } else if (path.startsWith("/_next")) {
-      return path.replace(/^\/_next/, "/_next");
-    } else if (path === "/serviceWorkerRegister.js") {
-      return "/serviceWorkerRegister.js";
     }
-    return path;
   },
+};
+
+const nextProxyOptions = {
+  target: "http://chatgpt-next-web:3000/_next",
+  changeOrigin: true,
+};
+
+const serviceWorkerProxyOptions = {
+  target: "http://chatgpt-next-web:3000/serviceWorkerRegister.js",
+  changeOrigin: true,
 };
 
 // Apply proxy middleware
 app.use("/chatgpt", createProxyMiddleware(chatgptProxyOptions));
-app.use("/_next", createProxyMiddleware(chatgptProxyOptions));
+app.use("/_next", createProxyMiddleware(nextProxyOptions));
 app.use(
   "/serviceWorkerRegister.js",
-  createProxyMiddleware(chatgptProxyOptions)
+  createProxyMiddleware(serviceWorkerProxyOptions)
 );
 
 // Static asset handlers
