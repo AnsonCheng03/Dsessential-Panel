@@ -6,7 +6,6 @@ import { randomBytes } from "crypto";
 
 export const useGenerateAndSendToken = routeLoader$(async () => {
   const token = randomBytes(32).toString("hex");
-  console.log(`Generated token: ${token}`);
   const response = await fetch("https://localhost:3000/chatgpt", {
     method: "POST",
     headers: {
@@ -15,12 +14,10 @@ export const useGenerateAndSendToken = routeLoader$(async () => {
     },
     body: JSON.stringify({ token }),
   });
-  console.log(`Server response status: ${response.status}`);
   if (response.ok) {
     return token;
   } else {
     const errorText = await response.text();
-    console.error(`Failed to authenticate. Server response: ${errorText}`);
     throw new Error("Failed to authenticate");
   }
 });

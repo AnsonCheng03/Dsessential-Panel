@@ -55,27 +55,20 @@ app.use("/chatgpt", (req: Request, res: Response, next: NextFunction) => {
       ? forwarded.split(",")[0]
       : req.connection.remoteAddress;
   const clientIp = ip ? ip.split(":").pop() || "" : "";
-  console.log(`Client IP: ${clientIp}`);
 
   if (req.method === "POST" && req.headers["x-internal-request"] === "true") {
     const { token } = req.body;
-    console.log(`Received token: ${token} from IP: ${clientIp}`);
     if (token) {
       validTokens.add(token);
-      console.log(`Token ${token} saved.`);
       return res.status(200).send("Token saved");
     }
-    console.log("Invalid token request");
     return res.status(400).send("Invalid request");
   } else {
     const authToken = req.query.token as string;
-    console.log(`Received auth token: ${authToken} from IP: ${clientIp}`);
     if (authToken && validTokens.has(authToken)) {
       validTokens.delete(authToken); // Remove token after it is used
-      console.log(`Token ${authToken} validated and deleted.`);
       return next();
     }
-    console.log(`Invalid auth token: ${authToken}`);
     return res.redirect("/");
   }
 });
@@ -100,7 +93,6 @@ const fetchAndReturn = (url: string) => (req: Request, res: Response) => {
       });
     })
     .on("error", (err) => {
-      console.error(`Error fetching ${url}:`, err);
       res.status(500).send(`Error fetching ${url}`);
     });
 };
@@ -112,6 +104,7 @@ const createProxyOptions = (targetPath: string) => ({
     targetPath === ""
       ? (path: string) => path.replace(/^\/chatgpt/, "")
       : undefined,
+  agent: new http.Agent({ keepAlive: true }),
 });
 
 app.use("/chatgpt", createProxyMiddleware(createProxyOptions("")));
