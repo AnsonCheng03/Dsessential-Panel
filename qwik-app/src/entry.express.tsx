@@ -37,24 +37,30 @@ const { router, notFound } = createQwikCity({
 // Create the express server
 const app = express();
 
-// Middleware to parse cookies
+// Middleware to parse cookies and JSON bodies
 app.use(cookieParser());
+app.use(express.json());
 
-// Authentication Middleware
-const auth = (req: Request, res: Response, next: NextFunction) => {
-  console.log("Authenticating request...", req, res);
-  const authToken = req.cookies.authToken || req.query.token;
+const validTokens = new Set<string>();
 
-  if (authToken === "your_valid_token") {
-    // Replace this with your token validation logic
-    return next();
+// Middleware to handle token generation and validation
+app.use("/chatgpt", (req: Request, res: Response, next: NextFunction) => {
+  if (req.method === "POST" && req.headers["x-internal-request"] === "true") {
+    const { token } = req.body;
+    if (token) {
+      validTokens.add(token);
+      return res.status(200).send("Token saved");
+    }
+    return res.status(400).send("Invalid request");
+  } else {
+    const authToken = req.cookies.authToken || req.query.token;
+    if (authToken && validTokens.has(authToken)) {
+      validTokens.delete(authToken); // Remove token after it is used
+      return next();
+    }
+    return res.status(401).send("Authentication required.");
   }
-
-  res.status(401).send("Authentication required.");
-};
-
-// Apply authentication middleware for proxy
-app.use("/chatgpt", auth);
+});
 
 // Proxy middleware options
 const proxyOptions = {

@@ -4,9 +4,22 @@ import { type RequestHandler } from "@builder.io/qwik-city";
 import { server$ } from "@builder.io/qwik-city";
 import type { Session } from "@auth/core/types";
 
-// Server function to generate a unique token
-export const generateToken = server$(() => {
-  return Math.random().toString(36).substr(2);
+// Server function to generate and send the token to the Express server
+export const generateAndSendToken = server$(async () => {
+  const token = Math.random().toString(36).substr(2);
+  const response = await fetch("/chatgpt", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      "X-Internal-Request": "true",
+    },
+    body: JSON.stringify({ token }),
+  });
+  if (response.ok) {
+    return token;
+  } else {
+    throw new Error("Failed to authenticate");
+  }
 });
 
 // onRequest handler to check session
@@ -20,11 +33,15 @@ export const onRequest: RequestHandler = (event) => {
 export default component$(() => {
   const iframeUrl = useSignal("/chatgpt");
 
-  // Function to set the token as a cookie
+  // Function to set the token as a cookie and send it to the server
   const setToken = $(async () => {
-    const token = await generateToken();
-    document.cookie = `authToken=${token}; path=/`;
-    iframeUrl.value = `/chatgpt?token=${token}`;
+    try {
+      const token = await generateAndSendToken();
+      document.cookie = `authToken=${token}; path=/`;
+      iframeUrl.value = `/chatgpt?token=${token}`;
+    } catch (error) {
+      alert("Failed to authenticate");
+    }
   });
 
   return (
