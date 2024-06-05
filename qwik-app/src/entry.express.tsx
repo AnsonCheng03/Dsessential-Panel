@@ -80,35 +80,20 @@ app.use("/chatgpt", (req: Request, res: Response, next: NextFunction) => {
   }
 });
 
-const chatgptProxyOptions = {
-  target: "http://chatgpt-next-web:3000",
+const createProxyOptions = (targetPath: string) => ({
+  target: `http://chatgpt-next-web:3000${targetPath}`,
   changeOrigin: true,
-  pathRewrite: (path: string): string => {
-    console.log(`Proxying request to: ${path}`);
-    // Remove the leading '/chatgpt' or '/_next' or '/serviceWorkerRegister.js'
-    if (path.startsWith("/chatgpt")) {
-      return path.replace(/^\/chatgpt/, "");
-    }
-    return path;
-  },
-};
+  pathRewrite:
+    targetPath === ""
+      ? (path: string) => path.replace(/^\/chatgpt/, "")
+      : undefined,
+});
 
-const nextProxyOptions = {
-  target: "http://chatgpt-next-web:3000/_next",
-  changeOrigin: true,
-};
-
-const serviceWorkerProxyOptions = {
-  target: "http://chatgpt-next-web:3000/serviceWorkerRegister.js",
-  changeOrigin: true,
-};
-
-// Apply proxy middleware
-app.use("/chatgpt", createProxyMiddleware(chatgptProxyOptions));
-app.use("/_next", createProxyMiddleware(nextProxyOptions));
+app.use("/chatgpt", createProxyMiddleware(createProxyOptions("")));
+app.use("/_next", createProxyMiddleware(createProxyOptions("/_next")));
 app.use(
   "/serviceWorkerRegister.js",
-  createProxyMiddleware(serviceWorkerProxyOptions)
+  createProxyMiddleware(createProxyOptions("/serviceWorkerRegister.js"))
 );
 
 // Static asset handlers
