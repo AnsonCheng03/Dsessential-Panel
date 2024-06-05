@@ -2,10 +2,14 @@ import {
   createQwikCity,
   type PlatformNode,
 } from "@builder.io/qwik-city/middleware/node";
-import qwikCityPlan from "@builder.io/qwik-city-plan";
+import qwikCityPlan from "@qwik-city-plan";
 import { manifest } from "@qwik-client-manifest";
 import render from "./entry.ssr";
-import express, { Request, Response, NextFunction } from "express";
+import express, {
+  type Request,
+  type Response,
+  type NextFunction,
+} from "express";
 import { fileURLToPath } from "node:url";
 import { join } from "node:path";
 import * as fs from "fs";

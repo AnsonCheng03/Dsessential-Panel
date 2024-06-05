@@ -4,7 +4,7 @@ import { type RequestHandler, routeLoader$ } from "@builder.io/qwik-city";
 import type { Session } from "@auth/core/types";
 import { randomBytes } from "crypto";
 
-export const useGenerateAndSendToken = routeLoader$(async (requestEvent) => {
+export const useGenerateAndSendToken = routeLoader$(async () => {
   const token = randomBytes(32).toString("hex");
   console.log(`Generated token: ${token}`);
   const response = await fetch("http://localhost:3000/chatgpt", {
