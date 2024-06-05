@@ -83,7 +83,7 @@ app.use("/chatgpt", (req: Request, res: Response, next: NextFunction) => {
 const chatgptProxyOptions = {
   target: "http://chatgpt-next-web:3000",
   changeOrigin: true,
-  pathRewrite: (path: string, req: express.Request): string => {
+  pathRewrite: (path: string): string => {
     // Remove the leading '/chatgpt' or '/_next' or '/serviceWorkerRegister.js'
     if (path.startsWith("/chatgpt")) {
       return path.replace(/^\/chatgpt/, "");
