@@ -7,14 +7,17 @@ import { randomBytes } from "crypto";
 export const useGenerateAndSendToken = routeLoader$(async () => {
   const token = randomBytes(32).toString("hex");
   console.log(`Generated token: ${token}`);
-  const response = await fetch("http://localhost:3000/chatgpt", {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-      "X-Internal-Request": "true",
-    },
-    body: JSON.stringify({ token }),
-  });
+  const response = await fetch(
+    `${process.env.SERVER_ADDRESS}:${process.env.BACKEND_PORT}/chatgpt`,
+    {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "X-Internal-Request": "true",
+      },
+      body: JSON.stringify({ token }),
+    }
+  );
   console.log(`Server response status: ${response.status}`);
   if (response.ok) {
     return token;
