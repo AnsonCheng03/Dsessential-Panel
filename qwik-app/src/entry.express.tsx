@@ -1,12 +1,3 @@
-/*
- * WHAT IS THIS FILE?
- *
- * It's the entry point for the Express HTTP server when building for production.
- *
- * Learn more about Node.js server integrations here:
- * - https://qwik.builder.io/docs/deployments/node/
- *
- */
 import {
   createQwikCity,
   type PlatformNode,
@@ -37,17 +28,13 @@ const { router, notFound } = createQwikCity({
   qwikCityPlan,
   manifest,
   getOrigin(req) {
-    // If deploying under a proxy, you may need to build the origin from the request headers
-    // https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/X-Forwarded-Proto
     const protocol = req.headers["x-forwarded-proto"] ?? "https";
-    // https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/X-Forwarded-Host
     const host = req.headers["x-forwarded-host"] ?? req.headers.host;
     return `${protocol}://${host}`;
   },
 });
 
 // Create the express server
-// https://expressjs.com/
 const app = express();
 
 // Middleware to parse cookies
@@ -55,9 +42,11 @@ app.use(cookieParser());
 
 // Authentication Middleware
 const auth = (req: Request, res: Response, next: NextFunction) => {
-  const authToken = req.cookies.authToken;
+  console.log("Authenticating request...", req, res);
+  const authToken = req.cookies.authToken || req.query.token;
 
   if (authToken === "your_valid_token") {
+    // Replace this with your token validation logic
     return next();
   }
 
@@ -79,11 +68,7 @@ const proxyOptions = {
 // Apply proxy middleware
 app.use("/chatgpt", createProxyMiddleware(proxyOptions));
 
-// Enable gzip compression
-// app.use(compression());
-
 // Static asset handlers
-// https://expressjs.com/en/starter/static-files.html
 app.use(`/build`, express.static(buildDir, { immutable: true, maxAge: "1y" }));
 app.use(express.static(distDir, { redirect: false }));
 
@@ -112,7 +97,7 @@ httpsServer.listen(process.env.PORT ?? 3000, () => {
 });
 
 http
-  .createServer(function (req, res) {
+  .createServer((req, res) => {
     res.writeHead(301, {
       Location: "https://" + req.headers["host"] + req.url,
     });
