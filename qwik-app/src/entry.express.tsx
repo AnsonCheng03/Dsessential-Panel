@@ -80,21 +80,28 @@ app.use("/chatgpt", (req: Request, res: Response, next: NextFunction) => {
   }
 });
 
-// Proxy middleware options
-const proxyOptions = {
+// Proxy middleware options for chatgpt
+const chatgptProxyOptions = {
   target: "http://chatgpt-next-web:3000",
   changeOrigin: true,
   pathRewrite: {
-    "^/chatgpt/_next": "/_next",
-    "^/chatgpt/serviceWorkerRegister.js": "/serviceWorkerRegister.js",
     "^/chatgpt": "/",
   },
 };
 
+// Proxy middleware options for _next and serviceWorkerRegister.js
+const generalProxyOptions = {
+  target: "http://chatgpt-next-web:3000",
+  changeOrigin: true,
+};
+
 // Apply proxy middleware
-app.use("/chatgpt", createProxyMiddleware(proxyOptions));
-app.use("/_next", createProxyMiddleware(proxyOptions));
-app.use("/serviceWorkerRegister.js", createProxyMiddleware(proxyOptions));
+app.use("/chatgpt", createProxyMiddleware(chatgptProxyOptions));
+app.use("/_next", createProxyMiddleware(generalProxyOptions));
+app.use(
+  "/serviceWorkerRegister.js",
+  createProxyMiddleware(generalProxyOptions)
+);
 
 // Static asset handlers
 app.use(`/build`, express.static(buildDir, { immutable: true, maxAge: "1y" }));
