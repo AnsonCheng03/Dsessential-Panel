@@ -89,6 +89,7 @@ const chatgptProxyOptions = {
     if (path.startsWith("/chatgpt")) {
       return path.replace(/^\/chatgpt/, "");
     }
+    return path;
   },
 };
 
