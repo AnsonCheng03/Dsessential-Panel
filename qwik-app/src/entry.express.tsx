@@ -80,22 +80,25 @@ app.use("/chatgpt", (req: Request, res: Response, next: NextFunction) => {
   }
 });
 
-// Proxy middleware options for chatgpt
 const chatgptProxyOptions = {
   target: "http://chatgpt-next-web:3000",
   changeOrigin: true,
-  pathRewrite: {
-    "^/chatgpt": "/",
-    "^/_next": "/_next", // Ensure correct rewriting for _next
-    "^/serviceWorkerRegister.js": "/serviceWorkerRegister.js",
+  pathRewrite: (path: string, req: express.Request): string => {
+    // Remove the leading '/chatgpt' or '/_next' or '/serviceWorkerRegister.js'
+    if (path.startsWith("/chatgpt")) {
+      return path.replace(/^\/chatgpt/, "");
+    } else if (path.startsWith("/_next")) {
+      return path.replace(/^\/_next/, "/_next");
+    } else if (path === "/serviceWorkerRegister.js") {
+      return "/serviceWorkerRegister.js";
+    }
+    return path;
   },
 };
 
 // Apply proxy middleware
 app.use("/chatgpt", createProxyMiddleware(chatgptProxyOptions));
-app.use("/chatgpt/*", createProxyMiddleware(chatgptProxyOptions));
 app.use("/_next", createProxyMiddleware(chatgptProxyOptions));
-app.use("/_next/*", createProxyMiddleware(chatgptProxyOptions));
 app.use(
   "/serviceWorkerRegister.js",
   createProxyMiddleware(chatgptProxyOptions)
