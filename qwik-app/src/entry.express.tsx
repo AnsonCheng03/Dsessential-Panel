@@ -2,7 +2,7 @@ import {
   createQwikCity,
   type PlatformNode,
 } from "@builder.io/qwik-city/middleware/node";
-import qwikCityPlan from "@qwik-city-plan";
+import qwikCityPlan from "@builder.io/qwik-city-plan";
 import { manifest } from "@qwik-client-manifest";
 import render from "./entry.ssr";
 import express, {
@@ -68,7 +68,7 @@ app.use("/chatgpt", (req: Request, res: Response, next: NextFunction) => {
     console.log("Invalid token request");
     return res.status(400).send("Invalid request");
   } else {
-    const authToken = req.cookies.authToken || req.query.token;
+    const authToken = req.query.token as string;
     console.log(`Received auth token: ${authToken} from IP: ${clientIp}`);
     if (authToken && validTokens.has(authToken)) {
       validTokens.delete(authToken); // Remove token after it is used
