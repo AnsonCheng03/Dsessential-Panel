@@ -8,6 +8,7 @@ import { randomBytes } from "crypto";
 // Server function to generate and send the token to the Express server
 export const generateAndSendToken = server$(async () => {
   const token = randomBytes(32).toString("hex");
+  console.log(`Generated token: ${token}`);
   const response = await fetch("/chatgpt", {
     method: "POST",
     headers: {
@@ -16,9 +17,12 @@ export const generateAndSendToken = server$(async () => {
     },
     body: JSON.stringify({ token }),
   });
+  console.log(`Server response status: ${response.status}`);
   if (response.ok) {
     return token;
   } else {
+    const errorText = await response.text();
+    console.error(`Failed to authenticate. Server response: ${errorText}`);
     throw new Error("Failed to authenticate");
   }
 });
@@ -41,6 +45,7 @@ export default component$(() => {
       document.cookie = `authToken=${token}; path=/`;
       iframeUrl.value = `/chatgpt?token=${token}`;
     } catch (error) {
+      console.error(error);
       alert("Failed to authenticate");
     }
   });

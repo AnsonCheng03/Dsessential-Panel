@@ -47,21 +47,28 @@ const validTokens = new Set<string>();
 app.use("/chatgpt", (req: Request, res: Response, next: NextFunction) => {
   const clientIp =
     req.headers["x-forwarded-for"] || req.connection.remoteAddress;
-  console.log(`Client IP: ${clientIp}`);
+  const ipv4 = clientIp.split(",")[0].trim().split(":").pop();
+  console.log(`Client IP: ${ipv4}`);
 
   if (req.method === "POST" && req.headers["x-internal-request"] === "true") {
     const { token } = req.body;
+    console.log(`Received token: ${token} from IP: ${ipv4}`);
     if (token) {
       validTokens.add(token);
+      console.log(`Token ${token} saved.`);
       return res.status(200).send("Token saved");
     }
+    console.log("Invalid token request");
     return res.status(400).send("Invalid request");
   } else {
     const authToken = req.cookies.authToken || req.query.token;
+    console.log(`Received auth token: ${authToken} from IP: ${ipv4}`);
     if (authToken && validTokens.has(authToken)) {
       validTokens.delete(authToken); // Remove token after it is used
+      console.log(`Token ${authToken} validated and deleted.`);
       return next();
     }
+    console.log(`Invalid auth token: ${authToken}`);
     return res.redirect("/");
   }
 });
