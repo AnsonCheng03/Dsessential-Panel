@@ -98,6 +98,12 @@ const createProxyOptions = (targetPath: string) => ({
       ? (path: string) => path.replace(/^\/chatgpt/, "")
       : undefined,
   agent: new http.Agent({ keepAlive: true }),
+  onProxyRes: (proxyRes: any, req: Request, res: Response) => {
+    if (proxyRes.headers["content-type"] === "text/event-stream") {
+      res.setHeader("Content-Type", "text/event-stream");
+      proxyRes.pipe(res);
+    }
+  },
 });
 
 app.use("/chatgpt", createProxyMiddleware(createProxyOptions("")));
