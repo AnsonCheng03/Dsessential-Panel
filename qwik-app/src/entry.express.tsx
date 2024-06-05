@@ -2,7 +2,7 @@ import {
   createQwikCity,
   type PlatformNode,
 } from "@builder.io/qwik-city/middleware/node";
-import qwikCityPlan from "@qwik-city-plan";
+import qwikCityPlan from "@builder.io/qwik-city-plan";
 import { manifest } from "@qwik-client-manifest";
 import render from "./entry.ssr";
 import express, { Request, Response, NextFunction } from "express";
@@ -43,19 +43,14 @@ app.use(express.json());
 
 const validTokens = new Set<string>();
 
-// Helper function to get the client's IPv4 address
-const getClientIp = (req: Request): string => {
+// Middleware to handle token generation and validation
+app.use("/chatgpt", (req: Request, res: Response, next: NextFunction) => {
   const forwarded = req.headers["x-forwarded-for"];
   const ip =
     typeof forwarded === "string"
       ? forwarded.split(",")[0]
       : req.connection.remoteAddress;
-  return ip ? ip.split(":").pop() || "" : "";
-};
-
-// Middleware to handle token generation and validation
-app.use("/chatgpt", (req: Request, res: Response, next: NextFunction) => {
-  const clientIp = getClientIp(req);
+  const clientIp = ip ? ip.split(":").pop() || "" : "";
   console.log(`Client IP: ${clientIp}`);
 
   if (req.method === "POST" && req.headers["x-internal-request"] === "true") {

@@ -1,15 +1,13 @@
-import { component$, useSignal, useVisibleTask$ } from "@builder.io/qwik";
+import { component$, useSignal } from "@builder.io/qwik";
 import styles from "./index.module.css";
-import { type RequestHandler } from "@builder.io/qwik-city";
-import { server$ } from "@builder.io/qwik-city";
+import { type RequestHandler, routeLoader$ } from "@builder.io/qwik-city";
 import type { Session } from "@auth/core/types";
 import { randomBytes } from "crypto";
 
-// Server function to generate and send the token to the Express server
-export const generateAndSendToken = server$(async () => {
+export const useGenerateAndSendToken = routeLoader$(async (requestEvent) => {
   const token = randomBytes(32).toString("hex");
   console.log(`Generated token: ${token}`);
-  const response = await fetch("/chatgpt", {
+  const response = await fetch("http://localhost:3000/chatgpt", {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
@@ -36,19 +34,12 @@ export const onRequest: RequestHandler = (event) => {
 };
 
 export default component$(() => {
-  const iframeUrl = useSignal("/chatgpt");
+  const token = useGenerateAndSendToken().value;
+  const iframeUrl = useSignal(`/chatgpt?token=${token}`);
 
-  // Automatically generate and send the token on component mount
-  useVisibleTask$(async () => {
-    try {
-      const token = await generateAndSendToken();
-      document.cookie = `authToken=${token}; path=/`;
-      iframeUrl.value = `/chatgpt?token=${token}`;
-    } catch (error) {
-      console.error(error);
-      alert("Failed to authenticate");
-    }
-  });
+  if (token) {
+    document.cookie = `authToken=${token}; path=/`;
+  }
 
   return (
     <div>
