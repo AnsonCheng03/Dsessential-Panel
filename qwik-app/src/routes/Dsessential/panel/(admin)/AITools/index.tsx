@@ -1,4 +1,4 @@
-import { component$, useSignal } from "@builder.io/qwik";
+import { component$, useSignal, useVisibleTask$ } from "@builder.io/qwik";
 import styles from "./index.module.css";
 import { type RequestHandler, routeLoader$ } from "@builder.io/qwik-city";
 import type { Session } from "@auth/core/types";
@@ -37,9 +37,11 @@ export default component$(() => {
   const token = useGenerateAndSendToken().value;
   const iframeUrl = useSignal(`/chatgpt?token=${token}`);
 
-  if (token) {
-    document.cookie = `authToken=${token}; path=/`;
-  }
+  useVisibleTask$(async () => {
+    if (token) {
+      document.cookie = `authToken=${token}; path=/`;
+    }
+  });
 
   return (
     <div>
