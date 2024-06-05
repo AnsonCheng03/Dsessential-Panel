@@ -2,7 +2,7 @@ import {
   createQwikCity,
   type PlatformNode,
 } from "@builder.io/qwik-city/middleware/node";
-import qwikCityPlan from "@builder.io/qwik-city-plan";
+import qwikCityPlan from "@qwik-city-plan";
 import { manifest } from "@qwik-client-manifest";
 import render from "./entry.ssr";
 import express, {
