@@ -94,7 +94,7 @@ app.use("/_next", createProxyMiddleware(createProxyOptions("/_next")));
 app.use(
   "/serviceWorkerRegister.js",
   createProxyMiddleware({
-    target: "http://chatgpt-next-web:3000",
+    target: "http://chatgpt-next-web:3000/serviceWorkerRegister.js",
     changeOrigin: true,
     pathRewrite: (path) => {
       console.log(
