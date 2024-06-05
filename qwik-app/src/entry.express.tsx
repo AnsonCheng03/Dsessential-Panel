@@ -80,6 +80,31 @@ app.use("/chatgpt", (req: Request, res: Response, next: NextFunction) => {
   }
 });
 
+const fetchAndReturn = (url: string) => (req: Request, res: Response) => {
+  http
+    .get(url, (response) => {
+      let data = "";
+
+      // A chunk of data has been received.
+      response.on("data", (chunk) => {
+        data += chunk;
+      });
+
+      // The whole response has been received. Send the result.
+      response.on("end", () => {
+        const contentType = url.endsWith(".js")
+          ? "application/javascript"
+          : "application/json";
+        res.setHeader("Content-Type", contentType);
+        res.send(data);
+      });
+    })
+    .on("error", (err) => {
+      console.error(`Error fetching ${url}:`, err);
+      res.status(500).send(`Error fetching ${url}`);
+    });
+};
+
 const createProxyOptions = (targetPath: string) => ({
   target: `http://chatgpt-next-web:3000${targetPath}`,
   changeOrigin: true,
@@ -91,21 +116,19 @@ const createProxyOptions = (targetPath: string) => ({
 
 app.use("/chatgpt", createProxyMiddleware(createProxyOptions("")));
 app.use("/_next", createProxyMiddleware(createProxyOptions("/_next")));
+app.use("/api", createProxyMiddleware(createProxyOptions("/api")));
+app.use(
+  "/google-fonts",
+  createProxyMiddleware(createProxyOptions("/google-fonts"))
+);
+
 app.use(
   "/serviceWorkerRegister.js",
-  createProxyMiddleware({
-    target: "http://chatgpt-next-web:3000/serviceWorkerRegister.js",
-    changeOrigin: true,
-    pathRewrite: (path) => {
-      console.log(
-        `Path: ${path}, replaced: ${path.replace(/^\/serviceWorkerRegister.js/, "/serviceWorkerRegister.js")}`
-      );
-      return path.replace(
-        /^\/serviceWorkerRegister.js/,
-        "/serviceWorkerRegister.js"
-      );
-    },
-  })
+  fetchAndReturn("http://chatgpt-next-web:3000/serviceWorkerRegister.js")
+);
+app.use(
+  "/prompts.json",
+  fetchAndReturn("http://chatgpt-next-web:3000/prompts.json")
 );
 
 // Static asset handlers
