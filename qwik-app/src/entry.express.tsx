@@ -100,15 +100,42 @@ const createProxyOptions = (targetPath: string) => ({
   agent: new http.Agent({ keepAlive: true }),
   plugins: [
     (proxyServer: any) => {
-      proxyServer.on("proxyReq", (proxyReq: any, req: any) => {
-        console.log(`[HPM] [${req.method}] ${req.url}, Body: ${req.body}`);
-      });
+      proxyServer.on(
+        "proxyReq",
+        (proxyReq: http.ClientRequest, req: express.Request) => {
+          let bodyData: string = "";
+          req.on("data", (chunk: Buffer) => {
+            bodyData += chunk.toString();
+            console.log("Request chunk", chunk.toString());
+          });
 
-      proxyServer.on("proxyRes", (proxyRes: any, req: any) => {
-        console.log(
-          `[HPM] ${req.url} -> ${proxyRes.statusCode}, Body: ${proxyRes.body}`
-        );
-      });
+          req.on("end", () => {
+            console.log("Proxying request to", req.url, "with body", bodyData);
+          });
+        }
+      );
+
+      proxyServer.on(
+        "proxyRes",
+        (proxyRes: http.IncomingMessage, req: express.Request) => {
+          console.log(
+            "Proxying response from",
+            req.url,
+            "with status",
+            proxyRes.statusCode
+          );
+
+          let responseBody: string = "";
+          proxyRes.on("data", (chunk: Buffer) => {
+            responseBody += chunk.toString();
+            console.log("Response chunk", chunk.toString());
+          });
+
+          proxyRes.on("end", () => {
+            console.log("Response body", responseBody);
+          });
+        }
+      );
     },
   ],
 });
