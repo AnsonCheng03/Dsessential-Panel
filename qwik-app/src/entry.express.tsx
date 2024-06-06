@@ -118,7 +118,13 @@ const createProxyOptions = (targetPath: string) => ({
 
 app.use("/chatgpt", createProxyMiddleware(createProxyOptions("")));
 app.use("/_next", createProxyMiddleware(createProxyOptions("/_next")));
-// app.use("/api", createProxyMiddleware(createProxyOptions("/api")));
+app.use("/api", (req, res, next) => {
+  if (!req.path.startsWith("/api/auth")) {
+    createProxyMiddleware(createProxyOptions("/api"))(req, res, next);
+  } else {
+    next();
+  }
+});
 app.use(
   "/google-fonts",
   createProxyMiddleware(createProxyOptions("/google-fonts"))
