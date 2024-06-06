@@ -93,6 +93,7 @@ const fetchAndReturn = (url: string) => (req: Request, res: Response) => {
 const createProxyOptions = (targetPath: string) => ({
   target: `http://chatgpt-next-web:3000${targetPath}`,
   changeOrigin: true,
+  preserveHeaderKeyCase: true,
   pathRewrite:
     targetPath === ""
       ? (path: string) => path.replace(/^\/chatgpt/, "")
@@ -103,6 +104,14 @@ const createProxyOptions = (targetPath: string) => ({
       proxyServer.on(
         "proxyReq",
         (proxyReq: http.ClientRequest, req: express.Request) => {
+          console.log(
+            "Proxying request to",
+            req.url,
+            "with headers",
+            req.headers,
+            "and body",
+            req.body
+          );
           let bodyData: string = "";
           req.on("data", (chunk: Buffer) => {
             bodyData += chunk.toString();
