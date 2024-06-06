@@ -98,11 +98,7 @@ const createProxyOptions = (targetPath: string) => ({
       ? (path: string) => path.replace(/^\/chatgpt/, "")
       : undefined,
   agent: new http.Agent({ keepAlive: true }),
-  onProxyReq: (
-    proxyReq: http.ClientRequest,
-    req: express.Request,
-    res: express.Response
-  ) => {
+  onProxyReq: (proxyReq: http.ClientRequest, req: express.Request) => {
     let bodyData: string = "";
     req.on("data", (chunk: Buffer) => {
       bodyData += chunk.toString();
@@ -113,11 +109,7 @@ const createProxyOptions = (targetPath: string) => ({
       console.log("Proxying request to", req.url, "with body", bodyData);
     });
   },
-  onProxyRes: (
-    proxyRes: http.IncomingMessage,
-    req: express.Request,
-    res: express.Response
-  ) => {
+  onProxyRes: (proxyRes: http.IncomingMessage, req: express.Request) => {
     console.log(
       "Proxying response from",
       req.url,
