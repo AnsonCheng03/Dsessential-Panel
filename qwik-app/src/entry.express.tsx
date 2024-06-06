@@ -17,6 +17,7 @@ import http from "http";
 import https from "https";
 import { createProxyMiddleware } from "http-proxy-middleware";
 import cookieParser from "cookie-parser";
+import { Stream } from "stream";
 
 declare global {
   interface QwikCityPlatform extends PlatformNode {}
@@ -99,63 +100,56 @@ const createProxyOptions = (targetPath: string) => ({
       ? (path: string) => path.replace(/^\/chatgpt/, "")
       : undefined,
   agent: new http.Agent({ keepAlive: true }),
-  plugins: [
-    (proxyServer: any) => {
-      proxyServer.on(
-        "proxyReq",
-        (proxyReq: http.ClientRequest, req: Request) => {
-          if (!req.body) {
-            return;
-          }
-          const contentType = req.get("content-type");
-          if (contentType) {
-            proxyReq.setHeader("content-type", contentType);
-          }
-          const contentLength = req.get("content-length");
-          if (contentLength) {
-            const bodyData = JSON.stringify(req.body);
-            const bufferLength = Buffer.byteLength(bodyData);
-            if (bufferLength !== parseInt(contentLength)) {
-              console.warn(
-                `buffer length = ${bufferLength}, content length = ${contentLength}`
-              );
-              proxyReq.setHeader("content-length", bufferLength);
-            }
-            proxyReq.write(bodyData);
-          }
-        }
-      );
+  onProxyReq: (proxyReq: http.ClientRequest, req: Request) => {
+    if (!req.body) {
+      return;
+    }
+    const contentType = req.get("content-type");
+    if (contentType) {
+      proxyReq.setHeader("content-type", contentType);
+    }
+    const contentLength = req.get("content-length");
+    if (contentLength) {
+      const bodyData = JSON.stringify(req.body);
+      const bufferLength = Buffer.byteLength(bodyData);
+      if (bufferLength !== parseInt(contentLength)) {
+        console.warn(
+          `buffer length = ${bufferLength}, content length = ${contentLength}`
+        );
+        proxyReq.setHeader("content-length", bufferLength);
+      }
+      proxyReq.write(bodyData);
+    }
+  },
+  onProxyRes: (proxyRes: http.IncomingMessage, req: Request, res: Response) => {
+    res.status(proxyRes.statusCode ?? 500);
+    for (const key of Object.keys(proxyRes.headers)) {
+      let rawValue = proxyRes.headers[key];
+      if (!Array.isArray(rawValue)) {
+        rawValue = [rawValue as string];
+      }
+      for (const value of rawValue) {
+        res.setHeader(key, value);
+      }
+    }
 
-      proxyServer.on(
-        "proxyRes",
-        (proxyRes: http.IncomingMessage, req: Request, res: Response) => {
-          const authToken = req.cookies["__Secure-authjs.session-token"];
-          console.log("authToken", authToken);
+    console.log("this is where you transform the response");
 
-          // if (!authToken) {
-          //   res.status(403).send("Forbidden");
-          //   return;
-          // }
+    const stream = new Stream.PassThrough();
+    proxyRes.pipe(stream);
 
-          res.status(proxyRes.statusCode ?? 500);
-          for (const key of Object.keys(proxyRes.headers)) {
-            let rawValue = proxyRes.headers[key];
-            if (!Array.isArray(rawValue)) {
-              rawValue = [rawValue as string];
-            }
-            for (const value of rawValue) {
-              res.set(key, value);
-            }
-          }
+    stream.on("data", (chunk) => {
+      res.write(chunk);
+    });
 
-          console.log("Streaming response to client");
+    stream.on("end", () => {
+      res.end();
+    });
 
-          // Stream the proxy response to the client
-          proxyRes.pipe(res);
-        }
-      );
-    },
-  ],
+    stream.on("error", (err) => {
+      res.status(500).send(err.message);
+    });
+  },
 });
 
 app.use("/chatgpt", createProxyMiddleware(createProxyOptions("")));
