@@ -114,7 +114,12 @@ const createProxyOptions = (targetPath: string) => ({
     });
   },
   onProxyRes: responseInterceptor(
-    async (responseBuffer: Buffer, proxyRes: any, req: express.Request) => {
+    async (
+      responseBuffer: Buffer,
+      proxyRes: any,
+      req: express.Request,
+      res: express.Response
+    ) => {
       console.log(
         "Proxying response from",
         req.url,
@@ -132,6 +137,7 @@ const createProxyOptions = (targetPath: string) => ({
 
       proxyRes.on("end", () => {
         console.log("Response body", responseBody);
+        res.end(responseBody);
       });
 
       return responseBuffer.toString();
