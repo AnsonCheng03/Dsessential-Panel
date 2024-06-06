@@ -17,7 +17,7 @@ import http from "http";
 import https from "https";
 import { createProxyMiddleware } from "http-proxy-middleware";
 import cookieParser from "cookie-parser";
-import { Stream } from "stream";
+import httpStatus from "http-status-codes";
 
 declare global {
   interface QwikCityPlatform extends PlatformNode {}
@@ -95,60 +95,45 @@ const createProxyOptions = (targetPath: string) => ({
   target: `http://chatgpt-next-web:3000${targetPath}`,
   changeOrigin: true,
   preserveHeaderKeyCase: true,
-  pathRewrite:
-    targetPath === ""
-      ? (path: string) => path.replace(/^\/chatgpt/, "")
-      : undefined,
+  pathRewrite: targetPath === "" ? { "^/chatgpt": "" } : undefined,
   agent: new http.Agent({ keepAlive: true }),
-  onProxyReq: (proxyReq: http.ClientRequest, req: Request) => {
-    if (!req.body) {
-      return;
-    }
-    const contentType = req.get("content-type");
-    if (contentType) {
-      proxyReq.setHeader("content-type", contentType);
-    }
-    const contentLength = req.get("content-length");
-    if (contentLength) {
-      const bodyData = JSON.stringify(req.body);
-      const bufferLength = Buffer.byteLength(bodyData);
-      if (bufferLength !== parseInt(contentLength)) {
-        console.warn(
-          `buffer length = ${bufferLength}, content length = ${contentLength}`
-        );
-        proxyReq.setHeader("content-length", bufferLength);
+  onProxyReq: (proxyReq: http.ClientRequest, req: express.Request) => {
+    console.log("Headers:", req.headers);
+    console.log("Cookies:", req.headers.cookie);
+
+    if (req.body) {
+      const contentType = req.get("content-type");
+      const contentLength = req.get("content-length");
+      if (contentType) proxyReq.setHeader("content-type", contentType);
+      if (contentLength) {
+        const bodyData = JSON.stringify(req.body);
+        const bufferLength = Buffer.byteLength(bodyData);
+        if (bufferLength != parseInt(contentLength)) {
+          console.warn(
+            `buffer length = ${bufferLength}, content length = ${contentLength}`
+          );
+          proxyReq.setHeader("content-length", bufferLength);
+        }
+        proxyReq.write(bodyData);
       }
-      proxyReq.write(bodyData);
     }
   },
-  onProxyRes: (proxyRes: http.IncomingMessage, req: Request, res: Response) => {
+  onProxyRes: (
+    proxyRes: http.IncomingMessage,
+    req: express.Request,
+    res: express.Response
+  ) => {
     res.status(proxyRes.statusCode ?? 500);
-    for (const key of Object.keys(proxyRes.headers)) {
-      let rawValue = proxyRes.headers[key];
-      if (!Array.isArray(rawValue)) {
-        rawValue = [rawValue as string];
-      }
-      for (const value of rawValue) {
-        res.setHeader(key, value);
-      }
-    }
-
-    console.log("this is where you transform the response");
-
-    const stream = new Stream.PassThrough();
-    proxyRes.pipe(stream);
-
-    stream.on("data", (chunk) => {
-      res.write(chunk);
+    Object.entries(proxyRes.headers).forEach(([key, value]) => {
+      res.set(key, value as string | string[]);
     });
 
-    stream.on("end", () => {
-      res.end();
-    });
-
-    stream.on("error", (err) => {
-      res.status(500).send(err.message);
-    });
+    let body = Buffer.alloc(0);
+    proxyRes.on("data", (data) => (body = Buffer.concat([body, data])));
+    proxyRes.on("end", () => res.end(body.toString("utf8")));
+    proxyRes.on("error", () =>
+      res.status(httpStatus.INTERNAL_SERVER_ERROR).end()
+    );
   },
 });
 
