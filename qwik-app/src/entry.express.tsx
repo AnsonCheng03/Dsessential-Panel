@@ -104,7 +104,7 @@ const createProxyOptions = (targetPath: string) => ({
     (proxyServer: any) => {
       proxyServer.on(
         "proxyReq",
-        (proxyReq: http.ClientRequest, req: express.Request) => {
+        (proxyReq: http.ClientRequest, req: Request) => {
           if (!req.body) {
             return;
           }
@@ -116,7 +116,7 @@ const createProxyOptions = (targetPath: string) => ({
           if (contentLength) {
             const bodyData = JSON.stringify(req.body);
             const bufferLength = Buffer.byteLength(bodyData);
-            if (bufferLength != parseInt(contentLength)) {
+            if (bufferLength !== parseInt(contentLength)) {
               console.warn(
                 `buffer length = ${bufferLength}, content length = ${contentLength}`
               );
@@ -129,11 +129,13 @@ const createProxyOptions = (targetPath: string) => ({
 
       proxyServer.on(
         "proxyRes",
-        (
-          proxyRes: http.IncomingMessage,
-          req: express.Request,
-          res: express.Response
-        ) => {
+        (proxyRes: http.IncomingMessage, req: Request, res: Response) => {
+          const authToken = req.cookies["__Secure-authjs.session-token"];
+          if (!authToken) {
+            res.status(403).send("Forbidden");
+            return;
+          }
+
           res.status(proxyRes.statusCode ?? 500);
           for (const key of Object.keys(proxyRes.headers)) {
             let rawValue = proxyRes.headers[key];
@@ -145,18 +147,10 @@ const createProxyOptions = (targetPath: string) => ({
             }
           }
 
-          console.log("this is where you transform the response");
+          console.log("Streaming response to client");
 
-          let body = new Buffer("");
-          const bodyPromise = new Promise(function (resolve, reject) {
-            proxyRes.on("data", (data) => (body = Buffer.concat([body, data])));
-            proxyRes.on("end", () => resolve(body.toString("utf8")));
-            proxyRes.on("error", (err) => reject(err));
-          });
-
-          bodyPromise
-            .then(() => res.end(body))
-            .catch(() => res.status(httpStatus.INTERNAL_SERVER_ERROR).end());
+          // Stream the proxy response to the client
+          proxyRes.pipe(res);
         }
       );
     },
