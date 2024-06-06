@@ -95,46 +95,62 @@ const createProxyOptions = (targetPath: string) => ({
   target: `http://chatgpt-next-web:3000${targetPath}`,
   changeOrigin: true,
   preserveHeaderKeyCase: true,
-  pathRewrite: targetPath === "" ? { "^/chatgpt": "" } : undefined,
+  pathRewrite:
+    targetPath === ""
+      ? (path: string) => path.replace(/^\/chatgpt/, "")
+      : undefined,
   agent: new http.Agent({ keepAlive: true }),
-  onProxyReq: (proxyReq: http.ClientRequest, req: express.Request) => {
-    console.log("Headers:", req.headers);
-    console.log("Cookies:", req.headers.cookie);
+  plugins: [
+    (proxyServer: any) => {
+      proxyServer.on(
+        "proxyReq",
+        (proxyReq: http.ClientRequest, req: express.Request) => {
+          console.log("Headers:", req.headers);
+          console.log("Cookies:", req.headers.cookie);
 
-    if (req.body) {
-      const contentType = req.get("content-type");
-      const contentLength = req.get("content-length");
-      if (contentType) proxyReq.setHeader("content-type", contentType);
-      if (contentLength) {
-        const bodyData = JSON.stringify(req.body);
-        const bufferLength = Buffer.byteLength(bodyData);
-        if (bufferLength != parseInt(contentLength)) {
-          console.warn(
-            `buffer length = ${bufferLength}, content length = ${contentLength}`
-          );
-          proxyReq.setHeader("content-length", bufferLength);
+          if (req.body) {
+            const contentType = req.get("content-type");
+            const contentLength = req.get("content-length");
+            if (contentType) proxyReq.setHeader("content-type", contentType);
+            if (contentLength) {
+              const bodyData = JSON.stringify(req.body);
+              const bufferLength = Buffer.byteLength(bodyData);
+              if (bufferLength != parseInt(contentLength)) {
+                console.warn(
+                  `buffer length = ${bufferLength}, content length = ${contentLength}`
+                );
+                proxyReq.setHeader("content-length", bufferLength);
+              }
+              proxyReq.write(bodyData);
+            }
+          }
         }
-        proxyReq.write(bodyData);
-      }
-    }
-  },
-  onProxyRes: (
-    proxyRes: http.IncomingMessage,
-    req: express.Request,
-    res: express.Response
-  ) => {
-    res.status(proxyRes.statusCode ?? 500);
-    Object.entries(proxyRes.headers).forEach(([key, value]) => {
-      res.set(key, value as string | string[]);
-    });
+      );
 
-    let body = Buffer.alloc(0);
-    proxyRes.on("data", (data) => (body = Buffer.concat([body, data])));
-    proxyRes.on("end", () => res.end(body.toString("utf8")));
-    proxyRes.on("error", () =>
-      res.status(httpStatus.INTERNAL_SERVER_ERROR).end()
-    );
-  },
+      proxyServer.on(
+        "proxyRes",
+        (
+          proxyRes: http.IncomingMessage,
+          req: express.Request,
+          res: express.Response
+        ) => {
+          res.status(proxyRes.statusCode ?? 500);
+          Object.entries(proxyRes.headers).forEach(([key, value]) => {
+            res.set(key, value as string | string[]);
+          });
+
+          console.log("this is where you transform the response");
+
+          let body = Buffer.alloc(0);
+          proxyRes.on("data", (data) => (body = Buffer.concat([body, data])));
+          proxyRes.on("end", () => res.end(body.toString("utf8")));
+          proxyRes.on("error", () =>
+            res.status(httpStatus.INTERNAL_SERVER_ERROR).end()
+          );
+        }
+      );
+    },
+  ],
 });
 
 app.use("/chatgpt", createProxyMiddleware(createProxyOptions("")));
