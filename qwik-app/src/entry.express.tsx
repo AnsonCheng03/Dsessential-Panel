@@ -99,12 +99,12 @@ const createProxyOptions = (targetPath: string) => ({
       : undefined,
   agent: new http.Agent({ keepAlive: true }),
   plugins: [
-    (proxyServer: any, options: any) => {
-      proxyServer.on("proxyReq", (proxyReq: any, req: any, res: any) => {
+    (proxyServer: any) => {
+      proxyServer.on("proxyReq", (proxyReq: any, req: any) => {
         console.log(`[HPM] [${req.method}] ${req.url}, Body: ${req.body}`);
       });
 
-      proxyServer.on("proxyRes", (proxyRes: any, req: any, res: any) => {
+      proxyServer.on("proxyRes", (proxyRes: any, req: any) => {
         console.log(
           `[HPM] ${req.url} -> ${proxyRes.statusCode}, Body: ${proxyRes.body}`
         );
