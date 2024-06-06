@@ -108,6 +108,19 @@ const createProxyOptions = (targetPath: string) => ({
           console.log("Headers:", req.headers);
           console.log("Cookies:", req.headers.cookie);
 
+          // check if cookie has __Secure-authjs.session-token, if not, drop the request
+          if (
+            !req.headers.cookie ||
+            !req.headers.cookie.includes("__Secure-authjs.session-token")
+          ) {
+            console.warn(
+              "No session token found in request, url requesting:",
+              req.url
+            );
+            proxyReq.destroy();
+            return;
+          }
+
           if (req.body) {
             const contentType = req.get("content-type");
             const contentLength = req.get("content-length");
