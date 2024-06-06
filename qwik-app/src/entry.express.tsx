@@ -90,7 +90,6 @@ const fetchAndReturn = (url: string) => (req: Request, res: Response) => {
     });
 };
 
-console.log("Proxying requests to chatgpt-next-web");
 const createProxyOptions = (targetPath: string) => ({
   target: `http://chatgpt-next-web:3000${targetPath}`,
   changeOrigin: true,
@@ -99,20 +98,41 @@ const createProxyOptions = (targetPath: string) => ({
       ? (path: string) => path.replace(/^\/chatgpt/, "")
       : undefined,
   agent: new http.Agent({ keepAlive: true }),
-  onProxyReq: (proxyReq: any, req: any) => {
-    console.log("Proxying request to", req.url, "with body", req.body);
+  onProxyReq: (
+    proxyReq: http.ClientRequest,
+    req: express.Request,
+    res: express.Response
+  ) => {
+    let bodyData: string = "";
+    req.on("data", (chunk: Buffer) => {
+      bodyData += chunk.toString();
+      console.log("Request body chunk", chunk.toString());
+    });
+
+    req.on("end", () => {
+      console.log("Proxying request to", req.url, "with body", bodyData);
+    });
   },
-  onProxyRes: (proxyRes: any, req: any, res: any) => {
+  onProxyRes: (
+    proxyRes: http.IncomingMessage,
+    req: express.Request,
+    res: express.Response
+  ) => {
     console.log(
       "Proxying response from",
       req.url,
       "with status",
-      res.statusCode,
-      "and body",
-      res.body
+      proxyRes.statusCode
     );
-    proxyRes.on("data", (data: any) => {
-      console.log("Response data", data.toString());
+
+    let responseBody: string = "";
+    proxyRes.on("data", (chunk: Buffer) => {
+      responseBody += chunk.toString();
+      console.log("Response body chunk", chunk.toString());
+    });
+
+    proxyRes.on("end", () => {
+      console.log("Response body", responseBody);
     });
   },
 });
@@ -121,7 +141,7 @@ app.use("/chatgpt", createProxyMiddleware(createProxyOptions("")));
 app.use("/_next", createProxyMiddleware(createProxyOptions("/_next")));
 app.use("/api", (req, res, next) => {
   console.log("Proxying request to", req.path);
-  if (!req.path.startsWith("/api/auth")) {
+  if (!req.path.startsWith("/auth")) {
     createProxyMiddleware(createProxyOptions("/api"))(req, res, next);
   } else {
     next();
