@@ -17,7 +17,7 @@ import http from "http";
 import https from "https";
 import { createProxyMiddleware } from "http-proxy-middleware";
 import cookieParser from "cookie-parser";
-const httpStatus = require("http-status-codes");
+import httpStatus from "http-status-codes";
 
 declare global {
   interface QwikCityPlatform extends PlatformNode {}
