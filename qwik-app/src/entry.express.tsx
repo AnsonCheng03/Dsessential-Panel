@@ -17,6 +17,7 @@ import http from "http";
 import https from "https";
 import { createProxyMiddleware } from "http-proxy-middleware";
 import cookieParser from "cookie-parser";
+const httpStatus = require("http-status-codes");
 
 declare global {
   interface QwikCityPlatform extends PlatformNode {}
@@ -104,45 +105,58 @@ const createProxyOptions = (targetPath: string) => ({
       proxyServer.on(
         "proxyReq",
         (proxyReq: http.ClientRequest, req: express.Request) => {
-          console.log(
-            "Proxying request to",
-            req.url,
-            "with headers",
-            req.headers,
-            "and body",
-            req.body
-          );
-          let bodyData: string = "";
-          req.on("data", (chunk: Buffer) => {
-            bodyData += chunk.toString();
-            console.log("Request chunk", chunk.toString());
-          });
-
-          req.on("end", () => {
-            console.log("Proxying request to", req.url, "with body", bodyData);
-          });
+          if (!req.body) {
+            return;
+          }
+          const contentType = req.get("content-type");
+          if (contentType) {
+            proxyReq.setHeader("content-type", contentType);
+          }
+          const contentLength = req.get("content-length");
+          if (contentLength) {
+            const bodyData = JSON.stringify(req.body);
+            const bufferLength = Buffer.byteLength(bodyData);
+            if (bufferLength != parseInt(contentLength)) {
+              console.warn(
+                `buffer length = ${bufferLength}, content length = ${contentLength}`
+              );
+              proxyReq.setHeader("content-length", bufferLength);
+            }
+            proxyReq.write(bodyData);
+          }
         }
       );
 
       proxyServer.on(
         "proxyRes",
-        (proxyRes: http.IncomingMessage, req: express.Request) => {
-          console.log(
-            "Proxying response from",
-            req.url,
-            "with status",
-            proxyRes.statusCode
-          );
+        (
+          proxyRes: http.IncomingMessage,
+          req: express.Request,
+          res: express.Response
+        ) => {
+          res.status(proxyRes.statusCode ?? 500);
+          for (const key of Object.keys(proxyRes.headers)) {
+            let rawValue = proxyRes.headers[key];
+            if (!Array.isArray(rawValue)) {
+              rawValue = [rawValue as string];
+            }
+            for (const value of rawValue) {
+              res.set(key, value);
+            }
+          }
 
-          let responseBody: string = "";
-          proxyRes.on("data", (chunk: Buffer) => {
-            responseBody += chunk.toString();
-            console.log("Response chunk", chunk.toString());
+          console.log("this is where you transform the response");
+
+          let body = new Buffer("");
+          const bodyPromise = new Promise(function (resolve, reject) {
+            proxyRes.on("data", (data) => (body = Buffer.concat([body, data])));
+            proxyRes.on("end", () => resolve(body.toString("utf8")));
+            proxyRes.on("error", (err) => reject(err));
           });
 
-          proxyRes.on("end", () => {
-            console.log("Response body", responseBody);
-          });
+          bodyPromise
+            .then(() => res.end(body))
+            .catch(() => res.status(httpStatus.INTERNAL_SERVER_ERROR).end());
         }
       );
     },
