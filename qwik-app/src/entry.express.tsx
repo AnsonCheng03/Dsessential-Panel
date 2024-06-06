@@ -15,7 +15,10 @@ import { join } from "node:path";
 import * as fs from "fs";
 import http from "http";
 import https from "https";
-import { createProxyMiddleware } from "http-proxy-middleware";
+import {
+  createProxyMiddleware,
+  responseInterceptor,
+} from "http-proxy-middleware";
 import cookieParser from "cookie-parser";
 
 declare global {
@@ -98,6 +101,7 @@ const createProxyOptions = (targetPath: string) => ({
       ? (path: string) => path.replace(/^\/chatgpt/, "")
       : undefined,
   agent: new http.Agent({ keepAlive: true }),
+  selfHandleResponse: true,
   onProxyReq: (proxyReq: http.ClientRequest, req: express.Request) => {
     let bodyData: string = "";
     req.on("data", (chunk: Buffer) => {
@@ -109,30 +113,35 @@ const createProxyOptions = (targetPath: string) => ({
       console.log("Proxying request to", req.url, "with body", bodyData);
     });
   },
-  onProxyRes: (proxyRes: http.IncomingMessage, req: express.Request) => {
-    console.log(
-      "Proxying response from",
-      req.url,
-      "with status",
-      proxyRes.statusCode
-    );
+  onProxyRes: responseInterceptor(
+    async (responseBuffer: Buffer, proxyRes: any, req: express.Request) => {
+      console.log(
+        "Proxying response from",
+        req.url,
+        "with status",
+        proxyRes.statusCode,
+        "and body",
+        responseBuffer.toString()
+      );
 
-    let responseBody: string = "";
-    proxyRes.on("data", (chunk: Buffer) => {
-      responseBody += chunk.toString();
-      console.log("Response body chunk", chunk.toString());
-    });
+      let responseBody: string = "";
+      proxyRes.on("data", (chunk: Buffer) => {
+        responseBody += chunk.toString();
+        console.log("Response body chunk", chunk.toString());
+      });
 
-    proxyRes.on("end", () => {
-      console.log("Response body", responseBody);
-    });
-  },
+      proxyRes.on("end", () => {
+        console.log("Response body", responseBody);
+      });
+
+      return responseBuffer.toString();
+    }
+  ),
 });
 
 app.use("/chatgpt", createProxyMiddleware(createProxyOptions("")));
 app.use("/_next", createProxyMiddleware(createProxyOptions("/_next")));
 app.use("/api", (req, res, next) => {
-  console.log("Proxying request to", req.path);
   if (!req.path.startsWith("/auth")) {
     createProxyMiddleware(createProxyOptions("/api"))(req, res, next);
   } else {
