@@ -15,10 +15,7 @@ import { join } from "node:path";
 import * as fs from "fs";
 import http from "http";
 import https from "https";
-import {
-  createProxyMiddleware,
-  responseInterceptor,
-} from "http-proxy-middleware";
+import { createProxyMiddleware } from "http-proxy-middleware";
 import cookieParser from "cookie-parser";
 
 declare global {
@@ -113,36 +110,22 @@ const createProxyOptions = (targetPath: string) => ({
       console.log("Proxying request to", req.url, "with body", bodyData);
     });
   },
-  onProxyRes: responseInterceptor(
-    async (
-      responseBuffer: Buffer,
-      proxyRes: any,
-      req: express.Request,
-      res: express.Response
-    ) => {
-      console.log(
-        "Proxying response from",
-        req.url,
-        "with status",
-        proxyRes.statusCode,
-        "and body",
-        responseBuffer.toString()
-      );
-
-      let responseBody: string = "";
-      proxyRes.on("data", (chunk: Buffer) => {
-        responseBody += chunk.toString();
-        console.log("Response body chunk", chunk.toString());
-      });
-
-      proxyRes.on("end", () => {
-        console.log("Response body", responseBody);
-        res.end(responseBody);
-      });
-
-      return responseBuffer.toString();
-    }
-  ),
+  onProxyRes: function (
+    proxyRes: http.IncomingMessage,
+    req: express.Request,
+    res: express.Response
+  ) {
+    var body: any = [];
+    proxyRes.on("data", function (chunk) {
+      console.log("chunk", chunk);
+      body.push(chunk);
+    });
+    proxyRes.on("end", function () {
+      body = Buffer.concat(body).toString();
+      console.log("res from proxied server:", body);
+      res.end("my response to cli");
+    });
+  },
 });
 
 app.use("/chatgpt", createProxyMiddleware(createProxyOptions("")));
