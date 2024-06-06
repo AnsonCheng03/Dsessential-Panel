@@ -129,11 +129,11 @@ const createProxyOptions = (targetPath: string) => ({
       proxyServer.on(
         "proxyRes",
         (proxyRes: http.IncomingMessage, req: Request, res: Response) => {
-          const authToken = req.cookies["__Secure-authjs.session-token"];
-          if (!authToken) {
-            res.status(403).send("Forbidden");
-            return;
-          }
+          // const authToken = req.cookies["__Secure-authjs.session-token"];
+          // if (!authToken) {
+          //   res.status(403).send("Forbidden");
+          //   return;
+          // }
 
           res.status(proxyRes.statusCode ?? 500);
           for (const key of Object.keys(proxyRes.headers)) {
