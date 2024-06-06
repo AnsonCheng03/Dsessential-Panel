@@ -99,18 +99,26 @@ const createProxyOptions = (targetPath: string) => ({
       : undefined,
   agent: new http.Agent({ keepAlive: true }),
   onProxyReq: (proxyReq: any, req: any) => {
-    if (req.body) {
-      var bodyData = JSON.stringify(req.body);
-      proxyReq.setHeader("Content-Type", "application/json");
-      proxyReq.setHeader("Content-Length", Buffer.byteLength(bodyData));
-      proxyReq.write(bodyData);
-    }
+    console.log("Proxying request to", req.url, "with body", req.body);
+  },
+  onProxyRes: (proxyRes: any, req: any, res: any) => {
+    console.log(
+      "Proxying response from",
+      req.url,
+      "with status",
+      res.statusCode,
+      "and body",
+      res.body
+    );
+    proxyRes.on("data", (data: any) => {
+      console.log("Response data", data.toString());
+    });
   },
 });
 
 app.use("/chatgpt", createProxyMiddleware(createProxyOptions("")));
 app.use("/_next", createProxyMiddleware(createProxyOptions("/_next")));
-app.use("/api", createProxyMiddleware(createProxyOptions("/api")));
+// app.use("/api", createProxyMiddleware(createProxyOptions("/api")));
 app.use(
   "/google-fonts",
   createProxyMiddleware(createProxyOptions("/google-fonts"))
