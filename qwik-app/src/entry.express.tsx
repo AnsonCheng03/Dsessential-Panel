@@ -90,6 +90,7 @@ const fetchAndReturn = (url: string) => (req: Request, res: Response) => {
     });
 };
 
+console.log("Proxying requests to chatgpt-next-web");
 const createProxyOptions = (targetPath: string) => ({
   target: `http://chatgpt-next-web:3000${targetPath}`,
   changeOrigin: true,
@@ -119,6 +120,7 @@ const createProxyOptions = (targetPath: string) => ({
 app.use("/chatgpt", createProxyMiddleware(createProxyOptions("")));
 app.use("/_next", createProxyMiddleware(createProxyOptions("/_next")));
 app.use("/api", (req, res, next) => {
+  console.log("Proxying request to", req.path);
   if (!req.path.startsWith("/api/auth")) {
     createProxyMiddleware(createProxyOptions("/api"))(req, res, next);
   } else {
