@@ -45,11 +45,13 @@ export class LessonReplayService {
 
   async getMonthArray(month) {
     const result = [];
+    month = 3;
     for (let i = 4 + 1; i <= 4 + 12; i++) {
       const currentMonth = ((i - 2) % 12) + 1;
-      if (month === currentMonth.toString()) break;
       result.push(currentMonth);
+      if (month === currentMonth) break;
     }
+    console.log(result);
     return result;
   }
 
@@ -61,38 +63,43 @@ export class LessonReplayService {
     };
 
     function getFilesFromDirectory(directory) {
-      const files = fs.readdirSync(directory);
+      try {
+        const files = fs.readdirSync(directory);
 
-      files.forEach((file) => {
-        if (
-          file === '.DS_Store' ||
-          file.startsWith('ts-') ||
-          file.startsWith('@')
-        )
-          return;
+        files.forEach((file) => {
+          if (
+            file === '.DS_Store' ||
+            file.startsWith('ts-') ||
+            file.startsWith('@')
+          )
+            return;
 
-        const filePath = path.join(directory, file);
-        const stats = fs.statSync(filePath);
+          const filePath = path.join(directory, file);
+          const stats = fs.statSync(filePath);
 
-        if (stats.isFile()) {
-          // parent directory name
-          const parentDirName = path.basename(directory);
-          if (!result['範文'][parentDirName]) {
-            result['範文'][parentDirName] = {
-              影片: { video: [], notes: [] },
-            };
+          if (stats.isFile()) {
+            // parent directory name
+            const parentDirName = path.basename(directory);
+            if (!result['範文'][parentDirName]) {
+              result['範文'][parentDirName] = {
+                影片: { video: [], notes: [] },
+              };
+            }
+
+            const extension = path.parse(file).ext;
+            if (isVideoFile(extension)) {
+              result['範文'][parentDirName]['影片']['video'].push(filePath);
+            } else if (extension === '.pdf') {
+              result['範文'][parentDirName]['影片']['notes'].push(filePath);
+            }
+          } else {
+            getFilesFromDirectory(filePath);
           }
-
-          const extension = path.parse(file).ext;
-          if (isVideoFile(extension)) {
-            result['範文'][parentDirName]['影片']['video'].push(filePath);
-          } else if (extension === '.pdf') {
-            result['範文'][parentDirName]['影片']['notes'].push(filePath);
-          }
-        } else {
-          getFilesFromDirectory(filePath);
-        }
-      });
+        });
+      } catch (_) {}
+      if (Object.keys(result['範文']).length === 0) {
+        result['範文']['暫時沒有影片'] = {};
+      }
 
       return result;
     }
@@ -107,42 +114,46 @@ export class LessonReplayService {
     };
 
     function getFilesFromDirectory(directory, month) {
-      const files = fs.readdirSync(directory);
+      try {
+        const files = fs.readdirSync(directory);
 
-      files.forEach((file) => {
-        if (
-          file === '.DS_Store' ||
-          file.startsWith('ts-') ||
-          file.startsWith('@')
-        )
-          return;
+        files.forEach((file) => {
+          if (
+            file === '.DS_Store' ||
+            file.startsWith('ts-') ||
+            file.startsWith('@')
+          )
+            return;
 
-        const filePath = path.join(directory, file);
-        const stats = fs.statSync(filePath);
+          const filePath = path.join(directory, file);
+          const stats = fs.statSync(filePath);
 
-        if (stats.isFile()) {
-          // parent directory name
-          const parentDirName = `第${path.basename(directory)}期`;
+          if (stats.isFile()) {
+            // parent directory name
+            const parentDirName = `第${path.basename(directory)}期`;
 
-          if (!result['課堂'][month]) result['課堂'][month] = {};
-          if (!result['課堂'][month][parentDirName]) {
-            result['課堂'][month][parentDirName] = {
-              video: [],
-              notes: [],
-            };
+            if (!result['課堂'][month]) result['課堂'][month] = {};
+            if (!result['課堂'][month][parentDirName]) {
+              result['課堂'][month][parentDirName] = {
+                video: [],
+                notes: [],
+              };
+            }
+
+            const extension = path.parse(file).ext;
+            if (isVideoFile(extension)) {
+              result['課堂'][month][parentDirName]['video'].push(filePath);
+            } else if (extension === '.pdf') {
+              result['課堂'][month][parentDirName]['notes'].push(filePath);
+            }
+          } else {
+            getFilesFromDirectory(filePath, month);
           }
-
-          const extension = path.parse(file).ext;
-          if (isVideoFile(extension)) {
-            result['課堂'][month][parentDirName]['video'].push(filePath);
-          } else if (extension === '.pdf') {
-            result['課堂'][month][parentDirName]['notes'].push(filePath);
-          }
-        } else {
-          getFilesFromDirectory(filePath, month);
-        }
-      });
-
+        });
+      } catch (_) {}
+      if (Object.keys(result['課堂']).length === 0) {
+        result['課堂']['暫時沒有影片'] = {};
+      }
       return result;
     }
 

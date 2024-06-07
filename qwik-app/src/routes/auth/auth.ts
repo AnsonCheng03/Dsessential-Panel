@@ -19,7 +19,7 @@ export const googleLogin = async (credentials: Credentials) => {
           "Content-Type": "application/json",
         },
         body: JSON.stringify(loginBody),
-      },
+      }
     );
 
     if (loginResponse.status !== 200 && loginResponse.status !== 201)
@@ -45,6 +45,9 @@ export const authorizeFunction = async (credentials: Credentials) => {
   };
 
   try {
+    console.log(
+      `${process.env.SERVER_ADDRESS}:${process.env.BACKEND_PORT}/auth/protected-login`
+    );
     const loginResponse =
       loginBody.role === "changeRole" || loginBody.role === "refreshToken"
         ? await fetch(
@@ -56,7 +59,7 @@ export const authorizeFunction = async (credentials: Credentials) => {
                 authorization: `Bearer ${loginBody.password}`,
               },
               body: JSON.stringify(loginBody),
-            },
+            }
           )
         : await fetch(
             `${process.env.SERVER_ADDRESS}:${process.env.BACKEND_PORT}/auth/login`,
@@ -66,7 +69,7 @@ export const authorizeFunction = async (credentials: Credentials) => {
                 "Content-Type": "application/json",
               },
               body: JSON.stringify(loginBody),
-            },
+            }
           );
 
     if (loginResponse.status !== 200 && loginResponse.status !== 201)

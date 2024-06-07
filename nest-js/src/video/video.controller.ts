@@ -43,9 +43,7 @@ export class VideoController {
     let videoURL = body.url;
 
     if (videoURL.includes(' ')) {
-      console.log('videoURL', videoURL);
       if (fs.existsSync(videoURL)) {
-        console.log('rename file');
         await fs.renameSync(videoURL, videoURL.replace(/ /g, '_'));
       }
       videoURL = videoURL.replace(/ /g, '_');
