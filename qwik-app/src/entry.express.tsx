@@ -112,7 +112,7 @@ const createProxyOptions = (targetPath: string) => ({
           ) {
             console.warn(
               "No session token found in request, url requesting:",
-              req.url
+              req.url,
             );
             proxyReq.destroy();
             return;
@@ -127,14 +127,14 @@ const createProxyOptions = (targetPath: string) => ({
               const bufferLength = Buffer.byteLength(bodyData);
               if (bufferLength != parseInt(contentLength)) {
                 console.warn(
-                  `buffer length = ${bufferLength}, content length = ${contentLength}`
+                  `buffer length = ${bufferLength}, content length = ${contentLength}`,
                 );
                 proxyReq.setHeader("content-length", bufferLength);
               }
               proxyReq.write(bodyData);
             }
           }
-        }
+        },
       );
 
       proxyServer.on(
@@ -142,7 +142,7 @@ const createProxyOptions = (targetPath: string) => ({
         (
           proxyRes: http.IncomingMessage,
           req: express.Request,
-          res: express.Response
+          res: express.Response,
         ) => {
           res.status(proxyRes.statusCode ?? 500);
           Object.entries(proxyRes.headers).forEach(([key, value]) => {
@@ -153,9 +153,9 @@ const createProxyOptions = (targetPath: string) => ({
           proxyRes.on("data", (data) => (body = Buffer.concat([body, data])));
           proxyRes.on("end", () => res.end(body.toString("utf8")));
           proxyRes.on("error", () =>
-            res.status(httpStatus.INTERNAL_SERVER_ERROR).end()
+            res.status(httpStatus.INTERNAL_SERVER_ERROR).end(),
           );
-        }
+        },
       );
     },
   ],
@@ -172,20 +172,20 @@ app.use("/api", (req, res, next) => {
 });
 app.use(
   "/google-fonts",
-  createProxyMiddleware(createProxyOptions("/google-fonts"))
+  createProxyMiddleware(createProxyOptions("/google-fonts")),
 );
 
 app.use(
   "/serviceWorkerRegister.js",
-  fetchAndReturn("http://chatgpt-next-web:3000/serviceWorkerRegister.js")
+  fetchAndReturn("http://chatgpt-next-web:3000/serviceWorkerRegister.js"),
 );
 app.use(
   "/serviceWorker.js",
-  fetchAndReturn("http://chatgpt-next-web:3000/serviceWorker.js")
+  fetchAndReturn("http://chatgpt-next-web:3000/serviceWorker.js"),
 );
 app.use(
   "/prompts.json",
-  fetchAndReturn("http://chatgpt-next-web:3000/prompts.json")
+  fetchAndReturn("http://chatgpt-next-web:3000/prompts.json"),
 );
 
 // Static asset handlers
@@ -201,11 +201,11 @@ app.use(notFound);
 // enable https
 const privateKey = fs.readFileSync(
   `${process.env.CERT_PATH}/RSA-privkey.pem`,
-  "utf8"
+  "utf8",
 );
 const certificate = fs.readFileSync(
   `${process.env.CERT_PATH}/RSA-cert.pem`,
-  "utf8"
+  "utf8",
 );
 
 const credentials = { key: privateKey, cert: certificate };

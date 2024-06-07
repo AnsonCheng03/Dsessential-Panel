@@ -3,6 +3,7 @@ import Credentials from "@auth/core/providers/credentials";
 import Google from "@auth/core/providers/google";
 import type { Provider } from "@auth/core/providers";
 import { authorizeFunction, googleLogin } from "./auth/auth";
+import { useLocation } from "@builder.io/qwik-city";
 
 interface Credentials {
   role: string;
@@ -18,11 +19,80 @@ interface User {
 }
 
 let tmp_access_token: null | string = null;
+const cookiePrefix = "Dsessential_"; // Define your cookiePrefix if you have one
+
+console.log(process.env);
 
 export const { onRequest, useAuthSession, useAuthSignin, useAuthSignout } =
   serverAuth$(({ env }) => ({
     secret: env.get("AUTH_SECRET"),
     trustHost: true,
+    cookies:
+      process.env.NODE_ENV === "development"
+        ? {}
+        : {
+            sessionToken: {
+              name: `authjs.session-token`,
+              options: {
+                httpOnly: true,
+                sameSite: "lax",
+                path: "/",
+                secure: true,
+                domain: ".dsessential.com",
+              },
+            },
+            callbackUrl: {
+              name: `authjs.callback-url`,
+              options: {
+                sameSite: "lax",
+                path: "/",
+                secure: true,
+                domain: ".dsessential.com",
+              },
+            },
+            csrfToken: {
+              name: `authjs.csrf-token`,
+              options: {
+                httpOnly: true,
+                sameSite: "lax",
+                path: "/",
+                secure: true,
+                domain: ".dsessential.com",
+              },
+            },
+            pkceCodeVerifier: {
+              name: `${cookiePrefix}authjs.pkce.code_verifier`,
+              options: {
+                httpOnly: true,
+                sameSite: "lax",
+                path: "/",
+                secure: true,
+                maxAge: 900,
+                domain: ".dsessential.com",
+              },
+            },
+            state: {
+              name: `${cookiePrefix}authjs.state`,
+              options: {
+                httpOnly: true,
+                sameSite: "lax",
+                path: "/",
+                secure: true,
+                maxAge: 900,
+                domain: ".dsessential.com",
+              },
+            },
+            nonce: {
+              name: `${cookiePrefix}authjs.nonce`,
+              options: {
+                httpOnly: true,
+                sameSite: "lax",
+                path: "/",
+                secure: true,
+                domain: ".dsessential.com",
+              },
+            },
+          },
     providers: [
       Credentials({
         credentials: {
@@ -31,7 +101,7 @@ export const { onRequest, useAuthSession, useAuthSignin, useAuthSignout } =
           password: { label: "Password", type: "password" },
         },
         async authorize(
-          credentials: Partial<Record<"username" | "password", unknown>>,
+          credentials: Partial<Record<"username" | "password", unknown>>
         ): Promise<User | null> {
           const user = await authorizeFunction(credentials as Credentials);
           if (!user) return null;
