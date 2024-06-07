@@ -3,6 +3,7 @@ import { $ } from "@builder.io/qwik";
 export const getCSRFToken = $(async () => {
   const res = fetch("/api/auth/csrf", {
     cache: "no-store",
+    credentials: "include",
   });
   const { csrfToken } = await (await res).json();
   return csrfToken;

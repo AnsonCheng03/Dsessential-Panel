@@ -33,7 +33,7 @@ export const { onRequest, useAuthSession, useAuthSignin, useAuthSignout } =
             sessionToken: {
               name: `authjs.session-token`,
               options: {
-                httpOnly: true,
+                // httpOnly: true,
                 sameSite: "none",
                 path: "/",
                 secure: true,
@@ -50,7 +50,7 @@ export const { onRequest, useAuthSession, useAuthSignin, useAuthSignout } =
             csrfToken: {
               name: `authjs.csrf-token`,
               options: {
-                httpOnly: true,
+                // httpOnly: true,
                 sameSite: "none",
                 path: "/",
                 secure: true,
@@ -59,7 +59,7 @@ export const { onRequest, useAuthSession, useAuthSignin, useAuthSignout } =
             pkceCodeVerifier: {
               name: `${cookiePrefix}authjs.pkce.code_verifier`,
               options: {
-                httpOnly: true,
+                // httpOnly: true,
                 sameSite: "none",
                 path: "/",
                 secure: true,
@@ -69,7 +69,7 @@ export const { onRequest, useAuthSession, useAuthSignin, useAuthSignout } =
             state: {
               name: `${cookiePrefix}authjs.state`,
               options: {
-                httpOnly: true,
+                // httpOnly: true,
                 sameSite: "none",
                 path: "/",
                 secure: true,
@@ -79,7 +79,7 @@ export const { onRequest, useAuthSession, useAuthSignin, useAuthSignout } =
             nonce: {
               name: `${cookiePrefix}authjs.nonce`,
               options: {
-                httpOnly: true,
+                // httpOnly: true,
                 sameSite: "none",
                 path: "/",
                 secure: true,
