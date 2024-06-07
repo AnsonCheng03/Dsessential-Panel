@@ -60,7 +60,7 @@ export default component$(() => {
       return;
     }
 
-    iframeURL.value = `https://${location.url.hostname == "dsessential.dsmynas.com" ? "nas.dsessential.com" : "dsessential.dsmynas.com"}/Dsessential/panel/changeRole/iframeRedirect/?accessToken=${accessToken}&SID=${SID}`;
+    iframeURL.value = `https://${location.url.hostname == "mirror.dsessential.com" ? "nas.dsessential.com" : "mirror.dsessential.com"}/Dsessential/panel/changeRole/iframeRedirect/?accessToken=${accessToken}&SID=${SID}`;
   });
 
   return (
