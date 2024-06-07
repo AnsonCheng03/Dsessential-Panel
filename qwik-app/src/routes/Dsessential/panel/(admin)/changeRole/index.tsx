@@ -59,8 +59,12 @@ export default component$(() => {
       errorBox.value = true;
       return;
     }
-
-    iframeURL.value = `https://${location.url.hostname == "mirror.dsessential.com" ? "nas.dsessential.com" : "mirror.dsessential.com"}/Dsessential/panel/changeRole/iframeRedirect/?accessToken=${accessToken}&SID=${SID}`;
+    if (location.url.hostname == "nas.dsessential.com")
+      iframeURL.value = `https://mirror.dsessential.com/Dsessential/panel/changeRole/iframeRedirect/?accessToken=${accessToken}&SID=${SID}`;
+    else
+      window.open(
+        `https://mirror.dsessential.com/Dsessential/panel/changeRole/iframeRedirect/?accessToken=${accessToken}&SID=${SID}`
+      );
   });
 
   return (

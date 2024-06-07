@@ -47,17 +47,15 @@ app.use((req, res, next) => {
 
   res.setHeader(
     "Access-Control-Allow-Origin",
-    req.hostname === "nas.dsessential.com"
-      ? "https://mirror.dsessential.com"
-      : "https://nas.dsessential.com"
+    "https://mirror.dsessential.com"
   );
   res.setHeader("Access-Control-Allow-Credentials", "true");
 
   // Set Content-Security-Policy header to allow both origins
-  // res.setHeader(
-  //   "Content-Security-Policy",
-  //   "frame-ancestors 'self' https://nas.dsessential.com https://mirror.dsessential.com"
-  // );
+  res.setHeader(
+    "Content-Security-Policy",
+    "frame-ancestors 'self' https://nas.dsessential.com"
+  );
 
   next();
 });
