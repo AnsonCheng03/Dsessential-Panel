@@ -41,6 +41,20 @@ export class AuthController {
   }
 
   @HttpCode(HttpStatus.OK)
+  @Post('change-password')
+  changePassword(@Body() signInDto: Record<string, any>) {
+    this.logService.logEvent(
+      signInDto.username,
+      'ChangePassword',
+      'changePassword',
+    );
+    return this.authService.changePassword(
+      signInDto.username,
+      signInDto.password,
+    );
+  }
+
+  @HttpCode(HttpStatus.OK)
   @Post('google-login')
   googleLogin(@Body() signInDto: Record<string, any>, @Ip() ip: string) {
     if (!this.authService.isIntranetIp(ip)) {
