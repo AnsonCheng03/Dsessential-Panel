@@ -5,20 +5,24 @@ import type { Session } from "@auth/core/types";
 import { randomBytes } from "crypto";
 
 export const useGenerateAndSendToken = routeLoader$(async () => {
-  const token = randomBytes(32).toString("hex");
-  const response = await fetch("https://localhost:3000/chatgpt", {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-      "X-Internal-Request": "true",
-    },
-    body: JSON.stringify({ token }),
-  });
-  if (response.ok) {
-    return token;
-  } else {
-    const errorText = await response.text();
-    throw new Error("Failed to authenticate: " + errorText);
+  try {
+    const token = randomBytes(32).toString("hex");
+    const response = await fetch("https://localhost:3000/chatgpt", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "X-Internal-Request": "true",
+      },
+      body: JSON.stringify({ token }),
+    });
+    if (response.ok) {
+      return token;
+    } else {
+      const errorText = await response.text();
+      throw new Error("Failed to authenticate: " + errorText);
+    }
+  } catch (error) {
+    console.error(error);
   }
 });
 

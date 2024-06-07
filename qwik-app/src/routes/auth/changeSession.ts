@@ -35,6 +35,7 @@ export const login = $(
 );
 
 export const signOut = $(async (csrfToken: string) => {
+  console.log(csrfToken);
   const res = fetch("/api/auth/signout", {
     method: "POST",
     cache: "no-store",

@@ -18,7 +18,7 @@ export const useGetAllUser = routeLoader$(async (requestEvent) => {
         headers: {
           authorization: `Bearer ${accessToken}`,
         },
-      },
+      }
     );
 
     const data = await res.json();
@@ -36,6 +36,7 @@ export default component$(() => {
   const selectValue = useSignal("SID");
   const searchValue = useSignal("");
   const errorBox = useSignal(false);
+  const iframeURL = useSignal("about:blank");
 
   const options = useGetAllUser().value;
   const groupOptions: string[][] = [[], [], []];
@@ -46,8 +47,8 @@ export default component$(() => {
   } else
     options.map((obj: any) =>
       Object.values(obj).forEach(
-        (value, index) => value && groupOptions[index].push(value as string),
-      ),
+        (value, index) => value && groupOptions[index].push(value as string)
+      )
     );
 
   const clickSwitchUser = $(async () => {
@@ -59,33 +60,38 @@ export default component$(() => {
       return;
     }
 
-    await changeSession(accessToken, "changeRole", SID);
+    iframeURL.value = `https://dsessential.dsmynas.com/Dsessential/panel/changeRole/iframeRedirect/?accessToken=${accessToken}&SID=${SID}`;
   });
 
   return (
     <>
-      <div class={styles.switchUserSelection}>
-        <SelectBox
-          selectValue={selectValue}
-          options={["SID", "姓名", "電話"]}
-          placeholder="類型"
-        />
-        <AutoCompleteBox
-          searchValue={searchValue}
-          options={
-            groupOptions[
-              selectValue.value === "SID"
-                ? 0
-                : selectValue.value === "姓名"
-                  ? 1
-                  : 2
-            ] as string[]
-          }
-          placeholder="請選擇學生"
-        />
-        <button class={styles.switchUserButton} onClick$={clickSwitchUser}>
-          切換
-        </button>
+      <div class={styles.container}>
+        <div class={styles.switchUserSelection}>
+          <SelectBox
+            selectValue={selectValue}
+            options={["SID", "姓名", "電話"]}
+            placeholder="類型"
+          />
+          <AutoCompleteBox
+            searchValue={searchValue}
+            options={
+              groupOptions[
+                selectValue.value === "SID"
+                  ? 0
+                  : selectValue.value === "姓名"
+                    ? 1
+                    : 2
+              ] as string[]
+            }
+            placeholder="請選擇學生"
+          />
+          <button class={styles.switchUserButton} onClick$={clickSwitchUser}>
+            切換
+          </button>
+        </div>
+        {iframeURL.value && (
+          <iframe src={iframeURL.value} class={styles.iframe} />
+        )}
       </div>
       {errorBox.value && <Prompt message="找不到學生" refresh={true} />}
     </>
