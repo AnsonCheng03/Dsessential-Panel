@@ -34,7 +34,7 @@ export const { onRequest, useAuthSession, useAuthSignin, useAuthSignout } =
               name: `authjs.session-token`,
               options: {
                 httpOnly: true,
-                sameSite: "lax",
+                sameSite: "strict",
                 path: "/",
                 secure: true,
               },
@@ -42,7 +42,7 @@ export const { onRequest, useAuthSession, useAuthSignin, useAuthSignout } =
             callbackUrl: {
               name: `authjs.callback-url`,
               options: {
-                sameSite: "lax",
+                sameSite: "strict",
                 path: "/",
                 secure: true,
               },
@@ -51,7 +51,7 @@ export const { onRequest, useAuthSession, useAuthSignin, useAuthSignout } =
               name: `authjs.csrf-token`,
               options: {
                 httpOnly: true,
-                sameSite: "lax",
+                sameSite: "strict",
                 path: "/",
                 secure: true,
               },
@@ -60,7 +60,7 @@ export const { onRequest, useAuthSession, useAuthSignin, useAuthSignout } =
               name: `${cookiePrefix}authjs.pkce.code_verifier`,
               options: {
                 httpOnly: true,
-                sameSite: "lax",
+                sameSite: "strict",
                 path: "/",
                 secure: true,
                 maxAge: 900,
@@ -70,7 +70,7 @@ export const { onRequest, useAuthSession, useAuthSignin, useAuthSignout } =
               name: `${cookiePrefix}authjs.state`,
               options: {
                 httpOnly: true,
-                sameSite: "lax",
+                sameSite: "strict",
                 path: "/",
                 secure: true,
                 maxAge: 900,
@@ -80,7 +80,7 @@ export const { onRequest, useAuthSession, useAuthSignin, useAuthSignout } =
               name: `${cookiePrefix}authjs.nonce`,
               options: {
                 httpOnly: true,
-                sameSite: "lax",
+                sameSite: "strict",
                 path: "/",
                 secure: true,
               },
