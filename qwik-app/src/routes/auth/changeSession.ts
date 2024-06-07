@@ -13,13 +13,14 @@ export const login = $(
     csrfToken: string,
     accessToken: string,
     method: string,
-    loginName: string,
+    loginName: string
   ) => {
     const res = fetch("/api/auth/callback/credentials", {
       method: "POST",
       cache: "no-store",
       headers: {
         "Content-Type": "application/x-www-form-urlencoded",
+        Cookie: `authjs.csrf-token=${csrfToken}; HttpOnly; Path=/; SameSite=None; Secure`,
       },
       body: new URLSearchParams({
         role: method,
@@ -28,10 +29,10 @@ export const login = $(
         csrfToken,
       }).toString(),
     });
-    return await (
-      await res
-    ).status;
-  },
+    const status = await (await res).status;
+    const cookie = await (await res).headers.get("set-cookie");
+    return { status, cookie };
+  }
 );
 
 export const signOut = $(async (csrfToken: string) => {
@@ -42,6 +43,7 @@ export const signOut = $(async (csrfToken: string) => {
     credentials: "same-origin",
     headers: {
       "Content-Type": "application/x-www-form-urlencoded",
+      Cookie: `authjs.csrf-token=${csrfToken}; HttpOnly; Path=/; SameSite=None; Secure`,
     },
     body: new URLSearchParams({
       csrfToken,
@@ -55,13 +57,19 @@ export const signOut = $(async (csrfToken: string) => {
 export const changeSession = $(
   async (accessToken: string, role: string, loginName: string) => {
     await signOut(await getCSRFToken());
-    const status = await login(
+    const response = await login(
       await getCSRFToken(),
       accessToken,
       role,
-      loginName,
+      loginName
     );
-    if (status === 200) window.location.href = "/Dsessential";
-    else window.alert("發生錯誤");
-  },
+
+    if (response.status === 200 && response.cookie) {
+      // set cookie
+      document.cookie = response.cookie;
+      window.location.href = "/Dsessential";
+    } else {
+      window.alert("發生錯誤");
+    }
+  }
 );
