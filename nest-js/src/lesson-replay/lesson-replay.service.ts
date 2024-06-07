@@ -45,12 +45,15 @@ export class LessonReplayService {
 
   async getMonthArray(month) {
     const result = [];
-    for (let i = 4 + 1; i <= 4 + 12; i++) {
-      const currentMonth = ((i - 2) % 12) + 1;
-      result.push(currentMonth);
-      if (month == currentMonth) break;
+    const currentMonth = new Date().getMonth() + 1;
+    for (let i = 4 + 12; i >= 4 + 1; i--) {
+      const parsedMonth = ((i - 2) % 12) + 1;
+      if (month !== 'All' && (parsedMonth + 8) % 12 > (currentMonth + 8) % 12)
+        continue;
+      result.push(parsedMonth);
+      if (month == parsedMonth) break;
     }
-    return result;
+    return result.reverse();
   }
 
   async getDefaultVideo() {
