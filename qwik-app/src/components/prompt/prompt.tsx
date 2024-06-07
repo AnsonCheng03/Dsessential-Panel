@@ -2,7 +2,15 @@ import { type QRL, component$ } from "@builder.io/qwik";
 import styles from "./prompt.module.css";
 
 export default component$(
-  ({ message, onClose }: { message: string; onClose?: QRL<() => void> }) => {
+  ({
+    message,
+    onClose,
+    refresh = false,
+  }: {
+    message: string;
+    onClose?: QRL<() => void>;
+    refresh?: boolean;
+  }) => {
     return (
       <div class={styles.promptBox}>
         <div class={styles.prompt}>
@@ -17,6 +25,8 @@ export default component$(
               onClick$={() => {
                 if (onClose) onClose();
                 document.querySelector(`.${styles.promptBox}`)?.remove();
+                // refresh the page
+                if (refresh) window.location.reload();
               }}
             >
               確定
@@ -25,5 +35,5 @@ export default component$(
         </div>
       </div>
     );
-  },
+  }
 );

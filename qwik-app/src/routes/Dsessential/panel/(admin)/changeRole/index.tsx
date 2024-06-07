@@ -18,7 +18,7 @@ export const useGetAllUser = routeLoader$(async (requestEvent) => {
         headers: {
           authorization: `Bearer ${accessToken}`,
         },
-      },
+      }
     );
 
     const data = await res.json();
@@ -46,8 +46,8 @@ export default component$(() => {
   } else
     options.map((obj: any) =>
       Object.values(obj).forEach(
-        (value, index) => value && groupOptions[index].push(value as string),
-      ),
+        (value, index) => value && groupOptions[index].push(value as string)
+      )
     );
 
   const clickSwitchUser = $(async () => {
@@ -60,7 +60,6 @@ export default component$(() => {
     }
 
     await changeSession(accessToken, "changeRole", SID);
-    window.location.href = "/Dsessential";
   });
 
   return (
@@ -88,7 +87,7 @@ export default component$(() => {
           切換
         </button>
       </div>
-      {errorBox.value && <Prompt message="找不到學生" />}
+      {errorBox.value && <Prompt message="找不到學生" refresh={true} />}
     </>
   );
 });
