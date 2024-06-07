@@ -105,9 +105,6 @@ const createProxyOptions = (targetPath: string) => ({
       proxyServer.on(
         "proxyReq",
         (proxyReq: http.ClientRequest, req: express.Request) => {
-          console.log("Headers:", req.headers);
-          console.log("Cookies:", req.headers.cookie);
-
           // check if cookie has __Secure-authjs.session-token, if not, drop the request
           if (
             !req.headers.cookie ||
