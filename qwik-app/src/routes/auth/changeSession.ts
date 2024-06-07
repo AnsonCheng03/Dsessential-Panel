@@ -3,7 +3,7 @@ import { $ } from "@builder.io/qwik";
 export const getCSRFToken = $(async () => {
   const res = fetch("/api/auth/csrf", {
     cache: "no-store",
-    credentials: "include",
+    credentials: "same-origin",
   });
   const { csrfToken } = await (await res).json();
   return csrfToken;
@@ -19,7 +19,7 @@ export const login = $(
     const res = fetch("/api/auth/callback/credentials", {
       method: "POST",
       cache: "no-store",
-      credentials: "include",
+      credentials: "same-origin",
       headers: {
         "Content-Type": "application/x-www-form-urlencoded",
       },
@@ -30,9 +30,9 @@ export const login = $(
         csrfToken,
       }).toString(),
     });
-    const status = await (await res).status;
-    const cookie = await (await res).headers.get("set-cookie");
-    return { status, cookie };
+    return await (
+      await res
+    ).status;
   }
 );
 
@@ -41,7 +41,7 @@ export const signOut = $(async (csrfToken: string) => {
   const res = fetch("/api/auth/signout", {
     method: "POST",
     cache: "no-store",
-    credentials: "include",
+    credentials: "same-origin",
     headers: {
       "Content-Type": "application/x-www-form-urlencoded",
     },
@@ -60,7 +60,6 @@ export const changeSession = $(
     await signOut(csrfToken);
 
     csrfToken = await getCSRFToken();
-    document.cookie = `authjs.csrf-token=${csrfToken}; HttpOnly; Path=/; SameSite=None; Secure`;
     const response = await login(
       await getCSRFToken(),
       accessToken,
@@ -68,9 +67,7 @@ export const changeSession = $(
       loginName
     );
 
-    if (response.status === 200 && response.cookie) {
-      // set cookie
-      document.cookie = response.cookie;
+    if (response === 200) {
       window.location.href = "/Dsessential";
     } else {
       window.alert("發生錯誤");
