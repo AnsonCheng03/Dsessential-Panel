@@ -20,7 +20,6 @@
 
 .logoContainer h3 {
   color: #323232;
-  padding: 0 10px 0 20px;
   margin: 0;
   text-transform: uppercase;
   font-weight: 550;
@@ -153,5 +152,15 @@
     padding: 10px 0;
     margin: 0;
     height: auto;
+  }
+}
+
+@media (max-width: 415px) {
+  .logoContainer {
+    display: none;
+  }
+
+  .navSigns {
+    margin-left: auto;
   }
 }
