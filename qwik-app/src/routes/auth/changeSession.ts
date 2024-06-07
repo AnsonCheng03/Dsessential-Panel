@@ -61,7 +61,7 @@ export const changeSession = $(
       role,
       loginName
     );
-    if (status === 200) window.location.href = "/Dsessential";
-    else window.alert("發生錯誤");
+    // if (status === 200) window.location.href = "/Dsessential";
+    // else window.alert("發生錯誤");
   }
 );

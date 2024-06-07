@@ -35,7 +35,7 @@ export default component$(() => {
   const selectValue = useSignal("SID");
   const searchValue = useSignal("");
   const errorBox = useSignal(false);
-  const iframeURL = useSignal("about:blank");
+  const iframeURL = useSignal("");
 
   const options = useGetAllUser().value;
   const groupOptions: string[][] = [[], [], []];
