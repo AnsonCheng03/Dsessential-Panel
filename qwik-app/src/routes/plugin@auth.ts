@@ -33,8 +33,8 @@ export const { onRequest, useAuthSession, useAuthSignin, useAuthSignout } =
             sessionToken: {
               name: `authjs.session-token`,
               options: {
-                httpOnly: false,
-                sameSite: "none",
+                httpOnly: true,
+                sameSite: "lax",
                 path: "/",
                 secure: true,
               },
@@ -42,8 +42,7 @@ export const { onRequest, useAuthSession, useAuthSignin, useAuthSignout } =
             callbackUrl: {
               name: `authjs.callback-url`,
               options: {
-                httpOnly: false,
-                sameSite: "none",
+                sameSite: "lax",
                 path: "/",
                 secure: true,
               },
@@ -51,8 +50,8 @@ export const { onRequest, useAuthSession, useAuthSignin, useAuthSignout } =
             csrfToken: {
               name: `authjs.csrf-token`,
               options: {
-                httpOnly: false,
-                sameSite: "none",
+                httpOnly: true,
+                sameSite: "lax",
                 path: "/",
                 secure: true,
               },
@@ -60,8 +59,8 @@ export const { onRequest, useAuthSession, useAuthSignin, useAuthSignout } =
             pkceCodeVerifier: {
               name: `${cookiePrefix}authjs.pkce.code_verifier`,
               options: {
-                httpOnly: false,
-                sameSite: "none",
+                httpOnly: true,
+                sameSite: "lax",
                 path: "/",
                 secure: true,
                 maxAge: 900,
@@ -70,8 +69,8 @@ export const { onRequest, useAuthSession, useAuthSignin, useAuthSignout } =
             state: {
               name: `${cookiePrefix}authjs.state`,
               options: {
-                httpOnly: false,
-                sameSite: "none",
+                httpOnly: true,
+                sameSite: "lax",
                 path: "/",
                 secure: true,
                 maxAge: 900,
@@ -80,8 +79,8 @@ export const { onRequest, useAuthSession, useAuthSignin, useAuthSignout } =
             nonce: {
               name: `${cookiePrefix}authjs.nonce`,
               options: {
-                httpOnly: false,
-                sameSite: "none",
+                httpOnly: true,
+                sameSite: "lax",
                 path: "/",
                 secure: true,
               },
