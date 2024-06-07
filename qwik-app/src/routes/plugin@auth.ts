@@ -20,8 +20,6 @@ interface User {
 let tmp_access_token: null | string = null;
 const cookiePrefix = "Dsessential_"; // Define your cookiePrefix if you have one
 
-console.log(process.env);
-
 export const { onRequest, useAuthSession, useAuthSignin, useAuthSignout } =
   serverAuth$(({ env }) => ({
     secret: env.get("AUTH_SECRET"),
