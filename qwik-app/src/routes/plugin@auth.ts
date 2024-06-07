@@ -3,7 +3,6 @@ import Credentials from "@auth/core/providers/credentials";
 import Google from "@auth/core/providers/google";
 import type { Provider } from "@auth/core/providers";
 import { authorizeFunction, googleLogin } from "./auth/auth";
-import { useLocation } from "@builder.io/qwik-city";
 
 interface Credentials {
   role: string;
