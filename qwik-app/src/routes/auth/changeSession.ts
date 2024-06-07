@@ -18,9 +18,9 @@ export const login = $(
     const res = fetch("/api/auth/callback/credentials", {
       method: "POST",
       cache: "no-store",
+      credentials: "include",
       headers: {
         "Content-Type": "application/x-www-form-urlencoded",
-        Cookie: `authjs.csrf-token=${csrfToken}; HttpOnly; Path=/; SameSite=None; Secure`,
       },
       body: new URLSearchParams({
         role: method,
@@ -40,10 +40,9 @@ export const signOut = $(async (csrfToken: string) => {
   const res = fetch("/api/auth/signout", {
     method: "POST",
     cache: "no-store",
-    credentials: "same-origin",
+    credentials: "include",
     headers: {
       "Content-Type": "application/x-www-form-urlencoded",
-      Cookie: `authjs.csrf-token=${csrfToken}; HttpOnly; Path=/; SameSite=None; Secure`,
     },
     body: new URLSearchParams({
       csrfToken,
@@ -56,7 +55,11 @@ export const signOut = $(async (csrfToken: string) => {
 
 export const changeSession = $(
   async (accessToken: string, role: string, loginName: string) => {
-    await signOut(await getCSRFToken());
+    let csrfToken = await getCSRFToken();
+    await signOut(csrfToken);
+
+    csrfToken = await getCSRFToken();
+    document.cookie = `authjs.csrf-token=${csrfToken}; HttpOnly; Path=/; SameSite=None; Secure`;
     const response = await login(
       await getCSRFToken(),
       accessToken,

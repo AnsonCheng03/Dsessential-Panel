@@ -54,10 +54,10 @@ app.use((req, res, next) => {
   res.setHeader("Access-Control-Allow-Credentials", "true");
 
   // Set Content-Security-Policy header to allow both origins
-  res.setHeader(
-    "Content-Security-Policy",
-    "frame-ancestors 'self' https://nas.dsessential.com https://dsessential.dsmynas.com"
-  );
+  // res.setHeader(
+  //   "Content-Security-Policy",
+  //   "frame-ancestors 'self' https://nas.dsessential.com https://dsessential.dsmynas.com"
+  // );
 
   next();
 });
