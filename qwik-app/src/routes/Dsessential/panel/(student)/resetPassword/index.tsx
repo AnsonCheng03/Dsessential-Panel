@@ -53,15 +53,13 @@ export default component$(() => {
           <input
             class={[styles.input, styles.loginInput]}
             placeholder="新密碼"
-            name="options.username"
-            type="text"
+            type="password"
             bind:value={password}
           />
           <input
             class={[styles.input, styles.loginInput]}
             placeholder="確認新密碼"
-            name="options.username"
-            type="text"
+            type="password"
             bind:value={confirmPassword}
           />
           <button class={styles.button}>確認</button>
