@@ -1,5 +1,14 @@
-import { $, component$, useVisibleTask$ } from "@builder.io/qwik";
+import { component$, useVisibleTask$ } from "@builder.io/qwik";
+import type { RequestHandler } from "@builder.io/qwik-city";
 import { changeSession } from "~/routes/auth/changeSession";
+
+export const onRequest: RequestHandler = ({ query, redirect }) => {
+  const accessToken = query.get("accessToken");
+  const SID = query.get("SID");
+  if (!accessToken || !SID) {
+    throw redirect(302, "about:blank");
+  }
+};
 
 export default component$(() => {
   useVisibleTask$(async () => {
@@ -8,8 +17,6 @@ export default component$(() => {
     const accessToken = urlParams.get("accessToken");
     const SID = urlParams.get("SID");
     if (!accessToken || !SID) {
-      // go to blank page if no accessToken or SID
-      window.location.href = "about:blank";
       return;
     }
 

@@ -5,7 +5,6 @@ import { SelectBox } from "../../../../../components/react/SelectBox";
 import { routeLoader$ } from "@builder.io/qwik-city";
 import { useAuthSession } from "~/routes/plugin@auth";
 import Prompt from "~/components/prompt/prompt";
-import { changeSession } from "~/routes/auth/changeSession";
 
 export const useGetAllUser = routeLoader$(async (requestEvent) => {
   const accessToken = requestEvent.sharedMap.get("session").accessToken;
