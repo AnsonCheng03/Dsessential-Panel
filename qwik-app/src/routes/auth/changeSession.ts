@@ -5,7 +5,6 @@ export const getCSRFToken = $(async () => {
     cache: "no-store",
   });
   const { csrfToken } = await (await res).json();
-  console.log(csrfToken);
   return csrfToken;
 });
 
@@ -56,8 +55,13 @@ export const signOut = $(async (csrfToken: string) => {
 export const changeSession = $(
   async (accessToken: string, role: string, loginName: string) => {
     await signOut(await getCSRFToken());
-    await login(await getCSRFToken(), accessToken, role, loginName);
-    // if (status === 200) window.location.href = "/Dsessential";
-    // else window.alert("發生錯誤");
+    const status = await login(
+      await getCSRFToken(),
+      accessToken,
+      role,
+      loginName
+    );
+    if (status === 200) window.location.href = "/Dsessential";
+    else window.alert("發生錯誤");
   }
 );
