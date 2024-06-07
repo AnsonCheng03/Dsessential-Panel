@@ -43,10 +43,20 @@ const { router, notFound } = createQwikCity({
 const app = express();
 
 app.use((req, res, next) => {
+  // Set CORS headers
+  res.setHeader("Access-Control-Allow-Origin", "https://nas.dsessential.com");
+  res.setHeader(
+    "Access-Control-Allow-Origin",
+    "https://dsessential.dsmynas.com"
+  );
+  res.setHeader("Access-Control-Allow-Credentials", "true");
+
+  // Set Content-Security-Policy header to allow both origins
   res.setHeader(
     "Content-Security-Policy",
-    "frame-ancestors 'self' https://nas.dsessential.com"
+    "frame-ancestors 'self' https://nas.dsessential.com https://dsessential.dsmynas.com"
   );
+
   next();
 });
 
