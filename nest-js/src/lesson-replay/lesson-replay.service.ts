@@ -45,11 +45,10 @@ export class LessonReplayService {
 
   async getMonthArray(month) {
     const result = [];
-    month = 3;
     for (let i = 4 + 1; i <= 4 + 12; i++) {
       const currentMonth = ((i - 2) % 12) + 1;
       result.push(currentMonth);
-      if (month === currentMonth) break;
+      if (month == currentMonth) break;
     }
     return result;
   }
