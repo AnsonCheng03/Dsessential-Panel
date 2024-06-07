@@ -5,6 +5,7 @@ export const getCSRFToken = $(async () => {
     cache: "no-store",
   });
   const { csrfToken } = await (await res).json();
+  console.log(csrfToken);
   return csrfToken;
 });
 
