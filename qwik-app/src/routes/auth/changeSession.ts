@@ -13,25 +13,25 @@ export const login = $(
     csrfToken: string,
     accessToken: string,
     method: string,
-    loginName: string,
+    loginName: string
   ) => {
     const res = fetch("/api/auth/callback/credentials", {
       method: "POST",
       cache: "no-store",
       headers: {
-        "Content-Type": "application/json",
+        "Content-Type": "application/x-www-form-urlencoded",
       },
-      body: JSON.stringify({
+      body: new URLSearchParams({
         role: method,
         username: loginName,
         password: accessToken,
         csrfToken,
-      }),
+      }).toString(),
     });
     return await (
       await res
     ).status;
-  },
+  }
 );
 
 export const signOut = $(async (csrfToken: string) => {
@@ -40,11 +40,11 @@ export const signOut = $(async (csrfToken: string) => {
     cache: "no-store",
     credentials: "same-origin",
     headers: {
-      "Content-Type": "application/json",
+      "Content-Type": "application/x-www-form-urlencoded",
     },
-    body: JSON.stringify({
+    body: new URLSearchParams({
       csrfToken,
-    }),
+    }).toString(),
   });
   return await (
     await res
@@ -58,9 +58,9 @@ export const changeSession = $(
       await getCSRFToken(),
       accessToken,
       role,
-      loginName,
+      loginName
     );
     if (status === 200) window.location.href = "/Dsessential";
     else window.alert("發生錯誤");
-  },
+  }
 );
