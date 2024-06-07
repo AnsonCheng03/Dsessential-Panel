@@ -44,10 +44,12 @@ const app = express();
 
 app.use((req, res, next) => {
   // Set CORS headers
-  res.setHeader("Access-Control-Allow-Origin", "https://nas.dsessential.com");
+
   res.setHeader(
     "Access-Control-Allow-Origin",
-    "https://dsessential.dsmynas.com"
+    req.hostname === "nas.dsessential.com"
+      ? "https://dsessential.dsmynas.com"
+      : "https://nas.dsessential.com"
   );
   res.setHeader("Access-Control-Allow-Credentials", "true");
 

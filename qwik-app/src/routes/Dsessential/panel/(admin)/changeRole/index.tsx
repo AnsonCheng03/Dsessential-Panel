@@ -2,7 +2,7 @@ import { $, component$, useSignal } from "@builder.io/qwik";
 import styles from "./index.module.css";
 import { AutoCompleteBox } from "~/components/react/SearchBar";
 import { SelectBox } from "../../../../../components/react/SelectBox";
-import { routeLoader$ } from "@builder.io/qwik-city";
+import { routeLoader$, useLocation } from "@builder.io/qwik-city";
 import { useAuthSession } from "~/routes/plugin@auth";
 import Prompt from "~/components/prompt/prompt";
 
@@ -17,7 +17,7 @@ export const useGetAllUser = routeLoader$(async (requestEvent) => {
         headers: {
           authorization: `Bearer ${accessToken}`,
         },
-      },
+      }
     );
 
     const data = await res.json();
@@ -36,6 +36,7 @@ export default component$(() => {
   const searchValue = useSignal("");
   const errorBox = useSignal(false);
   const iframeURL = useSignal("");
+  const location = useLocation();
 
   const options = useGetAllUser().value;
   const groupOptions: string[][] = [[], [], []];
@@ -46,8 +47,8 @@ export default component$(() => {
   } else
     options.map((obj: any) =>
       Object.values(obj).forEach(
-        (value, index) => value && groupOptions[index].push(value as string),
-      ),
+        (value, index) => value && groupOptions[index].push(value as string)
+      )
     );
 
   const clickSwitchUser = $(async () => {
@@ -59,7 +60,7 @@ export default component$(() => {
       return;
     }
 
-    iframeURL.value = `https://dsessential.dsmynas.com/Dsessential/panel/changeRole/iframeRedirect/?accessToken=${accessToken}&SID=${SID}`;
+    iframeURL.value = `https://${location.url.hostname == "dsessential.dsmynas.com" ? "nas.dsessential.com" : "dsessential.dsmynas.com"}/Dsessential/panel/changeRole/iframeRedirect/?accessToken=${accessToken}&SID=${SID}`;
   });
 
   return (
