@@ -1,4 +1,5 @@
 import { component$ } from "@builder.io/qwik";
+import { Insights } from "@builder.io/qwik-labs";
 import {
   QwikCityProvider,
   RouterOutlet,
@@ -21,6 +22,9 @@ export default component$(() => {
       <head>
         <meta charSet="utf-8" />
         <link rel="manifest" href="/manifest.json" />
+        {process.env.PUBLIC_QWIK_INSIGHTS_KEY && (
+          <Insights publicApiKey={process.env.PUBLIC_QWIK_INSIGHTS_KEY} />
+        )}
         <RouterHead />
       </head>
       <body lang="en">

@@ -68,7 +68,9 @@ export const { onRequest, useAuthSession, useAuthSignin, useAuthSignout } =
               profile?.email?.endsWith("@hkdsessential.com") ||
               profile?.email?.endsWith("@bigappletutorial.com"))
           ) {
-            const token = await googleLogin({ username: profile.email });
+            const token = await googleLogin({
+              username: profile.email,
+            });
             if (!token) return false;
             tmp_access_token = token.access_token;
             return true;
@@ -95,5 +97,6 @@ export const { onRequest, useAuthSession, useAuthSignin, useAuthSignout } =
     },
     pages: {
       error: "/Dsessential/auth/",
+      signIn: "/Dsessential/auth/",
     },
   }));

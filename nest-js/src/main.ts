@@ -18,11 +18,11 @@ function logRequests(
 async function bootstrap() {
   console.log('Starting NestJS server...');
   const privateKey = fs.readFileSync(
-    `${process.env.CERT_PATH}/privkey.pem`,
+    `${process.env.CERT_PATH}/RSA-privkey.pem`,
     'utf8',
   );
   const certificate = fs.readFileSync(
-    `${process.env.CERT_PATH}/cert.pem`,
+    `${process.env.CERT_PATH}/RSA-cert.pem`,
     'utf8',
   );
   const httpsOptions = { key: privateKey, cert: certificate };

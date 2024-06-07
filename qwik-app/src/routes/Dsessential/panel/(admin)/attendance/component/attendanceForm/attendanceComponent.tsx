@@ -5,81 +5,10 @@ import {
   useVisibleTask$,
   type Signal,
 } from "@builder.io/qwik";
-import { AutoCompleteBox } from "~/components/react/SearchBar";
 import styles from "./attendanceComponent.module.css";
 import { Toggle } from "~/components/react/ToggleButton";
-import { globalAction$ } from "@builder.io/qwik-city";
-
-export const useFormSubmit = globalAction$(async (input, requestEvent) => {
-  const output: Record<string, any> = {};
-
-  for (const key in input) {
-    const [prefix, suffix] = key.split("_");
-
-    if (output[prefix]) {
-      if (Array.isArray(output[prefix])) {
-        output[prefix].push(input[key]);
-      } else {
-        output[prefix] = [output[prefix] as string, input[key]];
-      }
-    } else {
-      if (suffix === undefined) {
-        output[prefix] = input[key];
-      } else {
-        output[prefix] = [input[key]];
-      }
-    }
-  }
-
-  output["ipAddress"] = requestEvent.clientConn.ip;
-
-  try {
-    const res = await fetch(
-      `${process.env.SERVER_ADDRESS}:${process.env.BACKEND_PORT}/attendance/sendForm`,
-      {
-        method: "POST",
-        cache: "no-store",
-        headers: {
-          "Content-Type": "application/json",
-          authorization: `Bearer ${
-            requestEvent.sharedMap.get("session").accessToken
-          }`,
-        },
-        body: JSON.stringify(output),
-      },
-    );
-    const data = await res.json();
-    return data;
-  } catch (error) {
-    return { error: "error" };
-  }
-});
-
-export const useFormDelete = globalAction$(async (input, requestEvent) => {
-  try {
-    const res = await fetch(
-      `${process.env.SERVER_ADDRESS}:${process.env.BACKEND_PORT}/attendance/deleteForm`,
-      {
-        method: "POST",
-        cache: "no-store",
-        headers: {
-          "Content-Type": "application/json",
-          authorization: `Bearer ${
-            requestEvent.sharedMap.get("session").accessToken
-          }`,
-        },
-        body: JSON.stringify({
-          deleteRow: input.deleteRow,
-          ipAddress: requestEvent.clientConn.ip,
-        }),
-      },
-    );
-    const data = await res.json();
-    return data;
-  } catch (error) {
-    return "error";
-  }
-});
+import { autoComplete } from "./autoCompleteFunction";
+import { useFormSubmit, useFormDelete } from "./submitFormFunctions";
 
 export default component$(
   ({
@@ -185,14 +114,34 @@ export default component$(
               : [styles.containerRows, styles.studentDetails]
           }
         >
-          <AutoCompleteBox
+          {/* <autoCompleteBox
             size="small"
             searchValue={searchValue}
             options={options}
             freeSolo
             placeholder="卡號/姓名/電話號碼"
-          />
-          <input type="hidden" bind:value={searchValue} name="studentName" />
+          /> */}
+          <div class={styles.autoComplete}>
+            <input
+              type="text"
+              autoComplete={"off"}
+              name="studentName"
+              bind:value={searchValue}
+              placeholder="卡號/電話號碼/中文姓名"
+            ></input>
+            <img
+              src="~/../LoadInput"
+              width={0}
+              height={0}
+              onError$={(e: any) => {
+                const img = e.target;
+                const input = img.previousSibling;
+                img && img.remove();
+                input && input.focus();
+                autoComplete(input, options);
+              }}
+            />
+          </div>
           <div
             class={
               studentData.value

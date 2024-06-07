@@ -4,6 +4,7 @@ import { UsersModule } from '../users/users.module';
 import { JwtModule } from '@nestjs/jwt';
 import { AuthController } from './auth.controller';
 import { jwtConstants } from './constants';
+import { LogServiceService } from 'src/log-service/log-service.service';
 
 @Module({
   imports: [
@@ -14,7 +15,7 @@ import { jwtConstants } from './constants';
       signOptions: { expiresIn: '8h' },
     }),
   ],
-  providers: [AuthService],
+  providers: [AuthService, LogServiceService],
   controllers: [AuthController],
   exports: [AuthService],
 })

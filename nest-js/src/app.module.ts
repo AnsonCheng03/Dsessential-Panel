@@ -14,6 +14,8 @@ import { ScheduleModule } from '@nestjs/schedule';
 import { CronjobsModule } from './cronjobs/cronjobs.module';
 import { GptGeneratorController } from './gpt-generator/gpt-generator.controller';
 import { GptGeneratorService } from './gpt-generator/gpt-generator.service';
+import { LogServiceController } from './log-service/log-service.controller';
+import { LogServiceService } from './log-service/log-service.service';
 
 @Module({
   imports: [
@@ -30,7 +32,14 @@ import { GptGeneratorService } from './gpt-generator/gpt-generator.service';
     VideoController,
     AttendanceController,
     GptGeneratorController,
+    LogServiceController,
   ],
-  providers: [AppService, VideoService, AttendanceService, GptGeneratorService],
+  providers: [
+    AppService,
+    VideoService,
+    AttendanceService,
+    GptGeneratorService,
+    LogServiceService,
+  ],
 })
 export class AppModule {}

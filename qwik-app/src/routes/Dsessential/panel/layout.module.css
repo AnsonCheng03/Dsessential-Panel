@@ -1,12 +1,8 @@
 .body {
   position: relative;
-  height: calc(100vh - 3rem);
-  height: calc(100dvh - 3rem);
+  height: calc(100vh - 60px);
+  height: calc(100dvh - 60px);
   width: 100%;
   overflow: scroll;
-  background: linear-gradient(
-    270deg,
-    rgba(66, 180, 250, 0.5) 0%,
-    rgba(60, 250, 200, 0.5) 100%
-  );
+  background: rgb(245, 246, 250);
 }

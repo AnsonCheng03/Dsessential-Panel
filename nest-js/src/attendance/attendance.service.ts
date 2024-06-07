@@ -15,7 +15,8 @@ export class AttendanceService {
     });
 
     const doc = new GoogleSpreadsheet(
-      '1V5SY55VS3JIfFkhHHKBWWQbO_aqU9Jc6FDWUq7b6xOg',
+      process.env.GOOGLE_SHEET_ATT_FORM_ID ||
+        '1V5SY55VS3JIfFkhHHKBWWQbO_aqU9Jc6FDWUq7b6xOg',
       serviceAccountAuth,
     );
     await doc.loadInfo();

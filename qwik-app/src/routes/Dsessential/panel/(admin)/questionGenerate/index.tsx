@@ -1,14 +1,9 @@
-import {
-  $,
-  type QwikIntrinsicElements,
-  component$,
-  useSignal,
-  useTask$,
-} from "@builder.io/qwik";
+import { $, component$, useSignal, useTask$ } from "@builder.io/qwik";
 import styles from "./index.module.css";
 import { ChatGPTAPI } from "chatgpt";
-import { server$ } from "@builder.io/qwik-city";
 import { useAuthSession } from "~/routes/plugin@auth";
+import { type RequestHandler, server$ } from "@builder.io/qwik-city";
+import type { Session } from "@auth/core/types";
 
 const gptAPI = new ChatGPTAPI({
   apiKey: process.env.OPENAI_API_KEY!,
@@ -18,43 +13,11 @@ const gptAPI = new ChatGPTAPI({
   },
 });
 
-export function MaterialSymbolsBookmarkAdd(
-  props: QwikIntrinsicElements["svg"],
-  key: string
-) {
-  return (
-    <svg
-      xmlns="http://www.w3.org/2000/svg"
-      viewBox="0 0 24 24"
-      {...props}
-      key={key}
-    >
-      <path
-        fill="currentColor"
-        d="M5 21V5q0-.825.588-1.413T7 3h7q-.5.75-.75 1.438T13 6q0 1.8 1.137 3.175T17 10.9q.575.075 1 .075t1-.075V21l-7-3l-7 3ZM17 9V7h-2V5h2V3h2v2h2v2h-2v2h-2Z"
-      ></path>
-    </svg>
-  );
-}
-
-export function MaterialSymbolsDeleteForever(
-  props: QwikIntrinsicElements["svg"],
-  key: string
-) {
-  return (
-    <svg
-      xmlns="http://www.w3.org/2000/svg"
-      viewBox="0 0 24 24"
-      {...props}
-      key={key}
-    >
-      <path
-        fill="currentColor"
-        d="m9.4 16.5l2.6-2.6l2.6 2.6l1.4-1.4l-2.6-2.6L16 9.9l-1.4-1.4l-2.6 2.6l-2.6-2.6L8 9.9l2.6 2.6L8 15.1l1.4 1.4ZM7 21q-.825 0-1.413-.588T5 19V6H4V4h5V3h6v1h5v2h-1v13q0 .825-.588 1.413T17 21H7Z"
-      ></path>
-    </svg>
-  );
-}
+export const onRequest: RequestHandler = (event) => {
+  const session: Session | null = event.sharedMap.get("session");
+  if ((session?.user as any)?.role === "student")
+    throw event.redirect(302, `/Dsessential/panel`);
+};
 
 function createProgressEmitter() {
   let res: any;
@@ -86,7 +49,7 @@ function createProgressEmitter() {
 
 const queryGPT = server$(async function* (
   query: string,
-  parentID: string | null
+  parentID: string | null,
 ) {
   const { generator: progressGenerator, push: pushProgress } =
     createProgressEmitter();
@@ -100,7 +63,7 @@ const queryGPT = server$(async function* (
     })
     .then((res) => {
       // Once done, push the result to the generator
-      pushProgress([res.text, res.id, "END"]);
+      pushProgress([res.text, res.id, res.detail?.choices[0].finish_reason]);
     });
 
   for await (const update of progressGenerator) {
@@ -118,7 +81,7 @@ const downloadAsWord = $(async function (
     content: string;
     id?: string;
   }[],
-  accessToken: string
+  accessToken: string,
 ) {
   if (conversation.length === 0) return;
 
@@ -137,7 +100,7 @@ const downloadAsWord = $(async function (
       body: JSON.stringify({
         text: botResponsesText,
       }),
-    }
+    },
   );
 
   // download the word file
@@ -153,8 +116,8 @@ const downloadAsWord = $(async function (
 });
 
 const getQueryOptions = server$(async function (
-  action?: "append" | "remove",
-  value?: string
+  action?: "append" | "appendPublic" | "remove" | "removePublic",
+  value?: string,
 ) {
   const queryOptions = await fetch(
     `${await backendAddress()}/gpt-generator/queryOptions`,
@@ -168,10 +131,10 @@ const getQueryOptions = server$(async function (
         action,
         value,
       }),
-    }
+    },
   );
   const res = await queryOptions.json();
-  const options = res.questions;
+  const options = [res.questions, res.privateQuestions];
   return options;
 });
 
@@ -180,7 +143,9 @@ export default component$(() => {
   const accessToken = (session.value as any).accessToken;
   const queryValue = useSignal("");
   const waitingResponse = useSignal(false);
-  const queryOptions = useSignal<string[]>([""]);
+  const queryOptionsPublic = useSignal<string[]>([""]);
+  const queryOptionsPrivate = useSignal<string[]>([""]);
+  const hideOptions = useSignal(false);
   const conversation = useSignal<
     {
       type: string;
@@ -190,6 +155,45 @@ export default component$(() => {
   >([]);
   const parentID = useSignal<string | null>(null);
 
+  const requestGPT = $(async (requestValue: string, continueID?: string) => {
+    const res = await queryGPT(requestValue, parentID.value);
+    let previousChatContent = "";
+    for await (const i of res) {
+      parentID.value = i[1];
+
+      // Check if the id already exists
+      const existingIndex = conversation.value.findIndex(
+        (item) => item.id === (continueID ? continueID : i[1]),
+      );
+
+      if (continueID) {
+        conversation.value[existingIndex].id = i[1];
+        previousChatContent = conversation.value[existingIndex].content;
+        continueID = undefined;
+      }
+
+      if (existingIndex !== -1) {
+        // ID exists, replace content
+        conversation.value[existingIndex].content = previousChatContent + i[0];
+        // refresh the array
+        conversation.value = [...conversation.value];
+        hideOptions.value = true;
+      } else {
+        // ID doesn't exist, add a new entry
+        conversation.value = [
+          ...conversation.value,
+          { type: "bot", content: previousChatContent + i[0], id: i[1] },
+        ];
+      }
+      if (i[2]) {
+        if (i[2] === "length") return ["length", i[1]];
+        break;
+      }
+    }
+    queryValue.value = "";
+    return ["done"];
+  });
+
   const submitQuery = $(async () => {
     if (queryValue.value === "") return;
     conversation.value = [
@@ -197,34 +201,20 @@ export default component$(() => {
       { type: "user", content: queryValue.value },
     ];
     waitingResponse.value = true;
-    const res = await queryGPT(queryValue.value, parentID.value);
-    for await (const i of res) {
-      parentID.value = i[1];
-
-      // Check if the id already exists
-      const existingIndex = conversation.value.findIndex(
-        (item) => item.id === i[1]
-      );
-
-      if (existingIndex !== -1) {
-        // ID exists, replace content
-        conversation.value[existingIndex].content = i[0];
-        // refresh the array
-        conversation.value = [...conversation.value];
-      } else {
-        // ID doesn't exist, add a new entry
-        conversation.value = [
-          ...conversation.value,
-          { type: "bot", content: i[0], id: i[1] },
-        ];
+    let currentQuery = queryValue.value;
+    let status = [""];
+    do {
+      status = await requestGPT(currentQuery, status[1]);
+      if (status[0] === "length") {
+        currentQuery = "continue";
       }
-      if (i[2] === "END") break;
-    }
+    } while (status[0] !== "done");
     waitingResponse.value = false;
   });
 
   useTask$(async () => {
-    queryOptions.value = await getQueryOptions();
+    [queryOptionsPublic.value, queryOptionsPrivate.value] =
+      await getQueryOptions();
   });
 
   return (
@@ -237,115 +227,195 @@ export default component$(() => {
           placeholder="請輸入問題"
           disabled={waitingResponse.value}
         ></textarea>
-        <button
-          class={styles.button}
-          onClick$={submitQuery}
-          disabled={waitingResponse.value}
-        >
-          生成
-        </button>
-        <button
-          class={styles.button}
-          onClick$={async () => {
-            const queryElement = document.querySelector(
-              `.${styles.queryBar} textarea`
-            ) as HTMLInputElement;
-            const value = queryValue.value;
-            if (!value) return;
-            queryOptions.value = await getQueryOptions("append", value);
-            queryElement.focus();
-          }}
-          disabled={waitingResponse.value}
-        >
-          收藏
-        </button>
-        <button
-          class={styles.button}
-          onClick$={() => {
-            downloadAsWord(conversation.value, accessToken);
-          }}
-          disabled={waitingResponse.value}
-        >
-          下載
-        </button>
+        <div class={styles.optionsButton}>
+          <button
+            class={styles.button}
+            onClick$={async () => {
+              const queryElement = document.querySelector(
+                `.${styles.queryBar} textarea`,
+              ) as HTMLInputElement;
+              const value = queryValue.value;
+              if (!value) return;
+              if (
+                session?.value?.user?.email?.startsWith("admin@") &&
+                confirm(`確定要把「${value}」新增至公開收藏嗎？`)
+              ) {
+                queryOptionsPublic.value = (
+                  await getQueryOptions("appendPublic", value)
+                )[0];
+              } else if (confirm(`確定要把「${value}」新增至私人收藏嗎？`)) {
+                queryOptionsPrivate.value = (
+                  await getQueryOptions("append", value)
+                )[1];
+              }
+              queryElement.focus();
+            }}
+            disabled={waitingResponse.value}
+          >
+            收藏此問題
+          </button>
+
+          <button
+            class={styles.button}
+            onClick$={() => {
+              hideOptions.value = !hideOptions.value;
+            }}
+            disabled={waitingResponse.value}
+          >
+            顯示收藏
+          </button>
+          <button
+            class={styles.button}
+            onClick$={() => {
+              downloadAsWord(conversation.value, accessToken);
+            }}
+            disabled={waitingResponse.value}
+          >
+            下載
+          </button>
+          <button
+            class={styles.button}
+            onClick$={submitQuery}
+            disabled={waitingResponse.value}
+          >
+            生成
+          </button>
+        </div>
       </form>
-      {!conversation.value[0] && (
-        <div class={styles.options}>
-          <h3 class={styles.subtitle}>收藏</h3>
-          <div class={styles.optionContainer}>
-            {queryOptions.value.map((item) => {
-              return (
-                <div class={styles.option} key={item}>
-                  <button
-                    class={styles.question}
-                    key={item}
-                    onClick$={() => {
-                      queryValue.value = item;
-                    }}
-                  >
-                    {item}
-                  </button>
-                  <button
-                    class={styles.delete}
-                    onClick$={async () => {
-                      if (
-                        !confirm(
-                          `確定要刪除「${item}」嗎？\n刪除後將無法復原！`
-                        )
-                      )
-                        return;
-                      queryOptions.value = await getQueryOptions(
-                        "remove",
-                        item
-                      );
-                    }}
-                  >
-                    刪除
-                  </button>
-                </div>
-              );
-            })}
+      {!hideOptions.value &&
+        (queryOptionsPublic.value || queryOptionsPrivate.value) && (
+          <div class={styles.options}>
+            <h3>收藏庫</h3>
+            <div class={styles.optionContainer}>
+              {queryOptionsPublic.value &&
+                queryOptionsPublic.value.map((item) => {
+                  return (
+                    <div class={styles.option} key={item}>
+                      <p class={styles.question} key={item}>
+                        {item}
+                      </p>
+                      {session?.value?.user?.email?.startsWith("admin@") && (
+                        <button
+                          class={styles.delete}
+                          onClick$={async () => {
+                            if (
+                              !confirm(
+                                `確定要刪除「${item}」嗎？\n刪除後將無法復原！`,
+                              )
+                            )
+                              return;
+                            queryOptionsPublic.value = (
+                              await getQueryOptions("removePublic", item)
+                            )[0];
+                          }}
+                        >
+                          刪除
+                        </button>
+                      )}
+                      <button
+                        class={styles.delete}
+                        key={item}
+                        onClick$={() => {
+                          queryValue.value = item;
+                        }}
+                      >
+                        使用
+                      </button>
+                    </div>
+                  );
+                })}
+              {queryOptionsPrivate.value &&
+                queryOptionsPrivate.value.map((item) => {
+                  return (
+                    <div class={styles.option} key={item}>
+                      <p
+                        class={styles.question}
+                        key={item}
+                        onClick$={() => {
+                          queryValue.value = item;
+                        }}
+                      >
+                        {item}
+                      </p>
+                      <button
+                        class={styles.delete}
+                        onClick$={async () => {
+                          if (
+                            !confirm(
+                              `確定要刪除「${item}」嗎？\n刪除後將無法復原！`,
+                            )
+                          )
+                            return;
+                          queryOptionsPrivate.value = (
+                            await getQueryOptions("remove", item)
+                          )[1];
+                        }}
+                      >
+                        刪除
+                      </button>
+                      <button
+                        class={styles.delete}
+                        key={item}
+                        onClick$={() => {
+                          queryValue.value = item;
+                        }}
+                      >
+                        使用
+                      </button>
+                    </div>
+                  );
+                })}
+            </div>
           </div>
+        )}
+      {hideOptions.value && (
+        <div class={styles.conversation}>
+          {conversation.value.map((item) => (
+            <div
+              class={
+                item.type === "user" ? styles.item : [styles.item, styles.bot]
+              }
+              key={new Date().toISOString()}
+            >
+              <p class={styles.content}>
+                {item.type === "user" && (
+                  <div class={styles.type}>
+                    {(session?.value as any)?.user?.username
+                      ? `${(session?.value as any)?.user?.username}: `
+                      : session?.value?.user?.email
+                        ? `${session?.value?.user?.email}: `
+                        : "用戶："}
+                  </div>
+                )}
+                {item.content.split("\n").map((line) => (
+                  <>
+                    {line.split("**").map((word, index) => (
+                      <>
+                        {index % 2 === 0 ? (
+                          word
+                            .split("*")
+                            .map((word, index) => (
+                              <>
+                                {index % 2 === 0 ? (
+                                  word
+                                ) : (
+                                  <span class={styles.italic}>{word}</span>
+                                )}
+                              </>
+                            ))
+                        ) : (
+                          <span class={styles.bold}>{word}</span>
+                        )}
+                      </>
+                    ))}
+                    <br />
+                  </>
+                ))}
+              </p>
+            </div>
+          ))}
         </div>
       )}
-      <div class={styles.conversation}>
-        {conversation.value.map((item) => (
-          <div
-            class={
-              item.type === "user" ? styles.item : [styles.item, styles.bot]
-            }
-            key={new Date().toISOString()}
-          >
-            <div class={styles.type}>{item.type}</div>
-            <p class={styles.content}>
-              {item.content.split("\n").map((line) => (
-                <>
-                  {line.split("**").map((word, index) => (
-                    <>
-                      {index % 2 === 0 ? (
-                        word
-                          .split("*")
-                          .map((word, index) => (
-                            <>
-                              {index % 2 === 0 ? (
-                                word
-                              ) : (
-                                <span class={styles.italic}>{word}</span>
-                              )}
-                            </>
-                          ))
-                      ) : (
-                        <span class={styles.bold}>{word}</span>
-                      )}
-                    </>
-                  ))}
-                  <br />
-                </>
-              ))}
-            </p>
-          </div>
-        ))}
-      </div>
     </>
   );
 });

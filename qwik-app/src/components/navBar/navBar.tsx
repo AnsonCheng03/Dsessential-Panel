@@ -1,4 +1,4 @@
-import { component$ } from "@builder.io/qwik";
+import { component$, useSignal } from "@builder.io/qwik";
 import styles from "./navBar.module.css";
 import { Link } from "@builder.io/qwik-city";
 import { useAuthSignout } from "~/routes/plugin@auth";
@@ -7,138 +7,113 @@ export default component$(({ navlist }: { navlist: any }) => {
   const baseURL = "/Dsessential";
   const signOut = useAuthSignout();
 
+  const openNav = useSignal(false);
+
   return (
     <nav class={styles.header}>
       <div class={styles.container}>
-        <input type="checkbox" class={styles.mobileCheck} />
+        <div class={styles.navItems}>
+          <div class={styles.logoContainer}>
+            <h3 class={styles.logo}>
+              <Link href={baseURL} class={styles.whiteLink}>
+                DSE<span>ssential</span>
+              </Link>
+            </h3>
+          </div>
 
-        <div class={styles.logoContainer}>
-          <h3 class={styles.logo}>
-            <Link href={baseURL} class={styles.whiteLink}>
-              DSE<span>ssential</span>
-            </Link>
-          </h3>
-        </div>
-
-        <div class={styles.navButton}>
-          <div class={styles.navLinks}>
-            <ul class={styles.navList}>
-              {navlist.map((items: any) => {
-                return (
-                  <li class={styles.navLink} key={items[1] as string}>
-                    {items[0] == "Item" && (
+          <div
+            class={
+              openNav.value
+                ? [styles.navLinks, styles.navLinksActive]
+                : styles.navLinks
+            }
+          >
+            <ul />
+            {navlist.map((item: any) => {
+              return (
+                <ul class={styles.navList} key={item[1]}>
+                  <li>
+                    {item[0] == "Item" ? (
                       <Link
-                        href={
-                          ((items[2].toLowerCase().startsWith("http")
-                            ? ""
-                            : baseURL) + items[2]) as string
-                        }
+                        href={baseURL + item[2]}
+                        onClick$={() => {
+                          openNav.value = false;
+                        }}
                       >
-                        {items[1]}
+                        {item[1]}
                       </Link>
-                    )}
-                    {items[0] == "List" && (
-                      <>
-                        <Link
-                          href={
-                            ((items[2].toLowerCase().startsWith("http")
-                              ? ""
-                              : baseURL) + items[2]) as string
-                          }
-                        >
-                          {items[1]}
-                        </Link>
-                        <div class={styles.dropdown}>
-                          <ul class={styles.navList}>
-                            {items[3].map((items: any) => {
-                              return (
-                                <li
-                                  class={styles.dropdownLink}
-                                  key={items[1] as string}
-                                >
-                                  {items[0] == "Item" && (
-                                    <Link
-                                      href={
-                                        ((items[2]
-                                          .toLowerCase()
-                                          .startsWith("http")
-                                          ? ""
-                                          : baseURL) + items[2]) as string
-                                      }
-                                    >
-                                      {items[1]}
-                                    </Link>
-                                  )}
-                                  {items[0] == "List" && (
-                                    <>
-                                      <Link
-                                        href={
-                                          ((items[2]
-                                            .toLowerCase()
-                                            .startsWith("http")
-                                            ? ""
-                                            : baseURL) + items[2]) as string
-                                        }
-                                      >
-                                        {items[1]}
-                                      </Link>
-                                      <div
-                                        class={[styles.dropdown, styles.second]}
-                                      >
-                                        <ul class={styles.navList}>
-                                          {items[3]?.map((items: string[]) => {
-                                            return (
-                                              <li
-                                                class={styles.dropdownLink}
-                                                key={items[1]}
-                                              >
-                                                <Link
-                                                  href={
-                                                    ((items[2]
-                                                      .toLowerCase()
-                                                      .startsWith("http")
-                                                      ? ""
-                                                      : baseURL) +
-                                                      items[2]) as string
-                                                  }
-                                                >
-                                                  {items[1]}
-                                                </Link>
-                                              </li>
-                                            );
-                                          })}
-                                          <div class={styles.arrow} />
-                                        </ul>
-                                      </div>
-                                    </>
-                                  )}
-                                </li>
-                              );
-                            })}
-                            <div class={styles.arrow} />
-                          </ul>
-                        </div>
-                      </>
+                    ) : (
+                      item[1]
                     )}
                   </li>
-                );
-              })}
-            </ul>
+                  {item[0] == "List" && (
+                    <li>
+                      {item[3].map((subItem: any) => {
+                        return (
+                          <ul class={styles.navSubList} key={subItem[1]}>
+                            <li>
+                              {subItem[0] == "Item" ? (
+                                <Link
+                                  href={baseURL + subItem[2]}
+                                  onClick$={() => {
+                                    openNav.value = false;
+                                  }}
+                                >
+                                  {subItem[1]}
+                                </Link>
+                              ) : (
+                                subItem[1]
+                              )}
+                            </li>
+                            {subItem[0] == "List" &&
+                              subItem[3].map((subsubItem: any) => {
+                                return (
+                                  <ul
+                                    class={styles.navSubSubList}
+                                    key={subsubItem[1]}
+                                  >
+                                    <li>
+                                      <Link
+                                        href={baseURL + subsubItem[2]}
+                                        onClick$={() => {
+                                          openNav.value = false;
+                                        }}
+                                      >
+                                        {subsubItem[1]}
+                                      </Link>
+                                    </li>
+                                  </ul>
+                                );
+                              })}
+                          </ul>
+                        );
+                      })}
+                    </li>
+                  )}
+                </ul>
+              );
+            })}
           </div>
 
-          <div class={styles.logoutSign}>
-            <button
-              class={[styles.button, styles.transparent]}
-              onClick$={() => signOut.submit({})}
+          <div class={styles.navSigns}>
+            <div class={styles.logoutSign}>
+              <button onClick$={() => signOut.submit({})}>登出</button>
+            </div>
+            <div
+              class={
+                openNav.value
+                  ? [styles.navSign, styles.navSignActive]
+                  : styles.navSign
+              }
             >
-              登出
-            </button>
-          </div>
-        </div>
-
-        <div class={styles.hamburgerMenuContainer}>
-          <div class={styles.hamburgerMenu}>
-            <div />
+              <button
+                onClick$={() => {
+                  openNav.value = !openNav.value;
+                }}
+              >
+                導覽
+              </button>
+            </div>
           </div>
         </div>
       </div>
