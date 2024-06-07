@@ -42,6 +42,26 @@ const { router, notFound } = createQwikCity({
 // Create the express server
 const app = express();
 
+app.use((req, res, next) => {
+  // Set CORS headers
+
+  res.setHeader(
+    "Access-Control-Allow-Origin",
+    req.hostname === "nas.dsessential.com"
+      ? "https://mirror.dsessential.com"
+      : "https://nas.dsessential.com"
+  );
+  res.setHeader("Access-Control-Allow-Credentials", "true");
+
+  // Set Content-Security-Policy header to allow both origins
+  // res.setHeader(
+  //   "Content-Security-Policy",
+  //   "frame-ancestors 'self' https://nas.dsessential.com https://mirror.dsessential.com"
+  // );
+
+  next();
+});
+
 // Middleware to parse cookies and JSON bodies
 app.use(cookieParser());
 app.use(express.json());

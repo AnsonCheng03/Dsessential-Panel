@@ -3,6 +3,7 @@ import { $ } from "@builder.io/qwik";
 export const getCSRFToken = $(async () => {
   const res = fetch("/api/auth/csrf", {
     cache: "no-store",
+    credentials: "same-origin",
   });
   const { csrfToken } = await (await res).json();
   return csrfToken;
@@ -18,6 +19,7 @@ export const login = $(
     const res = fetch("/api/auth/callback/credentials", {
       method: "POST",
       cache: "no-store",
+      credentials: "same-origin",
       headers: {
         "Content-Type": "application/x-www-form-urlencoded",
       },
@@ -54,14 +56,21 @@ export const signOut = $(async (csrfToken: string) => {
 
 export const changeSession = $(
   async (accessToken: string, role: string, loginName: string) => {
-    await signOut(await getCSRFToken());
-    const status = await login(
+    let csrfToken = await getCSRFToken();
+    await signOut(csrfToken);
+
+    csrfToken = await getCSRFToken();
+    const response = await login(
       await getCSRFToken(),
       accessToken,
       role,
       loginName
     );
-    if (status === 200) window.location.href = "/Dsessential";
-    else window.alert("發生錯誤");
+
+    if (response === 200) {
+      window.location.href = "/Dsessential";
+    } else {
+      window.alert("發生錯誤");
+    }
   }
 );

@@ -18,11 +18,74 @@ interface User {
 }
 
 let tmp_access_token: null | string = null;
+const cookiePrefix = "Dsessential_"; // Define your cookiePrefix if you have one
+
+// get the hostname the user are using (serverside  code)
 
 export const { onRequest, useAuthSession, useAuthSignin, useAuthSignout } =
   serverAuth$(({ env }) => ({
     secret: env.get("AUTH_SECRET"),
     trustHost: true,
+    cookies:
+      process.env.NODE_ENV === "development"
+        ? {}
+        : {
+            sessionToken: {
+              name: `authjs.session-token`,
+              options: {
+                httpOnly: true,
+                sameSite: "strict",
+                path: "/",
+                secure: true,
+              },
+            },
+            callbackUrl: {
+              name: `authjs.callback-url`,
+              options: {
+                sameSite: "strict",
+                path: "/",
+                secure: true,
+              },
+            },
+            csrfToken: {
+              name: `authjs.csrf-token`,
+              options: {
+                httpOnly: true,
+                sameSite: "strict",
+                path: "/",
+                secure: true,
+              },
+            },
+            pkceCodeVerifier: {
+              name: `${cookiePrefix}authjs.pkce.code_verifier`,
+              options: {
+                httpOnly: true,
+                sameSite: "strict",
+                path: "/",
+                secure: true,
+                maxAge: 900,
+              },
+            },
+            state: {
+              name: `${cookiePrefix}authjs.state`,
+              options: {
+                httpOnly: true,
+                sameSite: "strict",
+                path: "/",
+                secure: true,
+                maxAge: 900,
+              },
+            },
+            nonce: {
+              name: `${cookiePrefix}authjs.nonce`,
+              options: {
+                httpOnly: true,
+                sameSite: "strict",
+                path: "/",
+                secure: true,
+              },
+            },
+          },
     providers: [
       Credentials({
         credentials: {
@@ -31,7 +94,7 @@ export const { onRequest, useAuthSession, useAuthSignin, useAuthSignout } =
           password: { label: "Password", type: "password" },
         },
         async authorize(
-          credentials: Partial<Record<"username" | "password", unknown>>,
+          credentials: Partial<Record<"username" | "password", unknown>>
         ): Promise<User | null> {
           const user = await authorizeFunction(credentials as Credentials);
           if (!user) return null;

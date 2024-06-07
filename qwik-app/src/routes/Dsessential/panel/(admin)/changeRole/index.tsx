@@ -2,7 +2,7 @@ import { $, component$, useSignal } from "@builder.io/qwik";
 import styles from "./index.module.css";
 import { AutoCompleteBox } from "~/components/react/SearchBar";
 import { SelectBox } from "../../../../../components/react/SelectBox";
-import { routeLoader$ } from "@builder.io/qwik-city";
+import { routeLoader$, useLocation } from "@builder.io/qwik-city";
 import { useAuthSession } from "~/routes/plugin@auth";
 import Prompt from "~/components/prompt/prompt";
 
@@ -35,7 +35,8 @@ export default component$(() => {
   const selectValue = useSignal("SID");
   const searchValue = useSignal("");
   const errorBox = useSignal(false);
-  const iframeURL = useSignal("about:blank");
+  const iframeURL = useSignal("");
+  const location = useLocation();
 
   const options = useGetAllUser().value;
   const groupOptions: string[][] = [[], [], []];
@@ -59,7 +60,7 @@ export default component$(() => {
       return;
     }
 
-    iframeURL.value = `https://dsessential.dsmynas.com/Dsessential/panel/changeRole/iframeRedirect/?accessToken=${accessToken}&SID=${SID}`;
+    iframeURL.value = `https://${location.url.hostname == "mirror.dsessential.com" ? "nas.dsessential.com" : "mirror.dsessential.com"}/Dsessential/panel/changeRole/iframeRedirect/?accessToken=${accessToken}&SID=${SID}`;
   });
 
   return (
