@@ -51,7 +51,6 @@ export class LessonReplayService {
       result.push(currentMonth);
       if (month === currentMonth) break;
     }
-    console.log(result);
     return result;
   }
 

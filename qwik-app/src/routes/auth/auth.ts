@@ -45,9 +45,6 @@ export const authorizeFunction = async (credentials: Credentials) => {
   };
 
   try {
-    console.log(
-      `${process.env.SERVER_ADDRESS}:${process.env.BACKEND_PORT}/auth/protected-login`
-    );
     const loginResponse =
       loginBody.role === "changeRole" || loginBody.role === "refreshToken"
         ? await fetch(
