@@ -56,12 +56,7 @@ export const signOut = $(async (csrfToken: string) => {
 export const changeSession = $(
   async (accessToken: string, role: string, loginName: string) => {
     await signOut(await getCSRFToken());
-    const status = await login(
-      await getCSRFToken(),
-      accessToken,
-      role,
-      loginName
-    );
+    await login(await getCSRFToken(), accessToken, role, loginName);
     // if (status === 200) window.location.href = "/Dsessential";
     // else window.alert("發生錯誤");
   }
