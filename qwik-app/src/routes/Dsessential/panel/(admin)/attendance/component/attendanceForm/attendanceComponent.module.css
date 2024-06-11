@@ -143,13 +143,13 @@
   }
 }
 
-.autoComplete {
+.selectComboBox {
   position: relative;
   display: inline-block;
   width: 100%;
 }
 
-.autoComplete input {
+.selectComboBox input {
   text-align: center;
   width: 100%;
 

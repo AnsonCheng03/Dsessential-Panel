@@ -5,10 +5,10 @@ import {
   useVisibleTask$,
   type Signal,
 } from "@builder.io/qwik";
-import styles from "./attendanceComponent.module.css";
+import { Combobox, ResolvedOption } from "@qwik-ui/headless";
 import { Toggle } from "~/components/react/ToggleButton";
-import { autoComplete } from "./autoCompleteFunction";
 import { useFormSubmit, useFormDelete } from "./submitFormFunctions";
+import styles from "./attendanceComponent.module.css";
 
 export default component$(
   ({
@@ -42,7 +42,6 @@ export default component$(
           ?.focus();
       }, 50);
     });
-
     const submitToServer = useFormSubmit();
     const deleteFromServer = useFormDelete();
 
@@ -75,7 +74,7 @@ export default component$(
       track(() => discountAmount.value);
 
       const formElement = document.querySelector<HTMLFormElement>(
-        `#${formId.value}`,
+        `#${formId.value}`
       );
       if (rowNumber.value) formSubmit(formElement!);
     });
@@ -114,33 +113,25 @@ export default component$(
               : [styles.containerRows, styles.studentDetails]
           }
         >
-          {/* <autoCompleteBox
-            size="small"
-            searchValue={searchValue}
-            options={options}
-            freeSolo
-            placeholder="卡號/姓名/電話號碼"
-          /> */}
-          <div class={styles.autoComplete}>
-            <input
-              type="text"
-              autoComplete={"off"}
-              name="studentName"
-              bind:value={searchValue}
-              placeholder="卡號/電話號碼/中文姓名"
-            ></input>
-            <img
-              src="~/../LoadInput"
-              width={0}
-              height={0}
-              onError$={(e: any) => {
-                const img = e.target;
-                const input = img.previousSibling;
-                img && img.remove();
-                input && input.focus();
-                autoComplete(input, options);
-              }}
-            />
+          <div class={styles.selectComboBox}>
+            <Combobox.Root options={options} bind:inputValue={searchValue}>
+              <Combobox.Control>
+                <Combobox.Input
+                  autoComplete={"off"}
+                  name="studentName"
+                  placeholder="卡號/電話號碼/中文姓名"
+                />
+              </Combobox.Control>
+              <Combobox.Popover>
+                <Combobox.Listbox
+                  optionRenderer$={(option: ResolvedOption, index: number) => (
+                    <Combobox.Option index={index} resolved={option}>
+                      <span>{option.label}</span>
+                    </Combobox.Option>
+                  )}
+                />
+              </Combobox.Popover>
+            </Combobox.Root>
           </div>
           <div
             class={
@@ -348,5 +339,5 @@ export default component$(
         )}
       </form>
     );
-  },
+  }
 );
