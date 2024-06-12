@@ -134,6 +134,7 @@ export class VideoController {
           atob(body.keyBlobURL),
           res,
           req,
+          body.baseURL,
         );
       }
     }

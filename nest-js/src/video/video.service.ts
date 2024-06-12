@@ -111,22 +111,20 @@ export class VideoService {
     keyBlobURL: string,
     res: Response<any, Record<string, any>>,
     req: Request<any, Record<string, any>, any, any>,
+    baseURL: string,
   ) {
     const m3u8 = await fs.readFileSync(
       `${videoPathDir}/ts-${fileName}/original.m3u8`,
       'utf8',
     );
 
-    const keyBlobURLHostname = keyBlobURL
-      .replace('blob:', '')
-      .split('//')[1]
-      .split('/')[0];
+    console.log('baseURL', baseURL);
 
     const m3u8Edit = m3u8
       .replace(
         // replace all streamVideo to path
         /streamVideo-/g,
-        `https://${keyBlobURLHostname}/video/stream/${videoKey}?video=`,
+        `${baseURL}/video/stream/${videoKey}?video=`,
       )
       .replace(
         // replace key.key to keyBlobURL
