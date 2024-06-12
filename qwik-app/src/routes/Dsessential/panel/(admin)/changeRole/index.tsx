@@ -10,7 +10,7 @@ export const useGetAllUser = routeLoader$(async (requestEvent) => {
   const accessToken = requestEvent.sharedMap.get("session").accessToken;
   try {
     const res = await fetch(
-      `${process.env.SERVER_ADDRESS}:${process.env.BACKEND_PORT}/users/getAllUsers`,
+      `${process.env.BACKEND_ADDRESS}/users/getAllUsers`,
       {
         method: "POST",
         cache: "no-store",

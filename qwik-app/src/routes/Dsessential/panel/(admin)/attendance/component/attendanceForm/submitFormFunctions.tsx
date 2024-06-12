@@ -25,7 +25,7 @@ export const useFormSubmit = globalAction$(async (input, requestEvent) => {
 
   try {
     const res = await fetch(
-      `${process.env.SERVER_ADDRESS}:${process.env.BACKEND_PORT}/attendance/sendForm`,
+      `${process.env.BACKEND_ADDRESS}/attendance/sendForm`,
       {
         method: "POST",
         cache: "no-store",
@@ -36,7 +36,7 @@ export const useFormSubmit = globalAction$(async (input, requestEvent) => {
           }`,
         },
         body: JSON.stringify(output),
-      },
+      }
     );
     const data = await res.json();
     return data;
@@ -48,7 +48,7 @@ export const useFormSubmit = globalAction$(async (input, requestEvent) => {
 export const useFormDelete = globalAction$(async (input, requestEvent) => {
   try {
     const res = await fetch(
-      `${process.env.SERVER_ADDRESS}:${process.env.BACKEND_PORT}/attendance/deleteForm`,
+      `${process.env.BACKEND_ADDRESS}/attendance/deleteForm`,
       {
         method: "POST",
         cache: "no-store",
@@ -62,7 +62,7 @@ export const useFormDelete = globalAction$(async (input, requestEvent) => {
           deleteRow: input.deleteRow,
           ipAddress: requestEvent.clientConn.ip,
         }),
-      },
+      }
     );
     const data = await res.json();
     return data;

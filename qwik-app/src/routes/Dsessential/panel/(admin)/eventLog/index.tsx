@@ -7,14 +7,14 @@ export const useGetAllUser = routeLoader$(async (requestEvent) => {
 
   try {
     const res = await fetch(
-      `${process.env.SERVER_ADDRESS}:${process.env.BACKEND_PORT}/log-service/viewLog`,
+      `${process.env.BACKEND_ADDRESS}/log-service/viewLog`,
       {
         method: "POST",
         cache: "no-store",
         headers: {
           authorization: `Bearer ${accessToken}`,
         },
-      },
+      }
     );
 
     const data = await res.json();
