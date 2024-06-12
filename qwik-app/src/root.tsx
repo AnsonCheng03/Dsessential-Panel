@@ -20,7 +20,7 @@ export default component$(() => {
   return (
     <QwikCityProvider>
       <head>
-        <meta charSet="utf-8" />
+        <meta charset="utf-8" />
         <link rel="manifest" href="/manifest.json" />
         {process.env.PUBLIC_QWIK_INSIGHTS_KEY && (
           <Insights publicApiKey={process.env.PUBLIC_QWIK_INSIGHTS_KEY} />
