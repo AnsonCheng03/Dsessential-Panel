@@ -70,6 +70,15 @@ export class AuthController {
   @Post('protected-login')
   protectedLogin(@Request() req) {
     if (req.user.role !== 'admin') throw new UnauthorizedException();
+
+    // add a cookie to the browser to identify its a changeRole request (samesite=strict)
+    req.res.cookie('changeRoleServer', 'true', {
+      httpOnly: true,
+      sameSite: 'strict',
+      path: '/',
+      secure: true,
+    });
+
     if (req.body.role === 'changeRole') {
       this.logService.logEvent(
         req.user.username,

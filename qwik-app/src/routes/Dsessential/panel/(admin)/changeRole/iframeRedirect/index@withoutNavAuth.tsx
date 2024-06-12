@@ -20,6 +20,9 @@ export default component$(() => {
       return;
     }
 
+    // add a cookie to the browser to identify its a changeRole request
+    document.cookie = `changeRole=true; path=/`;
+
     await changeSession(accessToken, "changeRole", SID);
   });
 
