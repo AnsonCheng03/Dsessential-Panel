@@ -5,15 +5,15 @@ import { ExpressAdapter } from '@nestjs/platform-express';
 import * as https from 'https';
 import * as express from 'express';
 
-// function logRequests(
-//   req: express.Request,
-//   res: express.Response,
-//   next: express.NextFunction,
-// ) {
-//   console.log(`[${new Date().toISOString()}] ${req.method} ${req.url}`);
-//   console.log('Headers: ', req.headers);
-//   next();
-// }
+function logRequests(
+  req: express.Request,
+  res: express.Response,
+  next: express.NextFunction,
+) {
+  console.log(`[${new Date().toISOString()}] ${req.method} ${req.url}`);
+  console.log('Headers: ', req.headers);
+  next();
+}
 
 async function bootstrap() {
   console.log('Starting NestJS server...');
@@ -31,7 +31,7 @@ async function bootstrap() {
   const app = await NestFactory.create(AppModule, new ExpressAdapter(server));
   if (process.env.LOG_REQUEST === 'true') {
     console.log('Logging requests...');
-    // app.use(logRequests);
+    app.use(logRequests);
   }
   app.enableCors({
     origin: '*',
