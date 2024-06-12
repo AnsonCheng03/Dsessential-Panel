@@ -36,7 +36,7 @@ export const useFormSubmit = globalAction$(async (input, requestEvent) => {
           }`,
         },
         body: JSON.stringify(output),
-      }
+      },
     );
     const data = await res.json();
     return data;
@@ -62,7 +62,7 @@ export const useFormDelete = globalAction$(async (input, requestEvent) => {
           deleteRow: input.deleteRow,
           ipAddress: requestEvent.clientConn.ip,
         }),
-      }
+      },
     );
     const data = await res.json();
     return data;

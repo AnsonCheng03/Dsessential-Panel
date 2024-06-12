@@ -19,7 +19,7 @@ export const googleLogin = async (credentials: Credentials) => {
           "Content-Type": "application/json",
         },
         body: JSON.stringify(loginBody),
-      }
+      },
     );
 
     if (loginResponse.status !== 200 && loginResponse.status !== 201)

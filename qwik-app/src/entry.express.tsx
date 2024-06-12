@@ -47,14 +47,14 @@ app.use((req, res, next) => {
 
   res.setHeader(
     "Access-Control-Allow-Origin",
-    "https://mirror.dsessential.com"
+    "https://mirror.dsessential.com",
   );
   res.setHeader("Access-Control-Allow-Credentials", "true");
 
   // Set Content-Security-Policy header to allow both origins
   res.setHeader(
     "Content-Security-Policy",
-    "frame-ancestors 'self' https://nas.dsessential.com"
+    "frame-ancestors 'self' https://nas.dsessential.com",
   );
 
   next();
@@ -115,15 +115,15 @@ app.use(
     createProxyOptions(
       "http://chatgpt-next-web:3000",
       undefined,
-      "authjs.session-token"
-    )
-  )
+      "authjs.session-token",
+    ),
+  ),
 );
 app.use(
   "/_next",
   createProxyMiddleware(
-    createProxyOptions("http://chatgpt-next-web:3000/_next")
-  )
+    createProxyOptions("http://chatgpt-next-web:3000/_next"),
+  ),
 );
 app.use("/api", (req, res, next) => {
   if (process.env.INTERNAL_BACKEND && req.path.startsWith("/Dsessential")) {
@@ -131,11 +131,11 @@ app.use("/api", (req, res, next) => {
       createProxyOptions(process.env.INTERNAL_BACKEND, (path: string) => {
         console.log("path", path.replace(/^\/Dsessential/, ""));
         return path.replace(/^\/Dsessential/, "");
-      })
+      }),
     )(req, res, next);
   } else if (!req.path.startsWith("/auth")) {
     createProxyMiddleware(
-      createProxyOptions("http://chatgpt-next-web:3000/api")
+      createProxyOptions("http://chatgpt-next-web:3000/api"),
     )(req, res, next);
   } else {
     next();
@@ -144,21 +144,21 @@ app.use("/api", (req, res, next) => {
 app.use(
   "/google-fonts",
   createProxyMiddleware(
-    createProxyOptions("http://chatgpt-next-web:3000/google-fonts")
-  )
+    createProxyOptions("http://chatgpt-next-web:3000/google-fonts"),
+  ),
 );
 
 app.use(
   "/serviceWorkerRegister.js",
-  fetchAndReturn("http://chatgpt-next-web:3000/serviceWorkerRegister.js")
+  fetchAndReturn("http://chatgpt-next-web:3000/serviceWorkerRegister.js"),
 );
 app.use(
   "/serviceWorker.js",
-  fetchAndReturn("http://chatgpt-next-web:3000/serviceWorker.js")
+  fetchAndReturn("http://chatgpt-next-web:3000/serviceWorker.js"),
 );
 app.use(
   "/prompts.json",
-  fetchAndReturn("http://chatgpt-next-web:3000/prompts.json")
+  fetchAndReturn("http://chatgpt-next-web:3000/prompts.json"),
 );
 
 // Static asset handlers
@@ -174,11 +174,11 @@ app.use(notFound);
 // enable https
 const privateKey = fs.readFileSync(
   `${process.env.CERT_PATH}/RSA-privkey.pem`,
-  "utf8"
+  "utf8",
 );
 const certificate = fs.readFileSync(
   `${process.env.CERT_PATH}/RSA-cert.pem`,
-  "utf8"
+  "utf8",
 );
 
 const credentials = { key: privateKey, cert: certificate };

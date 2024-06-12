@@ -1,11 +1,11 @@
 import type express from "express";
-import http from "http";
+import type http from "http";
 import httpStatus from "http-status-codes";
 
 export const createProxyOptions = (
   targetPath: string,
   pathRewriteFn?: (path: string) => string,
-  cookieCheckToken?: string
+  cookieCheckToken?: string,
 ) => ({
   target: targetPath,
   changeOrigin: true,
@@ -17,7 +17,7 @@ export const createProxyOptions = (
         "proxyReq",
         (proxyReq: http.ClientRequest, req: express.Request) => {
           console.log(
-            `Proxying ${req.url} to ${targetPath} with method ${req.method}`
+            `Proxying ${req.url} to ${targetPath} with method ${req.method}`,
           );
           // Check if cookie has specified token, if not, drop the request
           if (cookieCheckToken) {
@@ -27,7 +27,7 @@ export const createProxyOptions = (
             ) {
               console.warn(
                 "No session token found in request, url requesting:",
-                req.url
+                req.url,
               );
               proxyReq.destroy();
               return;
@@ -43,14 +43,14 @@ export const createProxyOptions = (
               const bufferLength = Buffer.byteLength(bodyData);
               if (bufferLength != parseInt(contentLength)) {
                 console.warn(
-                  `buffer length = ${bufferLength}, content length = ${contentLength}`
+                  `buffer length = ${bufferLength}, content length = ${contentLength}`,
                 );
                 proxyReq.setHeader("content-length", bufferLength);
               }
               proxyReq.write(bodyData);
             }
           }
-        }
+        },
       );
 
       proxyServer.on(
@@ -58,12 +58,12 @@ export const createProxyOptions = (
         (
           proxyRes: http.IncomingMessage,
           req: express.Request,
-          res: express.Response
+          res: express.Response,
         ) => {
           console.log(
             `Proxying ${req.url} to ${targetPath} with status ${
               proxyRes.statusCode
-            }`
+            }`,
           );
           res.status(proxyRes.statusCode ?? 500);
           Object.entries(proxyRes.headers).forEach(([key, value]) => {
@@ -74,9 +74,9 @@ export const createProxyOptions = (
           proxyRes.on("data", (data) => (body = Buffer.concat([body, data])));
           proxyRes.on("end", () => res.end(body.toString("utf8")));
           proxyRes.on("error", () =>
-            res.status(httpStatus.INTERNAL_SERVER_ERROR).end()
+            res.status(httpStatus.INTERNAL_SERVER_ERROR).end(),
           );
-        }
+        },
       );
     },
   ],

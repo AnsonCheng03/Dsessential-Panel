@@ -49,7 +49,7 @@ function createProgressEmitter() {
 
 const queryGPT = server$(async function* (
   query: string,
-  parentID: string | null
+  parentID: string | null,
 ) {
   const { generator: progressGenerator, push: pushProgress } =
     createProgressEmitter();
@@ -81,7 +81,7 @@ const downloadAsWord = $(async function (
     content: string;
     id?: string;
   }[],
-  accessToken: string
+  accessToken: string,
 ) {
   if (conversation.length === 0) return;
 
@@ -100,7 +100,7 @@ const downloadAsWord = $(async function (
       body: JSON.stringify({
         text: botResponsesText,
       }),
-    }
+    },
   );
 
   // download the word file
@@ -117,7 +117,7 @@ const downloadAsWord = $(async function (
 
 const getQueryOptions = server$(async function (
   action?: "append" | "appendPublic" | "remove" | "removePublic",
-  value?: string
+  value?: string,
 ) {
   const queryOptions = await fetch(
     `${await backendAddress()}/gpt-generator/queryOptions`,
@@ -131,7 +131,7 @@ const getQueryOptions = server$(async function (
         action,
         value,
       }),
-    }
+    },
   );
   const res = await queryOptions.json();
   const options = [res.questions, res.privateQuestions];
@@ -163,7 +163,7 @@ export default component$(() => {
 
       // Check if the id already exists
       const existingIndex = conversation.value.findIndex(
-        (item) => item.id === (continueID ? continueID : i[1])
+        (item) => item.id === (continueID ? continueID : i[1]),
       );
 
       if (continueID) {
@@ -232,7 +232,7 @@ export default component$(() => {
             class={styles.button}
             onClick$={async () => {
               const queryElement = document.querySelector(
-                `.${styles.queryBar} textarea`
+                `.${styles.queryBar} textarea`,
               ) as HTMLInputElement;
               const value = queryValue.value;
               if (!value) return;
@@ -300,7 +300,7 @@ export default component$(() => {
                           onClick$={async () => {
                             if (
                               !confirm(
-                                `確定要刪除「${item}」嗎？\n刪除後將無法復原！`
+                                `確定要刪除「${item}」嗎？\n刪除後將無法復原！`,
                               )
                             )
                               return;
@@ -342,7 +342,7 @@ export default component$(() => {
                         onClick$={async () => {
                           if (
                             !confirm(
-                              `確定要刪除「${item}」嗎？\n刪除後將無法復原！`
+                              `確定要刪除「${item}」嗎？\n刪除後將無法復原！`,
                             )
                           )
                             return;

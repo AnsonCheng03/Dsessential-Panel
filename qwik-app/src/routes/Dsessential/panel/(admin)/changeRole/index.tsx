@@ -17,7 +17,7 @@ export const useGetAllUser = routeLoader$(async (requestEvent) => {
         headers: {
           authorization: `Bearer ${accessToken}`,
         },
-      }
+      },
     );
 
     const data = await res.json();
@@ -47,8 +47,8 @@ export default component$(() => {
   } else
     options.map((obj: any) =>
       Object.values(obj).forEach(
-        (value, index) => value && groupOptions[index].push(value as string)
-      )
+        (value, index) => value && groupOptions[index].push(value as string),
+      ),
     );
 
   const clickSwitchUser = $(async () => {
@@ -63,7 +63,7 @@ export default component$(() => {
       iframeURL.value = `https://mirror.dsessential.com/Dsessential/panel/changeRole/iframeRedirect/?accessToken=${accessToken}&SID=${SID}`;
     else
       window.open(
-        `https://mirror.dsessential.com/Dsessential/panel/changeRole/iframeRedirect/?accessToken=${accessToken}&SID=${SID}`
+        `https://mirror.dsessential.com/Dsessential/panel/changeRole/iframeRedirect/?accessToken=${accessToken}&SID=${SID}`,
       );
   });
 

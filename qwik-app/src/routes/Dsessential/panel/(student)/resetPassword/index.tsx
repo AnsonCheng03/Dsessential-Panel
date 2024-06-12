@@ -7,7 +7,7 @@ export default component$(() => {
   const confirmPassword = useSignal("");
 
   const serverSideSubmitResetPassword = server$(async function (
-    password: string
+    password: string,
   ) {
     const res = await fetch(
       `${process.env.INTERNAL_BACKEND}/auth/change-password`,
@@ -21,7 +21,7 @@ export default component$(() => {
           username: this.sharedMap.get("session").user.id,
           password,
         }),
-      }
+      },
     );
     return await res.json();
   });
