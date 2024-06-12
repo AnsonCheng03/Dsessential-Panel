@@ -118,7 +118,11 @@ export class VideoService {
     );
 
     // get keyBlobURL hostname
-    const keyBlobURLHostname = new URL(keyBlobURL).hostname;
+    console.log('keyBlobURL', keyBlobURL);
+    const keyBlobURLHostname = keyBlobURL.match(
+      /^(?:blob:|https?:\/\/)?([^\/]+)/i,
+    )[1];
+    console.log('keyBlobURLHostname', keyBlobURLHostname);
 
     const m3u8Edit = m3u8
       .replace(
