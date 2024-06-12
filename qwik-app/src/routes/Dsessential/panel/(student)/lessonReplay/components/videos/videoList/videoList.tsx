@@ -144,7 +144,7 @@ export default component$(
           // add video source
           videoElement.src = `${backendURL}/streamList/${
             currentVideoID.value
-          }?key=${btoa(keyURL)}`;
+          }?key=${btoa(keyURL)}&baseURL=${backendURL}`;
 
           videoElement.addEventListener("loadedmetadata", function () {
             videoElement.play();

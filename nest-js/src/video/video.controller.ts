@@ -162,6 +162,7 @@ export class VideoController {
       atob(req.query.key),
       res,
       req,
+      req.query.baseURL,
     );
   }
 
