@@ -117,12 +117,10 @@ export class VideoService {
       'utf8',
     );
 
-    // get keyBlobURL hostname
-    console.log('keyBlobURL', keyBlobURL);
-    const keyBlobURLHostname = keyBlobURL.match(
-      /^(?:blob:|https?:\/\/)?([^\/]+)/i,
-    )[1];
-    console.log('keyBlobURLHostname', keyBlobURLHostname);
+    const keyBlobURLHostname = keyBlobURL
+      .replace('blob:', '')
+      .split('//')[1]
+      .split('/')[0];
 
     const m3u8Edit = m3u8
       .replace(
