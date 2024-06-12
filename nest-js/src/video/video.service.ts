@@ -117,11 +117,14 @@ export class VideoService {
       'utf8',
     );
 
+    // get keyBlobURL hostname
+    const keyBlobURLHostname = new URL(keyBlobURL).hostname;
+
     const m3u8Edit = m3u8
       .replace(
         // replace all streamVideo to path
         /streamVideo-/g,
-        `https://${req.headers.host}/video/stream/${videoKey}?video=`,
+        `https://${keyBlobURLHostname}/video/stream/${videoKey}?video=`,
       )
       .replace(
         // replace key.key to keyBlobURL

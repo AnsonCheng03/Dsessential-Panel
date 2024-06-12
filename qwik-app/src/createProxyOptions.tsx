@@ -11,15 +11,11 @@ export const createProxyOptions = (
   changeOrigin: true,
   preserveHeaderKeyCase: true,
   pathRewrite: pathRewriteFn,
-  secure: false,
   plugins: [
     (proxyServer: any) => {
       proxyServer.on(
         "proxyReq",
         (proxyReq: http.ClientRequest, req: express.Request) => {
-          console.log(
-            `Proxying ${req.url} to ${targetPath} with method ${req.method}`
-          );
           // Check if cookie has specified token, if not, drop the request
           if (cookieCheckToken) {
             if (
@@ -61,11 +57,6 @@ export const createProxyOptions = (
           req: express.Request,
           res: express.Response
         ) => {
-          console.log(
-            `Proxying ${req.url} to ${targetPath} with status ${
-              proxyRes.statusCode
-            }`
-          );
           res.status(proxyRes.statusCode ?? 500);
           Object.entries(proxyRes.headers).forEach(([key, value]) => {
             res.set(key, value as string | string[]);
