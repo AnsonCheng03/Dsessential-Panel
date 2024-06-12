@@ -1,83 +1,83 @@
 import type express from "express";
 import http from "http";
-import https from "https";
 import httpStatus from "http-status-codes";
 
 export const createProxyOptions = (
   targetPath: string,
   pathRewriteFn?: (path: string) => string,
   cookieCheckToken?: string
-) => {
-  const isHttps = targetPath.startsWith("https://");
+) => ({
+  target: targetPath,
+  changeOrigin: true,
+  preserveHeaderKeyCase: true,
+  pathRewrite: pathRewriteFn,
+  plugins: [
+    (proxyServer: any) => {
+      proxyServer.on(
+        "proxyReq",
+        (proxyReq: http.ClientRequest, req: express.Request) => {
+          console.log(
+            `Proxying ${req.url} to ${targetPath} with method ${req.method}`
+          );
+          // Check if cookie has specified token, if not, drop the request
+          if (cookieCheckToken) {
+            if (
+              !req.headers.cookie ||
+              !req.headers.cookie.includes(cookieCheckToken)
+            ) {
+              console.warn(
+                "No session token found in request, url requesting:",
+                req.url
+              );
+              proxyReq.destroy();
+              return;
+            }
+          }
 
-  return {
-    target: targetPath,
-    changeOrigin: true,
-    preserveHeaderKeyCase: true,
-    pathRewrite: pathRewriteFn,
-    agent: isHttps
-      ? new https.Agent({ keepAlive: true })
-      : new http.Agent({ keepAlive: true }),
-    plugins: [
-      (proxyServer: any) => {
-        proxyServer.on(
-          "proxyReq",
-          (proxyReq: http.ClientRequest, req: express.Request) => {
-            // Check if cookie has specified token, if not, drop the request
-            if (cookieCheckToken) {
-              if (
-                !req.headers.cookie ||
-                !req.headers.cookie.includes(cookieCheckToken)
-              ) {
+          if (req.body) {
+            const contentType = req.get("content-type");
+            const contentLength = req.get("content-length");
+            if (contentType) proxyReq.setHeader("content-type", contentType);
+            if (contentLength) {
+              const bodyData = JSON.stringify(req.body);
+              const bufferLength = Buffer.byteLength(bodyData);
+              if (bufferLength != parseInt(contentLength)) {
                 console.warn(
-                  "No session token found in request, url requesting:",
-                  req.url
+                  `buffer length = ${bufferLength}, content length = ${contentLength}`
                 );
-                proxyReq.destroy();
-                return;
+                proxyReq.setHeader("content-length", bufferLength);
               }
-            }
-
-            if (req.body) {
-              const contentType = req.get("content-type");
-              const contentLength = req.get("content-length");
-              if (contentType) proxyReq.setHeader("content-type", contentType);
-              if (contentLength) {
-                const bodyData = JSON.stringify(req.body);
-                const bufferLength = Buffer.byteLength(bodyData);
-                if (bufferLength != parseInt(contentLength)) {
-                  console.warn(
-                    `buffer length = ${bufferLength}, content length = ${contentLength}`
-                  );
-                  proxyReq.setHeader("content-length", bufferLength);
-                }
-                proxyReq.write(bodyData);
-              }
+              proxyReq.write(bodyData);
             }
           }
-        );
+        }
+      );
 
-        proxyServer.on(
-          "proxyRes",
-          (
-            proxyRes: http.IncomingMessage,
-            req: express.Request,
-            res: express.Response
-          ) => {
-            res.status(proxyRes.statusCode ?? 500);
-            Object.entries(proxyRes.headers).forEach(([key, value]) => {
-              res.set(key, value as string | string[]);
-            });
+      proxyServer.on(
+        "proxyRes",
+        (
+          proxyRes: http.IncomingMessage,
+          req: express.Request,
+          res: express.Response
+        ) => {
+          console.log(
+            `Proxying ${req.url} to ${targetPath} with status ${
+              proxyRes.statusCode
+            }`
+          );
+          res.status(proxyRes.statusCode ?? 500);
+          Object.entries(proxyRes.headers).forEach(([key, value]) => {
+            res.set(key, value as string | string[]);
+          });
 
-            let body = Buffer.alloc(0);
-            proxyRes.on("data", (data) => (body = Buffer.concat([body, data])));
-            proxyRes.on("end", () => res.end(body.toString("utf8")));
-            proxyRes.on("error", () =>
-              res.status(httpStatus.INTERNAL_SERVER_ERROR).end()
-            );
-          }
-        );
-      },
-    ],
-  };
-};
+          let body = Buffer.alloc(0);
+          proxyRes.on("data", (data) => (body = Buffer.concat([body, data])));
+          proxyRes.on("end", () => res.end(body.toString("utf8")));
+          proxyRes.on("error", () =>
+            res.status(httpStatus.INTERNAL_SERVER_ERROR).end()
+          );
+        }
+      );
+    },
+  ],
+});
