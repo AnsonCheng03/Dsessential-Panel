@@ -126,14 +126,10 @@ app.use(
   )
 );
 app.use("/api", (req, res, next) => {
-  if (
-    process.env.SERVER_SIDE_BACKEND_ADDRESS &&
-    req.path.startsWith("/Dsessential")
-  ) {
+  if (process.env.INTERNAL_BACKEND && req.path.startsWith("/Dsessential")) {
     createProxyMiddleware(
-      createProxyOptions(
-        process.env.SERVER_SIDE_BACKEND_ADDRESS,
-        (path: string) => path.replace(/^\/api\/Dsessential\//, "")
+      createProxyOptions(process.env.INTERNAL_BACKEND, (path: string) =>
+        path.replace(/^\/api\/Dsessential\//, "")
       )
     )(req, res, next);
   } else if (!req.path.startsWith("/auth")) {

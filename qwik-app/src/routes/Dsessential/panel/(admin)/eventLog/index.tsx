@@ -7,7 +7,7 @@ export const useGetAllUser = routeLoader$(async (requestEvent) => {
 
   try {
     const res = await fetch(
-      `${process.env.BACKEND_ADDRESS}/log-service/viewLog`,
+      `${process.env.INTERNAL_BACKEND}/log-service/viewLog`,
       {
         method: "POST",
         cache: "no-store",

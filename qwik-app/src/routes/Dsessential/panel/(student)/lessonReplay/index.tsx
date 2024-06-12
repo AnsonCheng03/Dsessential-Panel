@@ -8,7 +8,7 @@ export const useGetVideoList = routeLoader$(async (requestEvent) => {
   const accessToken = requestEvent.sharedMap.get("session").accessToken;
   try {
     const res = await fetch(
-      `${process.env.BACKEND_ADDRESS}/lesson-replay/videoList`,
+      `${process.env.INTERNAL_BACKEND}/lesson-replay/videoList`,
       {
         cache: "no-store",
         method: "POST",

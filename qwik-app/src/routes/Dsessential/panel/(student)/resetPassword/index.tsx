@@ -10,7 +10,7 @@ export default component$(() => {
     password: string
   ) {
     const res = await fetch(
-      `${process.env.BACKEND_ADDRESS}/auth/change-password`,
+      `${process.env.INTERNAL_BACKEND}/auth/change-password`,
       {
         method: "POST",
         headers: {
