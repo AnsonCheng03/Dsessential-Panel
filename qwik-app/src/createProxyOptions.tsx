@@ -7,7 +7,7 @@ export const createProxyOptions = (
   pathRewriteFn?: (path: string) => string,
   cookieCheckToken?: string
 ) => ({
-  target: `http://chatgpt-next-web:3000${targetPath}`,
+  target: targetPath,
   changeOrigin: true,
   preserveHeaderKeyCase: true,
   pathRewrite: pathRewriteFn,

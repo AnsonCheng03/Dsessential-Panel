@@ -113,23 +113,42 @@ app.use(
   "/chatgpt",
   createProxyMiddleware(
     createProxyOptions(
-      "",
+      "http://chatgpt-next-web:3000",
       (path: string) => path.replace(/^\/chatgpt/, ""),
       "authjs.session-token"
     )
   )
 );
-app.use("/_next", createProxyMiddleware(createProxyOptions("/_next")));
+app.use(
+  "/_next",
+  createProxyMiddleware(
+    createProxyOptions("http://chatgpt-next-web:3000/_next")
+  )
+);
 app.use("/api", (req, res, next) => {
-  if (!req.path.startsWith("/auth")) {
-    createProxyMiddleware(createProxyOptions("/api"))(req, res, next);
+  if (
+    process.env.SERVER_SIDE_BACKEND_ADDRESS &&
+    req.path.startsWith("/Dsessential")
+  ) {
+    createProxyMiddleware(
+      createProxyOptions(
+        process.env.SERVER_SIDE_BACKEND_ADDRESS,
+        (path: string) => path.replace(/^\/api\/Dsessential\//, "")
+      )
+    )(req, res, next);
+  } else if (!req.path.startsWith("/auth")) {
+    createProxyMiddleware(
+      createProxyOptions("http://chatgpt-next-web:3000/api")
+    )(req, res, next);
   } else {
     next();
   }
 });
 app.use(
   "/google-fonts",
-  createProxyMiddleware(createProxyOptions("/google-fonts"))
+  createProxyMiddleware(
+    createProxyOptions("http://chatgpt-next-web:3000/google-fonts")
+  )
 );
 
 app.use(
