@@ -114,7 +114,7 @@ app.use(
   createProxyMiddleware(
     createProxyOptions(
       "http://chatgpt-next-web:3000",
-      (path: string) => path.replace(/^\/chatgpt/, ""),
+      undefined,
       "authjs.session-token"
     )
   )
@@ -129,8 +129,8 @@ app.use("/api", (req, res, next) => {
   if (process.env.INTERNAL_BACKEND && req.path.startsWith("/Dsessential")) {
     createProxyMiddleware(
       createProxyOptions(process.env.INTERNAL_BACKEND, (path: string) => {
-        console.log("path", path.replace(/^\/api\/Dsessential\//, ""));
-        return path.replace(/^\/api\/Dsessential\//, "");
+        console.log("path", path.replace(/^\/Dsessential/, ""));
+        return path.replace(/^\/Dsessential/, "");
       })
     )(req, res, next);
   } else if (!req.path.startsWith("/auth")) {
