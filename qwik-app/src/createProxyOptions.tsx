@@ -11,6 +11,7 @@ export const createProxyOptions = (
   changeOrigin: true,
   preserveHeaderKeyCase: true,
   pathRewrite: pathRewriteFn,
+  secure: false,
   plugins: [
     (proxyServer: any) => {
       proxyServer.on(

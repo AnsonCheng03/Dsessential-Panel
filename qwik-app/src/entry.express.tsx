@@ -141,15 +141,7 @@ app.use("/api", (req, res, next) => {
     next();
   }
 });
-app.use("/backend", (req, res, next) => {
-  if (process.env.INTERNAL_BACKEND) {
-    createProxyMiddleware(
-      createProxyOptions(process.env.INTERNAL_BACKEND, undefined)
-    )(req, res, next);
-  } else {
-    next();
-  }
-});
+
 app.use(
   "/google-fonts",
   createProxyMiddleware(
