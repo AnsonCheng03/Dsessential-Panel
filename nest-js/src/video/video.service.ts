@@ -118,8 +118,6 @@ export class VideoService {
       'utf8',
     );
 
-    console.log('baseURL', baseURL);
-
     const m3u8Edit = m3u8
       .replace(
         // replace all streamVideo to path

@@ -50,7 +50,6 @@ export const createProxyOptions = (
                 proxyReq.setHeader("content-length", bufferLength);
               }
               proxyReq.write(bodyData);
-              console.log("Request body:", bodyData);
             }
           }
         }
@@ -68,32 +67,16 @@ export const createProxyOptions = (
             res.set(key, value as string | string[]);
           });
 
-          const contentType = proxyRes.headers["content-type"];
-          const isBinary =
-            contentType &&
-            (contentType.includes("video/") || contentType.includes("application/octet-stream"));
+          let chunks: Buffer[] = [];
+          
+          proxyRes.on("data", (chunk) => {
+            chunks.push(chunk);
+          });
 
-          if (isBinary) {
-            let totalSize = 0;
-            let chunks: Buffer[] = [];
-            
-            proxyRes.on("data", (chunk) => {
-              console.log("Received chunk of size:", chunk.length);
-              totalSize += chunk.length;
-              chunks.push(chunk);
-              console.log("Total size so far:", totalSize);
-            });
-
-            proxyRes.on("end", () => {
-              const completeBuffer = Buffer.concat(chunks);
-              console.log("Total size received:", completeBuffer.length);
-              res.end(completeBuffer);
-            });
-          } else {
-            let body = Buffer.alloc(0);
-            proxyRes.on("data", (data) => (body = Buffer.concat([body, data])));
-            proxyRes.on("end", () => res.end(body.toString("utf8")));
-          }
+          proxyRes.on("end", () => {
+            const completeBuffer = Buffer.concat(chunks);
+            res.end(completeBuffer);
+          });
 
           proxyRes.on("error", (err: Error) => {
             console.error(`Error in proxy response: ${err.message}`);
