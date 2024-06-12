@@ -1,4 +1,4 @@
-import express from "express";
+import type express from "express";
 import http from "http";
 import httpStatus from "http-status-codes";
 

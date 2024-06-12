@@ -5,7 +5,8 @@ import {
   useVisibleTask$,
   type Signal,
 } from "@builder.io/qwik";
-import { Combobox, ResolvedOption } from "@qwik-ui/headless";
+import type { ResolvedOption } from "@qwik-ui/headless";
+import { Combobox } from "@qwik-ui/headless";
 import { Toggle } from "~/components/react/ToggleButton";
 import { useFormSubmit, useFormDelete } from "./submitFormFunctions";
 import styles from "./attendanceComponent.module.css";
