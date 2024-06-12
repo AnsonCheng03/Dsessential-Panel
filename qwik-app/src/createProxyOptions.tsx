@@ -74,7 +74,21 @@ export const createProxyOptions = (
             (contentType.includes("video/") || contentType.includes("application/octet-stream"));
 
           if (isBinary) {
-            proxyRes.pipe(res);
+            let totalSize = 0;
+            let chunks: Buffer[] = [];
+            
+            proxyRes.on("data", (chunk) => {
+              console.log("Received chunk of size:", chunk.length);
+              totalSize += chunk.length;
+              chunks.push(chunk);
+              console.log("Total size so far:", totalSize);
+            });
+
+            proxyRes.on("end", () => {
+              const completeBuffer = Buffer.concat(chunks);
+              console.log("Total size received:", completeBuffer.length);
+              res.end(completeBuffer);
+            });
           } else {
             let body = Buffer.alloc(0);
             proxyRes.on("data", (data) => (body = Buffer.concat([body, data])));

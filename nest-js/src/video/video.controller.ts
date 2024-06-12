@@ -174,7 +174,7 @@ export class VideoController {
     @Headers() headers: any,
     @Param('videoKey') videoKey: string,
   ) {
-    const videoPath = readFileSync(`/tmp/Dsessential-Videos/${videoKey}`);
+    const videoPath = readFileSync(`/tmp/Dsessential-Videos/${videoKey}`).toString('utf8');
 
     const videoPathDir = videoPath.split('/').slice(0, -1).join('/');
     const fileName = videoPath.split('/').pop()?.split('.')[0];
