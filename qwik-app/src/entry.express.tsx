@@ -126,7 +126,7 @@ const createProxyOptions = (targetPath: string) => ({
           // check if cookie has __Secure-authjs.session-token, if not, drop the request
           if (
             !req.headers.cookie ||
-            !req.headers.cookie.includes("__Secure-authjs.session-token")
+            !req.headers.cookie.includes("authjs.session-token")
           ) {
             console.warn(
               "No session token found in request, url requesting:",
