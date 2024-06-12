@@ -63,12 +63,12 @@ export const createProxyOptions = (
             res.set(key, value as string | string[]);
           });
 
-          proxyRes.pipe(res);
-
-          proxyRes.on("error", (err) => {
-            console.error(`Error in proxy response: ${err.message}`);
-            res.status(httpStatus.INTERNAL_SERVER_ERROR).end();
-          });
+          let body = Buffer.alloc(0);
+          proxyRes.on("data", (data) => (body = Buffer.concat([body, data])));
+          proxyRes.on("end", () => res.end(body.toString()));
+          proxyRes.on("error", () =>
+            res.status(httpStatus.INTERNAL_SERVER_ERROR).end()
+          );
         }
       );
     },
