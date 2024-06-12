@@ -10,6 +10,9 @@ WORKDIR /usr/src/app
 # A wildcard is used to ensure both package.json AND package-lock.json are copied
 COPY package*.json ./
 
+# Remove existing node_modules and package-lock.json if they exist
+RUN rm -rf node_modules package-lock.json
+
 # Install app dependencies
 RUN npm install --force
 

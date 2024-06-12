@@ -11,6 +11,9 @@ WORKDIR /usr/src/app
 COPY ./package.json ./
 COPY ./package-lock.json ./
 
+# Remove existing node_modules if they exist
+RUN rm -rf node_modules
+
 # Install the dependencies
 # Clean install because we want to install the exact versions
 RUN npm install --force

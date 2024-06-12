@@ -20,3 +20,5 @@ nest-js/src/google-credentials.json
 
 # test datas
 testData
+docker-compose.yml
+.env.tmp
