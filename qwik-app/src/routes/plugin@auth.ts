@@ -56,35 +56,35 @@ export const { onRequest, useAuthSession, useAuthSignin, useAuthSignout } =
                 secure: true,
               },
             },
-            pkceCodeVerifier: {
-              name: `${cookiePrefix}authjs.pkce.code_verifier`,
-              options: {
-                httpOnly: true,
-                sameSite: "strict",
-                path: "/",
-                secure: true,
-                maxAge: 900,
-              },
-            },
-            state: {
-              name: `${cookiePrefix}authjs.state`,
-              options: {
-                httpOnly: true,
-                sameSite: "strict",
-                path: "/",
-                secure: true,
-                maxAge: 900,
-              },
-            },
-            nonce: {
-              name: `${cookiePrefix}authjs.nonce`,
-              options: {
-                httpOnly: true,
-                sameSite: "strict",
-                path: "/",
-                secure: true,
-              },
-            },
+            // pkceCodeVerifier: {
+            //   name: `${cookiePrefix}authjs.pkce.code_verifier`,
+            //   options: {
+            //     httpOnly: true,
+            //     sameSite: "strict",
+            //     path: "/",
+            //     secure: true,
+            //     maxAge: 900,
+            //   },
+            // },
+            // state: {
+            //   name: `${cookiePrefix}authjs.state`,
+            //   options: {
+            //     httpOnly: true,
+            //     sameSite: "strict",
+            //     path: "/",
+            //     secure: true,
+            //     maxAge: 900,
+            //   },
+            // },
+            // nonce: {
+            //   name: `${cookiePrefix}authjs.nonce`,
+            //   options: {
+            //     httpOnly: true,
+            //     sameSite: "strict",
+            //     path: "/",
+            //     secure: true,
+            //   },
+            // },
           },
     providers: [
       Credentials({
