@@ -35,12 +35,8 @@ export class AttendanceService {
     await sheet.loadCells(`N${rowNumber}:P${rowNumber}`);
     let studentData: string | false = false;
 
-    if (!sheet.getCellByA1(`N${rowNumber}`).errorValue)
-      studentData = sheet.getCellByA1(`N${rowNumber}`).value as string;
-    else if (!sheet.getCellByA1(`O${rowNumber}`).errorValue)
-      studentData = sheet.getCellByA1(`O${rowNumber}`).value as string;
-    else if (!sheet.getCellByA1(`P${rowNumber}`).errorValue)
-      studentData = sheet.getCellByA1(`P${rowNumber}`).value as string;
+    if (!sheet.getCellByA1(`Q${rowNumber}`).errorValue)
+      studentData = sheet.getCellByA1(`Q${rowNumber}`).value as string;
 
     return { rowNumber: rowNumber, studentData };
   }
