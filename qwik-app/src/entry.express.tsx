@@ -16,8 +16,8 @@ import * as fs from "fs";
 import http from "http";
 import https from "https";
 import { createProxyMiddleware } from "http-proxy-middleware";
+import { createProxyOptions } from "./createProxyOptions";
 import cookieParser from "cookie-parser";
-import httpStatus from "http-status-codes";
 
 declare global {
   interface QwikCityPlatform extends PlatformNode {}
@@ -109,88 +109,37 @@ const fetchAndReturn = (url: string) => (req: Request, res: Response) => {
     });
 };
 
-const createProxyOptions = (targetPath: string) => ({
-  target: `http://chatgpt-next-web:3000${targetPath}`,
-  changeOrigin: true,
-  preserveHeaderKeyCase: true,
-  pathRewrite:
-    targetPath === ""
-      ? (path: string) => path.replace(/^\/chatgpt/, "")
-      : undefined,
-  agent: new http.Agent({ keepAlive: true }),
-  plugins: [
-    (proxyServer: any) => {
-      proxyServer.on(
-        "proxyReq",
-        (proxyReq: http.ClientRequest, req: express.Request) => {
-          // check if cookie has __Secure-authjs.session-token, if not, drop the request
-          if (
-            !req.headers.cookie ||
-            !req.headers.cookie.includes("authjs.session-token")
-          ) {
-            console.warn(
-              "No session token found in request, url requesting:",
-              req.url
-            );
-            proxyReq.destroy();
-            return;
-          }
-
-          if (req.body) {
-            const contentType = req.get("content-type");
-            const contentLength = req.get("content-length");
-            if (contentType) proxyReq.setHeader("content-type", contentType);
-            if (contentLength) {
-              const bodyData = JSON.stringify(req.body);
-              const bufferLength = Buffer.byteLength(bodyData);
-              if (bufferLength != parseInt(contentLength)) {
-                console.warn(
-                  `buffer length = ${bufferLength}, content length = ${contentLength}`
-                );
-                proxyReq.setHeader("content-length", bufferLength);
-              }
-              proxyReq.write(bodyData);
-            }
-          }
-        }
-      );
-
-      proxyServer.on(
-        "proxyRes",
-        (
-          proxyRes: http.IncomingMessage,
-          req: express.Request,
-          res: express.Response
-        ) => {
-          res.status(proxyRes.statusCode ?? 500);
-          Object.entries(proxyRes.headers).forEach(([key, value]) => {
-            res.set(key, value as string | string[]);
-          });
-
-          let body = Buffer.alloc(0);
-          proxyRes.on("data", (data) => (body = Buffer.concat([body, data])));
-          proxyRes.on("end", () => res.end(body.toString("utf8")));
-          proxyRes.on("error", () =>
-            res.status(httpStatus.INTERNAL_SERVER_ERROR).end()
-          );
-        }
-      );
-    },
-  ],
-});
-
-app.use("/chatgpt", createProxyMiddleware(createProxyOptions("")));
-app.use("/_next", createProxyMiddleware(createProxyOptions("/_next")));
+app.use(
+  "/chatgpt",
+  createProxyMiddleware(
+    createProxyOptions(
+      "http://chatgpt-next-web:3000",
+      undefined,
+      "authjs.session-token"
+    )
+  )
+);
+app.use(
+  "/_next",
+  createProxyMiddleware(
+    createProxyOptions("http://chatgpt-next-web:3000/_next")
+  )
+);
 app.use("/api", (req, res, next) => {
   if (!req.path.startsWith("/auth")) {
-    createProxyMiddleware(createProxyOptions("/api"))(req, res, next);
+    createProxyMiddleware(
+      createProxyOptions("http://chatgpt-next-web:3000/api")
+    )(req, res, next);
   } else {
     next();
   }
 });
+
 app.use(
   "/google-fonts",
-  createProxyMiddleware(createProxyOptions("/google-fonts"))
+  createProxyMiddleware(
+    createProxyOptions("http://chatgpt-next-web:3000/google-fonts")
+  )
 );
 
 app.use(
