@@ -18,7 +18,6 @@ interface User {
 }
 
 let tmp_access_token: null | string = null;
-const cookiePrefix = "Dsessential_"; // Define your cookiePrefix if you have one
 
 // get the hostname the user are using (serverside  code)
 
