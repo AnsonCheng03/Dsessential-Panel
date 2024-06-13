@@ -56,6 +56,10 @@ export default component$(
       return key;
     });
 
+    const backendAddress = server$(async function () {
+      return `${process.env.BACKEND_ADDRESS}`;
+    });
+
     const fetchVideo = $(async function (
       fetchURL: string,
       videoKey: string,
@@ -67,7 +71,10 @@ export default component$(
           "content-type": "application/json",
           authorization: `Bearer ${accessToken}`,
         },
-        body: JSON.stringify({ keyBlobURL: btoa(keyBlobURL) }),
+        body: JSON.stringify({
+          keyBlobURL: btoa(keyBlobURL),
+          baseURL: await backendAddress(),
+        }),
       });
     });
 
@@ -137,7 +144,7 @@ export default component$(
           // add video source
           videoElement.src = `${backendURL}/streamList/${
             currentVideoID.value
-          }?key=${btoa(keyURL)}`;
+          }?key=${btoa(keyURL)}&baseURL=${backendURL}`;
 
           videoElement.addEventListener("loadedmetadata", function () {
             videoElement.play();
