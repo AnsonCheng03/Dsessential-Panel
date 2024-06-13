@@ -23,12 +23,15 @@ export default component$(({ adminRole, style, userName }: Props) => {
   return (
     <div class={style.content}>
       <h1 class={style.h1}>尚研閱文憑試支援中心</h1>
-      {errorMessage && errorMessage === "CredentialsSignin" && (
-        <Prompt
-          message="登入失敗\n請檢查帳號密碼是否正確。"
-          onClose={onErrorClose}
-        />
-      )}
+      {errorMessage &&
+        (errorMessage === "CredentialsSignin" ? (
+          <Prompt
+            message="登入失敗\n請檢查帳號密碼是否正確。"
+            onClose={onErrorClose}
+          />
+        ) : (
+          <Prompt message="伺服器錯誤\n請稍後再試。" onClose={onErrorClose} />
+        ))}
       <Form action={signIn}>
         <input
           type="hidden"
@@ -88,8 +91,9 @@ export default component$(({ adminRole, style, userName }: Props) => {
               onClick$={async () =>
                 signIn.submit({
                   providerId: "google",
+                  callbackUrl: "/Dsessential/panel",
                   options: {
-                    callbackUrl: "/Dsessential",
+                    callbackUrl: "/Dsessential/panel",
                   },
                 })
               }
@@ -109,7 +113,7 @@ export default component$(({ adminRole, style, userName }: Props) => {
           onClick$={() => {
             // formState.value = "resetPassword";
             nav(
-              "https://nas.dsessential.com:5000/Dsessential/auth/resetpw.php",
+              "https://nas.dsessential.com:5000/Dsessential/auth/resetpw.php"
             );
           }}
         >
