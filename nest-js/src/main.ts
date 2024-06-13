@@ -41,8 +41,8 @@ async function bootstrap() {
 
   await app.init();
 
-  https.createServer(httpsOptions, server).listen(3500);
-  console.log('NestJS server started on port 3500 (https).');
+  https.createServer(httpsOptions, server).listen(process.env.PORT ?? 443);
+  console.log(`NestJS server started on port ${process.env.PORT ?? 443}`);
 }
 
 bootstrap();
