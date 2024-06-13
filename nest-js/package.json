@@ -33,7 +33,7 @@
     "docx-templates": "^4.11.3",
     "ffmpeg-installer": "^1.0.2",
     "fluent-ffmpeg": "^2.1.2",
-    "google-auth-library": "^9.2.0",
+    "google-auth-library": "^9.11.0",
     "google-spreadsheet": "^4.1.1",
     "ldapjs": "^3.0.6",
     "mysql2": "^3.6.3",

@@ -91,7 +91,6 @@ export default component$(({ adminRole, style, userName }: Props) => {
               onClick$={async () =>
                 signIn.submit({
                   providerId: "google",
-                  callbackUrl: "/Dsessential/panel",
                   options: {
                     callbackUrl: "/Dsessential/panel",
                   },

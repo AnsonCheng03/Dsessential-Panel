@@ -16,6 +16,11 @@ export default defineConfig(() => {
       tsconfigPaths(),
       qwikReact(),
     ],
+    dev: {
+      headers: {
+        "Cache-Control": "public, max-age=0",
+      },
+    },
     preview: {
       headers: {
         "Cache-Control": "public, max-age=600",
