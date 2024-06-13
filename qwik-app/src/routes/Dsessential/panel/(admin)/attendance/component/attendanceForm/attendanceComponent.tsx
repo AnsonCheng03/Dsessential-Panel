@@ -205,14 +205,15 @@ export default component$(
                   selectValue={paymentAmount.value}
                   onChange$={(v) => (paymentAmount.value = v)}
                   options={[
-                    "600",
-                    "620",
-                    "650",
-                    "700",
                     "720",
-                    "750",
                     "800",
                     "900",
+                    "1080",
+                    "1400",
+                    "1500",
+                    "1600",
+                    "1700",
+                    "1800",
                   ]}
                   inputOption="其他"
                 />
