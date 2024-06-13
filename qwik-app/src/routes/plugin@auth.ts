@@ -25,66 +25,6 @@ export const { onRequest, useAuthSession, useAuthSignin, useAuthSignout } =
   serverAuth$(({ env }) => ({
     secret: env.get("AUTH_SECRET"),
     trustHost: true,
-    cookies:
-      process.env.NODE_ENV === "development"
-        ? {}
-        : {
-            sessionToken: {
-              name: `authjs.session-token`,
-              options: {
-                httpOnly: true,
-                sameSite: "strict",
-                path: "/",
-                secure: true,
-              },
-            },
-            callbackUrl: {
-              name: `authjs.callback-url`,
-              options: {
-                sameSite: "strict",
-                path: "/",
-                secure: true,
-              },
-            },
-            csrfToken: {
-              name: `authjs.csrf-token`,
-              options: {
-                httpOnly: true,
-                sameSite: "strict",
-                path: "/",
-                secure: true,
-              },
-            },
-            // pkceCodeVerifier: {
-            //   name: `${cookiePrefix}authjs.pkce.code_verifier`,
-            //   options: {
-            //     httpOnly: true,
-            //     sameSite: "strict",
-            //     path: "/",
-            //     secure: true,
-            //     maxAge: 900,
-            //   },
-            // },
-            // state: {
-            //   name: `${cookiePrefix}authjs.state`,
-            //   options: {
-            //     httpOnly: true,
-            //     sameSite: "strict",
-            //     path: "/",
-            //     secure: true,
-            //     maxAge: 900,
-            //   },
-            // },
-            // nonce: {
-            //   name: `${cookiePrefix}authjs.nonce`,
-            //   options: {
-            //     httpOnly: true,
-            //     sameSite: "strict",
-            //     path: "/",
-            //     secure: true,
-            //   },
-            // },
-          },
     providers: [
       Credentials({
         credentials: {
