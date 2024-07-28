@@ -30,7 +30,10 @@ export default component$(({ adminRole, style, userName }: Props) => {
             onClose={onErrorClose}
           />
         ) : (
-          <Prompt message="伺服器錯誤\n請稍後再試。" onClose={onErrorClose} />
+          <Prompt
+            message={`伺服器錯誤\n請稍後再試。\n(錯誤代碼: ${errorMessage})`}
+            onClose={onErrorClose}
+          />
         ))}
       <Form action={signIn}>
         <input

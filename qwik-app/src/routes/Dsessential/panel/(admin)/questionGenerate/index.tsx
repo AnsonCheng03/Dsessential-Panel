@@ -72,7 +72,7 @@ const queryGPT = server$(async function* (
 });
 
 const backendAddress = server$(async function () {
-  return `${process.env.BACKEND_ADDRESS}`;
+  return `${process.env.EXTERNAL_BACKEND}`;
 });
 
 const downloadAsWord = $(async function (

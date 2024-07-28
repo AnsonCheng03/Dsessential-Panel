@@ -25,7 +25,7 @@ export default component$(
 
     const fetchVideoLink = server$(async function (url: string) {
       const rawVideo = await fetch(
-        `${process.env.BACKEND_ADDRESS}/video/createStream`,
+        `${process.env.INTERNAL_BACKEND}/video/createStream`,
         {
           method: "POST",
           headers: {
@@ -37,7 +37,7 @@ export default component$(
           body: JSON.stringify({ url }),
         }
       );
-      return [`${process.env.BACKEND_ADDRESS}/video`, await rawVideo.text()];
+      return [`${process.env.EXTERNAL_BACKEND}/video`, await rawVideo.text()];
     });
 
     const fetchVideoKey = $(async function (
@@ -57,7 +57,7 @@ export default component$(
     });
 
     const backendAddress = server$(async function () {
-      return `${process.env.BACKEND_ADDRESS}`;
+      return `${process.env.EXTERNAL_BACKEND}`;
     });
 
     const fetchVideo = $(async function (

@@ -25,7 +25,7 @@ export const useFormSubmit = globalAction$(async (input, requestEvent) => {
 
   try {
     const res = await fetch(
-      `${process.env.BACKEND_ADDRESS}/attendance/sendForm`,
+      `${process.env.INTERNAL_BACKEND}/attendance/sendForm`,
       {
         method: "POST",
         cache: "no-store",
@@ -48,7 +48,7 @@ export const useFormSubmit = globalAction$(async (input, requestEvent) => {
 export const useFormDelete = globalAction$(async (input, requestEvent) => {
   try {
     const res = await fetch(
-      `${process.env.BACKEND_ADDRESS}/attendance/deleteForm`,
+      `${process.env.INTERNAL_BACKEND}/attendance/deleteForm`,
       {
         method: "POST",
         cache: "no-store",
