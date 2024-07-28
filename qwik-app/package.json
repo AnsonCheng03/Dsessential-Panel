@@ -61,6 +61,7 @@
   "dependencies": {
     "@types/cookie-parser": "^1.4.7",
     "@types/http-proxy-middleware": "^1.0.0",
+    "@types/react-is": "^18.3.0",
     "chatgpt": "^5.2.5",
     "cookie-parser": "^1.4.6",
     "hls.js": "^1.5.13",
