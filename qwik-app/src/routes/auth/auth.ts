@@ -12,7 +12,7 @@ export const googleLogin = async (credentials: Credentials) => {
 
   try {
     const loginResponse = await fetch(
-      `${process.env.INTERNAL_BACKEND}/auth/google-login`,
+      `${process.env.EXTERNAL_BACKEND}/auth/google-login`,
       {
         method: "POST",
         headers: {
@@ -47,7 +47,7 @@ export const authorizeFunction = async (credentials: Credentials) => {
   try {
     const loginResponse =
       loginBody.role === "changeRole" || loginBody.role === "refreshToken"
-        ? await fetch(`${process.env.INTERNAL_BACKEND}/auth/protected-login`, {
+        ? await fetch(`${process.env.EXTERNAL_BACKEND}/auth/protected-login`, {
             method: "POST",
             headers: {
               "Content-Type": "application/json",
@@ -55,7 +55,7 @@ export const authorizeFunction = async (credentials: Credentials) => {
             },
             body: JSON.stringify(loginBody),
           })
-        : await fetch(`${process.env.INTERNAL_BACKEND}/auth/login`, {
+        : await fetch(`${process.env.EXTERNAL_BACKEND}/auth/login`, {
             method: "POST",
             headers: {
               "Content-Type": "application/json",
