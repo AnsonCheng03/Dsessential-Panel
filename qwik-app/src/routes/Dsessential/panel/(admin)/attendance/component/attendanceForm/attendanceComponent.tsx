@@ -5,7 +5,6 @@ import {
   useVisibleTask$,
   type Signal,
 } from "@builder.io/qwik";
-import type { ResolvedOption } from "@qwik-ui/headless";
 import { Combobox } from "@qwik-ui/headless";
 import { Toggle } from "~/components/react/ToggleButton";
 import { useFormSubmit, useFormDelete } from "./submitFormFunctions";
@@ -115,7 +114,7 @@ export default component$(
           }
         >
           <div class={styles.selectComboBox}>
-            <Combobox.Root options={options} bind:inputValue={searchValue}>
+            <Combobox.Root bind:value={searchValue}>
               <Combobox.Control>
                 <Combobox.Input
                   autoComplete={"off"}
@@ -124,13 +123,11 @@ export default component$(
                 />
               </Combobox.Control>
               <Combobox.Popover>
-                <Combobox.Listbox
-                  optionRenderer$={(option: ResolvedOption, index: number) => (
-                    <Combobox.Option index={index} resolved={option}>
-                      <span>{option.label}</span>
-                    </Combobox.Option>
-                  )}
-                />
+                {options.map((option, index) => (
+                  <Combobox.Item key={index} value={option}>
+                    <Combobox.ItemLabel>{option}</Combobox.ItemLabel>
+                  </Combobox.Item>
+                ))}
               </Combobox.Popover>
             </Combobox.Root>
           </div>
