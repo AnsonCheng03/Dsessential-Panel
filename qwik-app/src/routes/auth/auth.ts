@@ -12,7 +12,7 @@ export const googleLogin = async (credentials: Credentials) => {
 
   try {
     const loginResponse = await fetch(
-      `${process.env.EXTERNAL_BACKEND}/auth/google-login`,
+      `${process.env.INTERNAL_BACKEND}/auth/google-login`,
       {
         method: "POST",
         headers: {
@@ -47,23 +47,32 @@ export const authorizeFunction = async (credentials: Credentials) => {
   try {
     const loginResponse =
       loginBody.role === "changeRole" || loginBody.role === "refreshToken"
-        ? await fetch(`${process.env.EXTERNAL_BACKEND}/auth/protected-login`, {
+        ? await fetch(`${process.env.INTERNAL_BACKEND}/auth/protected-login`, {
             method: "POST",
             headers: {
               "Content-Type": "application/json",
               authorization: `Bearer ${loginBody.password}`,
             },
             body: JSON.stringify(loginBody),
+          }).catch((err) => {
+            console.error("Error in authorizeFunction: ", err);
+            return null;
           })
-        : await fetch(`${process.env.EXTERNAL_BACKEND}/auth/login`, {
+        : await fetch(`${process.env.INTERNAL_BACKEND}/auth/login`, {
             method: "POST",
             headers: {
               "Content-Type": "application/json",
             },
             body: JSON.stringify(loginBody),
+          }).catch((err) => {
+            console.error("Error in authorizeFunction: ", err);
+            return null;
           });
 
-    if (loginResponse.status !== 200 && loginResponse.status !== 201)
+    if (
+      !loginResponse ||
+      (loginResponse.status !== 200 && loginResponse.status !== 201)
+    )
       return null;
 
     const user = await loginResponse.json();
