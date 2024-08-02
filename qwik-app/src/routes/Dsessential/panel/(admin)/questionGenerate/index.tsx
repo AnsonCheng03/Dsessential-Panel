@@ -1,17 +1,17 @@
 import { $, component$, useSignal, useTask$ } from "@builder.io/qwik";
 import styles from "./index.module.css";
-import { ChatGPTAPI } from "chatgpt";
+// import { ChatGPTAPI } from "chatgpt";
 import { useAuthSession } from "~/routes/plugin@auth";
 import { type RequestHandler, server$ } from "@builder.io/qwik-city";
 import type { Session } from "@auth/core/types";
 
-const gptAPI = new ChatGPTAPI({
-  apiKey: process.env.OPENAI_API_KEY!,
-  completionParams: {
-    // model: "gpt-3.5-turbo-16k",
-    model: "gpt-4",
-  },
-});
+// const gptAPI = new ChatGPTAPI({
+//   apiKey: process.env.OPENAI_API_KEY!,
+//   completionParams: {
+//     // model: "gpt-3.5-turbo-16k",
+//     model: "gpt-4",
+//   },
+// });
 
 export const onRequest: RequestHandler = (event) => {
   const session: Session | null = event.sharedMap.get("session");
@@ -19,57 +19,57 @@ export const onRequest: RequestHandler = (event) => {
     throw event.redirect(302, `/Dsessential/panel`);
 };
 
-function createProgressEmitter() {
-  let res: any;
-  const queue: any = [];
+// function createProgressEmitter() {
+//   let res: any;
+//   const queue: any = [];
 
-  async function* internalGenerator() {
-    while (true) {
-      if (queue.length > 0) {
-        yield queue.shift();
-      } else {
-        await new Promise((resolve) => {
-          res = resolve;
-        });
-      }
-    }
-  }
+//   async function* internalGenerator() {
+//     while (true) {
+//       if (queue.length > 0) {
+//         yield queue.shift();
+//       } else {
+//         await new Promise((resolve) => {
+//           res = resolve;
+//         });
+//       }
+//     }
+//   }
 
-  return {
-    generator: internalGenerator(),
-    push: (value: any) => {
-      queue.push(value);
-      if (res) {
-        res();
-        res = null;
-      }
-    },
-  };
-}
+//   return {
+//     generator: internalGenerator(),
+//     push: (value: any) => {
+//       queue.push(value);
+//       if (res) {
+//         res();
+//         res = null;
+//       }
+//     },
+//   };
+// }
 
-const queryGPT = server$(async function* (
-  query: string,
-  parentID: string | null
-) {
-  const { generator: progressGenerator, push: pushProgress } =
-    createProgressEmitter();
-  // Start the API call
-  gptAPI
-    .sendMessage(query, {
-      ...(parentID ? { parentMessageId: parentID } : {}),
-      onProgress: (progress) => {
-        pushProgress([progress.text, progress.id]);
-      },
-    })
-    .then((res) => {
-      // Once done, push the result to the generator
-      pushProgress([res.text, res.id, res.detail?.choices[0].finish_reason]);
-    });
+// const queryGPT = server$(async function* (
+//   query: string,
+//   parentID: string | null
+// ) {
+//   const { generator: progressGenerator, push: pushProgress } =
+//     createProgressEmitter();
+//   // Start the API call
+//   gptAPI
+//     .sendMessage(query, {
+//       ...(parentID ? { parentMessageId: parentID } : {}),
+//       onProgress: (progress) => {
+//         pushProgress([progress.text, progress.id]);
+//       },
+//     })
+//     .then((res) => {
+//       // Once done, push the result to the generator
+//       pushProgress([res.text, res.id, res.detail?.choices[0].finish_reason]);
+//     });
 
-  for await (const update of progressGenerator) {
-    yield update;
-  }
-});
+//   for await (const update of progressGenerator) {
+//     yield update;
+//   }
+// });
 
 const backendAddress = server$(async function () {
   return `${process.env.EXTERNAL_BACKEND}`;
@@ -153,64 +153,64 @@ export default component$(() => {
       id?: string;
     }[]
   >([]);
-  const parentID = useSignal<string | null>(null);
+  // const parentID = useSignal<string | null>(null);
 
-  const requestGPT = $(async (requestValue: string, continueID?: string) => {
-    const res = await queryGPT(requestValue, parentID.value);
-    let previousChatContent = "";
-    for await (const i of res) {
-      parentID.value = i[1];
+  // const requestGPT = $(async (requestValue: string, continueID?: string) => {
+  //   const res = await queryGPT(requestValue, parentID.value);
+  //   let previousChatContent = "";
+  //   for await (const i of res) {
+  //     parentID.value = i[1];
 
-      // Check if the id already exists
-      const existingIndex = conversation.value.findIndex(
-        (item) => item.id === (continueID ? continueID : i[1])
-      );
+  //     // Check if the id already exists
+  //     const existingIndex = conversation.value.findIndex(
+  //       (item) => item.id === (continueID ? continueID : i[1])
+  //     );
 
-      if (continueID) {
-        conversation.value[existingIndex].id = i[1];
-        previousChatContent = conversation.value[existingIndex].content;
-        continueID = undefined;
-      }
+  //     if (continueID) {
+  //       conversation.value[existingIndex].id = i[1];
+  //       previousChatContent = conversation.value[existingIndex].content;
+  //       continueID = undefined;
+  //     }
 
-      if (existingIndex !== -1) {
-        // ID exists, replace content
-        conversation.value[existingIndex].content = previousChatContent + i[0];
-        // refresh the array
-        conversation.value = [...conversation.value];
-        hideOptions.value = true;
-      } else {
-        // ID doesn't exist, add a new entry
-        conversation.value = [
-          ...conversation.value,
-          { type: "bot", content: previousChatContent + i[0], id: i[1] },
-        ];
-      }
-      if (i[2]) {
-        if (i[2] === "length") return ["length", i[1]];
-        break;
-      }
-    }
-    queryValue.value = "";
-    return ["done"];
-  });
+  //     if (existingIndex !== -1) {
+  //       // ID exists, replace content
+  //       conversation.value[existingIndex].content = previousChatContent + i[0];
+  //       // refresh the array
+  //       conversation.value = [...conversation.value];
+  //       hideOptions.value = true;
+  //     } else {
+  //       // ID doesn't exist, add a new entry
+  //       conversation.value = [
+  //         ...conversation.value,
+  //         { type: "bot", content: previousChatContent + i[0], id: i[1] },
+  //       ];
+  //     }
+  //     if (i[2]) {
+  //       if (i[2] === "length") return ["length", i[1]];
+  //       break;
+  //     }
+  //   }
+  //   queryValue.value = "";
+  //   return ["done"];
+  // });
 
-  const submitQuery = $(async () => {
-    if (queryValue.value === "") return;
-    conversation.value = [
-      ...conversation.value,
-      { type: "user", content: queryValue.value },
-    ];
-    waitingResponse.value = true;
-    let currentQuery = queryValue.value;
-    let status = [""];
-    do {
-      status = await requestGPT(currentQuery, status[1]);
-      if (status[0] === "length") {
-        currentQuery = "continue";
-      }
-    } while (status[0] !== "done");
-    waitingResponse.value = false;
-  });
+  // const submitQuery = $(async () => {
+  //   if (queryValue.value === "") return;
+  //   conversation.value = [
+  //     ...conversation.value,
+  //     { type: "user", content: queryValue.value },
+  //   ];
+  //   waitingResponse.value = true;
+  //   let currentQuery = queryValue.value;
+  //   let status = [""];
+  //   do {
+  //     status = await requestGPT(currentQuery, status[1]);
+  //     if (status[0] === "length") {
+  //       currentQuery = "continue";
+  //     }
+  //   } while (status[0] !== "done");
+  //   waitingResponse.value = false;
+  // });
 
   useTask$(async () => {
     [queryOptionsPublic.value, queryOptionsPrivate.value] =
@@ -275,7 +275,7 @@ export default component$(() => {
           </button>
           <button
             class={styles.button}
-            onClick$={submitQuery}
+            // onClick$={submitQuery}
             disabled={waitingResponse.value}
           >
             生成
