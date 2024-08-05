@@ -8,26 +8,28 @@ import * as path from 'path';
 export class AttendanceService {
   async initSheet() {
     let googleCredentials: { [key: string]: any } = {};
-
     try {
-      const filePath = path.join(__dirname, '../google-credentials.json');
+      const filePath = path.join(
+        __dirname,
+        `${
+          process.env.GOOGLE_CREDENTIALS_PATH || '..'
+        }/google-credentials.json`,
+      );
       if (fs.existsSync(filePath)) {
         const fileContents = fs.readFileSync(filePath, 'utf-8');
         googleCredentials = JSON.parse(fileContents);
       }
     } catch (error) {
-      console.error('Error reading google-credentials.json:', error);
+      console.log('error', error);
+      googleCredentials = {
+        client_email: 'no-email',
+        private_key: 'no-key',
+      };
     }
 
     const serviceAccountAuth = new JWT({
-      email:
-        googleCredentials.client_email ||
-        process.env.googleCredentialsEmail ||
-        'no-email',
-      key:
-        googleCredentials.private_key ||
-        process.env.googleCredentialsKey ||
-        'no-key',
+      email: googleCredentials.client_email,
+      key: googleCredentials.private_key,
       scopes: ['https://www.googleapis.com/auth/spreadsheets'],
     });
 
