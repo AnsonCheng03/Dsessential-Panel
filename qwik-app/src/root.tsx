@@ -30,6 +30,9 @@ export default component$(() => {
         <RouterHead />
       </head>
       <body lang="en">
+        {process.env.BACKUP_MODE === "true" && (
+          <div class="backupServerTag">備份伺服器</div>
+        )}
         <RouterOutlet />
         {!isDev && <ServiceWorkerRegister />}
       </body>
