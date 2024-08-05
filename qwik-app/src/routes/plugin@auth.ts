@@ -2,6 +2,7 @@ import { serverAuth$ } from "@builder.io/qwik-auth";
 import Credentials from "@auth/core/providers/credentials";
 import Google from "@auth/core/providers/google";
 import type { Provider } from "@auth/core/providers";
+import crypto from "crypto";
 import { authorizeFunction, googleLogin } from "./auth/auth";
 
 interface Credentials {
@@ -18,15 +19,12 @@ interface User {
 }
 
 let tmp_access_token: null | string = null;
-let randomGenerateSecret;
 
 // get the hostname the user are using (serverside  code)
 
 export const { onRequest, useAuthSession, useAuthSignin, useAuthSignout } =
   serverAuth$(({ env }) => ({
-    secret:
-      env.get("AUTH_SECRET") ||
-      require("crypto").randomBytes(48).toString("hex"),
+    secret: env.get("AUTH_SECRET") || crypto.randomBytes(48).toString("hex"),
     trustHost: true,
     providers: [
       Credentials({
