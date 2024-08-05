@@ -18,12 +18,15 @@ interface User {
 }
 
 let tmp_access_token: null | string = null;
+let randomGenerateSecret;
 
 // get the hostname the user are using (serverside  code)
 
 export const { onRequest, useAuthSession, useAuthSignin, useAuthSignout } =
   serverAuth$(({ env }) => ({
-    secret: env.get("AUTH_SECRET"),
+    secret:
+      env.get("AUTH_SECRET") ||
+      require("crypto").randomBytes(48).toString("hex"),
     trustHost: true,
     providers: [
       Credentials({
