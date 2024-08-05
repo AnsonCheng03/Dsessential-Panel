@@ -114,9 +114,7 @@ export default component$(({ adminRole, style, userName }: Props) => {
           class={style.resetPasswordContainer}
           onClick$={() => {
             // formState.value = "resetPassword";
-            nav(
-              "https://nas.dsessential.com/oldserver/Dsessential/auth/resetpw.php"
-            );
+            nav("/oldserver/Dsessential/auth/resetpw.php");
           }}
         >
           <div class={style.resetPassword}>
