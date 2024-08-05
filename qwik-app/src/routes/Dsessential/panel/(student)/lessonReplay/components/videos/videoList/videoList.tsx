@@ -95,7 +95,7 @@ export default component$(
         const key = await fetchVideoKey(backendURL, currentVideoID.value);
         keyURL = URL.createObjectURL(key);
         video = await fetchVideo(backendURL, currentVideoID.value, keyURL);
-      } catch (e) {
+      } catch (_) {
         video = await fetchVideo(backendURL, currentVideoID.value, "");
         const key = await fetchVideoKey(backendURL, currentVideoID.value);
         keyURL = URL.createObjectURL(key);

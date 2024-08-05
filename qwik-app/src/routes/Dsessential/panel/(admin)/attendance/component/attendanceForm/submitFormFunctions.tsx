@@ -41,7 +41,7 @@ export const useFormSubmit = globalAction$(async (input, requestEvent) => {
     const data = await res.json();
     return data;
   } catch (error) {
-    return { error: "error" };
+    return { error: `error: ${error}` };
   }
 });
 
@@ -67,6 +67,6 @@ export const useFormDelete = globalAction$(async (input, requestEvent) => {
     const data = await res.json();
     return data;
   } catch (error) {
-    return "error";
+    return { error: `error: ${error}` };
   }
 });
