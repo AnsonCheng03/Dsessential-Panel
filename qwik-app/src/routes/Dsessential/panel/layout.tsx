@@ -81,7 +81,6 @@ export default component$(() => {
               ["Item", "點名系統", "/panel/attendance"],
               //    ["Item", "時間表", "#"],
               ["Item", "題目生成", "/panel/questionGenerate"],
-              ["Item", "題目生成（暫時停用）", "#"],
               ["Item", "GPT/Gemini", "/panel/AITools"],
             ],
           ],
