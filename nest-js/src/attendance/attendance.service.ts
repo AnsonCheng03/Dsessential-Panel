@@ -9,16 +9,10 @@ export class AttendanceService {
   async initSheet() {
     let googleCredentials: { [key: string]: any } = {};
     try {
-      const filePath = path.join(
-        __dirname,
-        `${
-          process.env.GOOGLE_CREDENTIALS_PATH || '..'
-        }/google-credentials.json`,
-      );
-      if (fs.existsSync(filePath)) {
-        const fileContents = fs.readFileSync(filePath, 'utf-8');
-        googleCredentials = JSON.parse(fileContents);
-      }
+      const filePath = `${process.env.GOOGLE_CREDENTIALS_PATH || '..'}/google-credentials.json`;
+      if (!fs.existsSync(filePath)) throw new Error('No file found');
+      const fileContents = fs.readFileSync(filePath, 'utf-8');
+      googleCredentials = JSON.parse(fileContents);
     } catch (error) {
       console.log('error', error);
       googleCredentials = {
