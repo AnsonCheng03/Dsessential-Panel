@@ -95,6 +95,7 @@ input:focus::placeholder {
 
 .backupServerTag {
   color: #222;
+  z-index: 99999;
   font-size: 0.8rem;
   position: fixed;
   bottom: 0;
