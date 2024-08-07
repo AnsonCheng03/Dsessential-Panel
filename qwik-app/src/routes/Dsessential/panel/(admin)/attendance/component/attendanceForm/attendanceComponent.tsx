@@ -4,6 +4,7 @@ import {
   $,
   useVisibleTask$,
   type Signal,
+  useTask$,
 } from "@builder.io/qwik";
 import { Combobox } from "@qwik-ui/headless";
 import { Toggle } from "~/components/react/ToggleButton";
@@ -34,6 +35,8 @@ export default component$(
     const formDeleted = useSignal(false);
     const rowNumber = useSignal<null | string>(null);
     const studentData = useSignal<false | string>(false);
+
+    const filteredOptions = useSignal<string[]>([]);
 
     useVisibleTask$(() => {
       setTimeout(() => {
@@ -79,6 +82,17 @@ export default component$(
       if (rowNumber.value) formSubmit(formElement!);
     });
 
+    useTask$(({ track }) => {
+      track(() => searchValue.value);
+      console.log("searchValue.value", searchValue.value);
+      filteredOptions.value = options
+        .filter((option) =>
+          option.toLowerCase().includes(searchValue.value.toLowerCase())
+        )
+        .slice(0, 15);
+      console.log("filteredOptions.value", filteredOptions.value);
+    });
+
     const handleDelete = $(async () => {
       formLoading.value = true;
       const { value } = await deleteFromServer.submit({
@@ -114,20 +128,24 @@ export default component$(
           }
         >
           <div class={styles.selectComboBox}>
-            <Combobox.Root bind:value={searchValue}>
+            <Combobox.Root filter={false}>
               <Combobox.Control>
                 <Combobox.Input
                   autoComplete={"off"}
                   name="studentName"
                   placeholder="卡號/電話號碼/中文姓名"
+                  bind:value={searchValue}
                 />
               </Combobox.Control>
               <Combobox.Popover>
-                {options.map((option, index) => (
-                  <Combobox.Item key={index} value={option}>
-                    <Combobox.ItemLabel>{option}</Combobox.ItemLabel>
-                  </Combobox.Item>
-                ))}
+                {
+                  // sort the options by the search value
+                  filteredOptions.value.map((option, index) => (
+                    <Combobox.Item key={index} value={option}>
+                      <Combobox.ItemLabel>{option}</Combobox.ItemLabel>
+                    </Combobox.Item>
+                  ))
+                }
               </Combobox.Popover>
             </Combobox.Root>
           </div>

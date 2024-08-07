@@ -52,9 +52,16 @@ export default component$(() => {
     );
 
   const clickSwitchUser = $(async () => {
-    const getSID = (key: string, value: string) =>
-      options.find((item: any) => item[key] === value)?.SID;
-    const SID = getSID(selectValue.value, searchValue.value);
+    const getStudent = (key: string, value: string) =>
+      options.find((obj: any) => obj[key] === value);
+    const SID = getStudent(
+      selectValue.value,
+      (
+        document?.querySelector(
+          `.${styles.switchUserSelection} input[type="text"]`
+        ) as HTMLInputElement
+      )?.value || searchValue.value
+    )?.SID;
     if (!SID) {
       errorBox.value = true;
       return;
@@ -73,11 +80,12 @@ export default component$(() => {
         <div class={styles.switchUserSelection}>
           <SelectBox
             selectValue={selectValue}
-            options={["SID", "姓名", "電話"]}
+            options={["SID", "姓名", "學生電話"]}
             placeholder="類型"
           />
           <AutoCompleteBox
             searchValue={searchValue}
+            freeSolo={true}
             options={
               groupOptions[
                 selectValue.value === "SID"
