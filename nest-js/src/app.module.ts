@@ -12,10 +12,10 @@ import { AttendanceService } from './attendance/attendance.service';
 import { AttendanceModule } from './attendance/attendance.module';
 import { ScheduleModule } from '@nestjs/schedule';
 import { CronjobsModule } from './cronjobs/cronjobs.module';
-import { GptGeneratorController } from './gpt-generator/gpt-generator.controller';
-import { GptGeneratorService } from './gpt-generator/gpt-generator.service';
 import { LogServiceController } from './log-service/log-service.controller';
 import { LogServiceService } from './log-service/log-service.service';
+import { AiserviceController } from './aiservice/aiservice.controller';
+import { AiserviceService } from './aiservice/aiservice.service';
 
 @Module({
   imports: [
@@ -31,15 +31,9 @@ import { LogServiceService } from './log-service/log-service.service';
     AppController,
     VideoController,
     AttendanceController,
-    GptGeneratorController,
     LogServiceController,
+    AiserviceController,
   ],
-  providers: [
-    AppService,
-    VideoService,
-    AttendanceService,
-    GptGeneratorService,
-    LogServiceService,
-  ],
+  providers: [AppService, VideoService, AttendanceService, LogServiceService, AiserviceService],
 })
 export class AppModule {}

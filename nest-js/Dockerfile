@@ -13,6 +13,10 @@ COPY package*.json ./
 # Install app dependencies
 RUN npm install --force
 
+# Install Python dependencies
+RUN pip install --upgrade pip
+RUN pip install -U 'poe-api-wrapper[proxy]'
+
 # Bundle app source
 COPY . .
 
