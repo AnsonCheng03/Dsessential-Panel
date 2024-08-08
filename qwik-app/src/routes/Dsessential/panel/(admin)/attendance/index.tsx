@@ -8,14 +8,14 @@ export const useGetAllUser = routeLoader$(async (requestEvent) => {
   const accessToken = requestEvent.sharedMap.get("session").accessToken;
   try {
     const res = await fetch(
-      `${process.env.SERVER_ADDRESS}:${process.env.BACKEND_PORT}/users/getAllUsers`,
+      `${process.env.INTERNAL_BACKEND}/users/getAllUsers`,
       {
         method: "POST",
         cache: "no-store",
         headers: {
           authorization: `Bearer ${accessToken}`,
         },
-      },
+      }
     );
 
     const data = await res.json();

@@ -25,7 +25,7 @@ export default component$(
 
     const fetchVideoLink = server$(async function (url: string) {
       const rawVideo = await fetch(
-        `${process.env.SERVER_ADDRESS}:${process.env.BACKEND_PORT}/video/createStream`,
+        `${process.env.INTERNAL_BACKEND}/video/createStream`,
         {
           method: "POST",
           headers: {
@@ -35,17 +35,14 @@ export default component$(
             }`,
           },
           body: JSON.stringify({ url }),
-        },
+        }
       );
-      return [
-        `${process.env.SERVER_ADDRESS}:${process.env.BACKEND_PORT}/video`,
-        await rawVideo.text(),
-      ];
+      return [`${process.env.EXTERNAL_BACKEND}/video`, await rawVideo.text()];
     });
 
     const fetchVideoKey = $(async function (
       fetchURL: string,
-      videoKey: string,
+      videoKey: string
     ) {
       const keyObject = await fetch(`${fetchURL}/getKey/${videoKey}`, {
         method: "POST",
@@ -59,10 +56,14 @@ export default component$(
       return key;
     });
 
+    const backendAddress = server$(async function () {
+      return `${process.env.EXTERNAL_BACKEND}`;
+    });
+
     const fetchVideo = $(async function (
       fetchURL: string,
       videoKey: string,
-      keyBlobURL: string,
+      keyBlobURL: string
     ) {
       return await fetch(`${fetchURL}/stream/${videoKey}`, {
         method: "POST",
@@ -70,7 +71,10 @@ export default component$(
           "content-type": "application/json",
           authorization: `Bearer ${accessToken}`,
         },
-        body: JSON.stringify({ keyBlobURL: btoa(keyBlobURL) }),
+        body: JSON.stringify({
+          keyBlobURL: btoa(keyBlobURL),
+          baseURL: await backendAddress(),
+        }),
       });
     });
 
@@ -91,7 +95,7 @@ export default component$(
         const key = await fetchVideoKey(backendURL, currentVideoID.value);
         keyURL = URL.createObjectURL(key);
         video = await fetchVideo(backendURL, currentVideoID.value, keyURL);
-      } catch (e) {
+      } catch (_) {
         video = await fetchVideo(backendURL, currentVideoID.value, "");
         const key = await fetchVideoKey(backendURL, currentVideoID.value);
         keyURL = URL.createObjectURL(key);
@@ -108,7 +112,7 @@ export default component$(
           const video = await fetchVideo(
             backendURL,
             currentVideoID.value,
-            keyURL,
+            keyURL
           );
           videoStatus = video.status;
           loadingPercent.value = (await video.json()).percent;
@@ -140,7 +144,7 @@ export default component$(
           // add video source
           videoElement.src = `${backendURL}/streamList/${
             currentVideoID.value
-          }?key=${btoa(keyURL)}`;
+          }?key=${btoa(keyURL)}&baseURL=${backendURL}`;
 
           videoElement.addEventListener("loadedmetadata", function () {
             videoElement.play();
@@ -172,15 +176,16 @@ export default component$(
             </div>
           )}
         </div>
-        {Object.entries(videoList).map((videoType: any) => {
+
+        {Object.entries(videoList)?.map((videoType: any) => {
           if (searchValue.value !== "" || videoType[0] === selectedType.value)
-            return Object.entries(videoType[1]).map((episode: any) => {
+            return Object.entries(videoType[1])?.map((episode: any) => {
               if (!selectedMonth.value || episode[0] === selectedMonth.value)
-                return Object.entries(episode[1]).map((video: any) => {
+                return Object.entries(episode[1])?.map((video: any) => {
                   return (
                     (searchValue.value === "" ||
                       [...video[1].video, ...video[1].notes].find((item) =>
-                        item.includes(searchValue.value),
+                        item.includes(searchValue.value)
                       )) && (
                       <div
                         key={`${episode[0]}-${video[0]}`}
@@ -190,7 +195,7 @@ export default component$(
                           class={styles.episodeTitle}
                         >{`${episode[0]} - ${video[0]}`}</p>
                         <div class={styles.buttonContainer}>
-                          {video[1].video.map((url: string) => {
+                          {video[1].video?.map((url: string) => {
                             const fileName = url
                               .split("/")
                               .pop()
@@ -235,5 +240,5 @@ export default component$(
         })}
       </>
     );
-  },
+  }
 );

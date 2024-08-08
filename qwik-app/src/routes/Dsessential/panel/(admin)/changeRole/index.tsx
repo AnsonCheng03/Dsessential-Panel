@@ -2,23 +2,22 @@ import { $, component$, useSignal } from "@builder.io/qwik";
 import styles from "./index.module.css";
 import { AutoCompleteBox } from "~/components/react/SearchBar";
 import { SelectBox } from "../../../../../components/react/SelectBox";
-import { routeLoader$ } from "@builder.io/qwik-city";
+import { routeLoader$, useLocation } from "@builder.io/qwik-city";
 import { useAuthSession } from "~/routes/plugin@auth";
 import Prompt from "~/components/prompt/prompt";
-import { changeSession } from "~/routes/auth/changeSession";
 
 export const useGetAllUser = routeLoader$(async (requestEvent) => {
   const accessToken = requestEvent.sharedMap.get("session").accessToken;
   try {
     const res = await fetch(
-      `${process.env.SERVER_ADDRESS}:${process.env.BACKEND_PORT}/users/getAllUsers`,
+      `${process.env.INTERNAL_BACKEND}/users/getAllUsers`,
       {
         method: "POST",
         cache: "no-store",
         headers: {
           authorization: `Bearer ${accessToken}`,
         },
-      },
+      }
     );
 
     const data = await res.json();
@@ -36,6 +35,8 @@ export default component$(() => {
   const selectValue = useSignal("SID");
   const searchValue = useSignal("");
   const errorBox = useSignal(false);
+  const iframeURL = useSignal("");
+  const location = useLocation();
 
   const options = useGetAllUser().value;
   const groupOptions: string[][] = [[], [], []];
@@ -46,46 +47,63 @@ export default component$(() => {
   } else
     options.map((obj: any) =>
       Object.values(obj).forEach(
-        (value, index) => value && groupOptions[index].push(value as string),
-      ),
+        (value, index) => value && groupOptions[index].push(value as string)
+      )
     );
 
   const clickSwitchUser = $(async () => {
-    const getSID = (key: string, value: string) =>
-      options.find((item: any) => item[key] === value)?.SID;
-    const SID = getSID(selectValue.value, searchValue.value);
+    const getStudent = (key: string, value: string) =>
+      options.find((obj: any) => obj[key] === value);
+    const SID = getStudent(
+      selectValue.value,
+      (
+        document?.querySelector(
+          `.${styles.switchUserSelection} input[type="text"]`
+        ) as HTMLInputElement
+      )?.value || searchValue.value
+    )?.SID;
     if (!SID) {
       errorBox.value = true;
       return;
     }
-
-    await changeSession(accessToken, "changeRole", SID);
+    if (location.url.hostname == "nas.dsessential.com")
+      iframeURL.value = `https://mirror.dsessential.com/Dsessential/panel/changeRole/iframeRedirect/?accessToken=${accessToken}&SID=${SID}`;
+    else
+      window.open(
+        `https://mirror.dsessential.com/Dsessential/panel/changeRole/iframeRedirect/?accessToken=${accessToken}&SID=${SID}`
+      );
   });
 
   return (
     <>
-      <div class={styles.switchUserSelection}>
-        <SelectBox
-          selectValue={selectValue}
-          options={["SID", "姓名", "電話"]}
-          placeholder="類型"
-        />
-        <AutoCompleteBox
-          searchValue={searchValue}
-          options={
-            groupOptions[
-              selectValue.value === "SID"
-                ? 0
-                : selectValue.value === "姓名"
-                  ? 1
-                  : 2
-            ] as string[]
-          }
-          placeholder="請選擇學生"
-        />
-        <button class={styles.switchUserButton} onClick$={clickSwitchUser}>
-          切換
-        </button>
+      <div class={styles.container}>
+        <div class={styles.switchUserSelection}>
+          <SelectBox
+            selectValue={selectValue}
+            options={["SID", "姓名", "學生電話"]}
+            placeholder="類型"
+          />
+          <AutoCompleteBox
+            searchValue={searchValue}
+            freeSolo={true}
+            options={
+              groupOptions[
+                selectValue.value === "SID"
+                  ? 0
+                  : selectValue.value === "姓名"
+                    ? 1
+                    : 2
+              ] as string[]
+            }
+            placeholder="請選擇學生"
+          />
+          <button class={styles.switchUserButton} onClick$={clickSwitchUser}>
+            切換
+          </button>
+        </div>
+        {iframeURL.value && (
+          <iframe src={iframeURL.value} class={styles.iframe} />
+        )}
       </div>
       {errorBox.value && <Prompt message="找不到學生" refresh={true} />}
     </>

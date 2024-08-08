@@ -8,7 +8,6 @@ import {
   Req,
   UseGuards,
   Get,
-  StreamableFile,
   Param,
 } from '@nestjs/common';
 import { VideoService } from './video.service';
@@ -17,8 +16,7 @@ import { Headers } from '@nestjs/common';
 import { Response } from 'express';
 import { AuthGuard } from 'src/auth/auth.guard';
 import * as fs from 'fs';
-
-import { createReadStream } from 'fs';
+import { createReadStream, statSync, existsSync, readFileSync } from 'fs';
 
 @Controller('video')
 export class VideoController {
@@ -43,9 +41,7 @@ export class VideoController {
     let videoURL = body.url;
 
     if (videoURL.includes(' ')) {
-      console.log('videoURL', videoURL);
       if (fs.existsSync(videoURL)) {
-        console.log('rename file');
         await fs.renameSync(videoURL, videoURL.replace(/ /g, '_'));
       }
       videoURL = videoURL.replace(/ /g, '_');
@@ -136,6 +132,7 @@ export class VideoController {
           atob(body.keyBlobURL),
           res,
           req,
+          body.baseURL,
         );
       }
     }
@@ -163,6 +160,7 @@ export class VideoController {
       atob(req.query.key),
       res,
       req,
+      req.query.baseURL,
     );
   }
 
@@ -171,23 +169,63 @@ export class VideoController {
   @Header('Content-Type', 'video/MP2T')
   async getStreamVideo(
     @Req() req,
-    @Headers() headers,
+    @Res() res,
+    @Headers() headers: any,
     @Param('videoKey') videoKey: string,
   ) {
-    const videoPath = fs.readFileSync(`/tmp/Dsessential-Videos/${videoKey}`, {
-      encoding: 'utf8',
-    });
+    const videoPath = readFileSync(
+      `/tmp/Dsessential-Videos/${videoKey}`,
+    ).toString('utf8');
 
     const videoPathDir = videoPath.split('/').slice(0, -1).join('/');
     const fileName = videoPath.split('/').pop()?.split('.')[0];
 
-    // get query string
-    const tsName = req.query.video;
+    // Get query string
+    const tsName = req.query.video as string;
     const tsPath = `${videoPathDir}/ts-${fileName}/streamVideo-${tsName}`;
 
-    if (!fs.existsSync(tsPath)) throw new Error('File not found');
+    if (!existsSync(tsPath)) {
+      res.status(404).send('File not found');
+      return;
+    }
 
-    const file = createReadStream(tsPath);
-    return new StreamableFile(file);
+    const stat = statSync(tsPath);
+    const fileSize = stat.size;
+    const range = req.headers.range;
+
+    if (range) {
+      const parts = range.replace(/bytes=/, '').split('-');
+      const start = parseInt(parts[0], 10);
+      const end = parts[1] ? parseInt(parts[1], 10) : fileSize - 1;
+
+      if (start >= fileSize) {
+        res
+          .status(416)
+          .send(
+            'Requested range not satisfiable\n' + start + ' >= ' + fileSize,
+          );
+        return;
+      }
+
+      const chunksize = end - start + 1;
+      const file = createReadStream(tsPath, { start, end });
+      const head = {
+        'Content-Range': `bytes ${start}-${end}/${fileSize}`,
+        'Accept-Ranges': 'bytes',
+        'Content-Length': chunksize,
+        'Content-Type': 'video/MP2T',
+      };
+
+      res.writeHead(206, head);
+      file.pipe(res);
+    } else {
+      const head = {
+        'Content-Length': fileSize,
+        'Content-Type': 'video/MP2T',
+      };
+
+      res.writeHead(200, head);
+      createReadStream(tsPath).pipe(res);
+    }
   }
 }

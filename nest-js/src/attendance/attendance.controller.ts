@@ -19,7 +19,18 @@ export class AttendanceController {
     if (req.user.role !== 'admin') throw new UnauthorizedException();
 
     const data = {
-      日期: new Date().toLocaleString('en-US', { timeZone: 'Asia/Hong_Kong' }),
+      日期: new Date()
+        .toLocaleString('en-US', {
+          timeZone: 'Asia/Hong_Kong',
+          month: 'numeric',
+          day: 'numeric',
+          year: 'numeric',
+          hour: '2-digit',
+          minute: '2-digit',
+          second: '2-digit',
+          hour12: false,
+        })
+        .replace(',', ''),
       IP: `${body.ipAddress}(${req.user.username})`,
       '卡/電話/名': body.studentName,
       出席堂數: body.lessonCount,

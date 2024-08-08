@@ -1,18 +1,28 @@
-.switchUserSelection {
-  height: 100%;
-  margin: 15px 0;
-  padding: 0 10px;
-  gap: 10px;
+.container {
   display: flex;
   flex-direction: column;
-  justify-content: center;
+  height: 100%;
+}
+
+.switchUserSelection {
+  margin: 20px 20px 10px 20px;
+  gap: 20px;
+  display: grid;
+  grid-template-columns: 100px 1fr 100px;
 }
 
 .switchUserButton {
-  height: 50px;
   border: 0;
   background: rgb(96, 180, 223);
   color: white;
   cursor: pointer;
-  border-radius: 5px;
+  border-radius: 10px;
+}
+
+.iframe {
+  flex: 1;
+  border: 0;
+  margin: 10px 20px 20px 20px;
+  box-shadow: 0 0 20px 0 rgba(0, 0, 0, 0.1);
+  border-radius: 10px;
 }

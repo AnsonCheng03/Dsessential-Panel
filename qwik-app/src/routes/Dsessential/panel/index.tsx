@@ -6,15 +6,12 @@ import logo from "~/components/logo/logo.png";
 export const useGetUserData = routeLoader$(async (requestEvent) => {
   const accessToken = requestEvent.sharedMap.get("session").accessToken;
   try {
-    const res = await fetch(
-      `${process.env.SERVER_ADDRESS}:${process.env.BACKEND_PORT}/auth/profile`,
-      {
-        cache: "no-store",
-        headers: {
-          authorization: `Bearer ${accessToken}`,
-        },
+    const res = await fetch(`${process.env.INTERNAL_BACKEND}/auth/profile`, {
+      cache: "no-store",
+      headers: {
+        authorization: `Bearer ${accessToken}`,
       },
-    );
+    });
 
     const data = await res.json();
     if (!data.statusCode) return data;

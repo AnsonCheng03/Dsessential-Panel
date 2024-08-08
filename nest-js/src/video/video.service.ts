@@ -111,6 +111,7 @@ export class VideoService {
     keyBlobURL: string,
     res: Response<any, Record<string, any>>,
     req: Request<any, Record<string, any>, any, any>,
+    baseURL: string,
   ) {
     const m3u8 = await fs.readFileSync(
       `${videoPathDir}/ts-${fileName}/original.m3u8`,
@@ -121,7 +122,7 @@ export class VideoService {
       .replace(
         // replace all streamVideo to path
         /streamVideo-/g,
-        `https://${req.headers.host}/video/stream/${videoKey}?video=`,
+        `${baseURL}/video/stream/${videoKey}?video=`,
       )
       .replace(
         // replace key.key to keyBlobURL

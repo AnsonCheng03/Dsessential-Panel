@@ -4,11 +4,12 @@ import {
   $,
   useVisibleTask$,
   type Signal,
+  useTask$,
 } from "@builder.io/qwik";
-import styles from "./attendanceComponent.module.css";
+import { Combobox } from "@qwik-ui/headless";
 import { Toggle } from "~/components/react/ToggleButton";
-import { autoComplete } from "./autoCompleteFunction";
 import { useFormSubmit, useFormDelete } from "./submitFormFunctions";
+import styles from "./attendanceComponent.module.css";
 
 export default component$(
   ({
@@ -35,6 +36,8 @@ export default component$(
     const rowNumber = useSignal<null | string>(null);
     const studentData = useSignal<false | string>(false);
 
+    const filteredOptions = useSignal<string[]>([]);
+
     useVisibleTask$(() => {
       setTimeout(() => {
         document
@@ -42,7 +45,6 @@ export default component$(
           ?.focus();
       }, 50);
     });
-
     const submitToServer = useFormSubmit();
     const deleteFromServer = useFormDelete();
 
@@ -75,9 +77,20 @@ export default component$(
       track(() => discountAmount.value);
 
       const formElement = document.querySelector<HTMLFormElement>(
-        `#${formId.value}`,
+        `#${formId.value}`
       );
       if (rowNumber.value) formSubmit(formElement!);
+    });
+
+    useTask$(({ track }) => {
+      track(() => searchValue.value);
+      console.log("searchValue.value", searchValue.value);
+      filteredOptions.value = options
+        .filter((option) =>
+          option.toLowerCase().includes(searchValue.value.toLowerCase())
+        )
+        .slice(0, 15);
+      console.log("filteredOptions.value", filteredOptions.value);
     });
 
     const handleDelete = $(async () => {
@@ -114,33 +127,27 @@ export default component$(
               : [styles.containerRows, styles.studentDetails]
           }
         >
-          {/* <autoCompleteBox
-            size="small"
-            searchValue={searchValue}
-            options={options}
-            freeSolo
-            placeholder="卡號/姓名/電話號碼"
-          /> */}
-          <div class={styles.autoComplete}>
-            <input
-              type="text"
-              autoComplete={"off"}
-              name="studentName"
-              bind:value={searchValue}
-              placeholder="卡號/電話號碼/中文姓名"
-            ></input>
-            <img
-              src="~/../LoadInput"
-              width={0}
-              height={0}
-              onError$={(e: any) => {
-                const img = e.target;
-                const input = img.previousSibling;
-                img && img.remove();
-                input && input.focus();
-                autoComplete(input, options);
-              }}
-            />
+          <div class={styles.selectComboBox}>
+            <Combobox.Root filter={false}>
+              <Combobox.Control>
+                <Combobox.Input
+                  autoComplete={"off"}
+                  name="studentName"
+                  placeholder="卡號/電話號碼/中文姓名"
+                  bind:value={searchValue}
+                />
+              </Combobox.Control>
+              <Combobox.Popover>
+                {
+                  // sort the options by the search value
+                  filteredOptions.value.map((option, index) => (
+                    <Combobox.Item key={index} value={option}>
+                      <Combobox.ItemLabel>{option}</Combobox.ItemLabel>
+                    </Combobox.Item>
+                  ))
+                }
+              </Combobox.Popover>
+            </Combobox.Root>
           </div>
           <div
             class={
@@ -213,14 +220,15 @@ export default component$(
                   selectValue={paymentAmount.value}
                   onChange$={(v) => (paymentAmount.value = v)}
                   options={[
-                    "600",
-                    "620",
-                    "650",
-                    "700",
                     "720",
-                    "750",
                     "800",
                     "900",
+                    "1080",
+                    "1400",
+                    "1500",
+                    "1600",
+                    "1700",
+                    "1800",
                   ]}
                   inputOption="其他"
                 />
@@ -348,5 +356,5 @@ export default component$(
         )}
       </form>
     );
-  },
+  }
 );

@@ -2,7 +2,8 @@ import { Injectable } from '@nestjs/common';
 import { Cron, CronExpression } from '@nestjs/schedule';
 import { GoogleSpreadsheet } from 'google-spreadsheet';
 import { JWT } from 'google-auth-library';
-import * as googleCredentials from '../google-credentials.json';
+import * as fs from 'fs';
+import * as path from 'path';
 import { createPool } from 'mysql2/promise';
 
 @Injectable()
@@ -22,6 +23,20 @@ export class CronjobsService {
   async getStudentInfos() {
     const connection = await this.pool.getConnection();
     try {
+      let googleCredentials: { [key: string]: any } = {};
+      try {
+        const filePath = `${process.env.GOOGLE_CREDENTIALS_PATH || '..'}/google-credentials.json`;
+        if (!fs.existsSync(filePath)) throw new Error('No file found');
+        const fileContents = fs.readFileSync(filePath, 'utf-8');
+        googleCredentials = JSON.parse(fileContents);
+      } catch (error) {
+        console.log('error', error);
+        googleCredentials = {
+          client_email: 'no-email',
+          private_key: 'no-key',
+        };
+      }
+
       const serviceAccountAuth = new JWT({
         email: googleCredentials.client_email,
         key: googleCredentials.private_key,

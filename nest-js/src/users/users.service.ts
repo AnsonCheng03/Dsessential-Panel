@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import { compare } from 'bcrypt';
+import { hash, compare } from 'bcrypt';
 import * as ldap from 'ldapjs';
 import { createPool } from 'mysql2/promise';
 
@@ -39,17 +39,44 @@ export class UsersService {
         [TotalAcc[0].Username],
       );
 
-      if (
-        !(await compare(
-          password,
-          rows[0].Password.replace(/^\$2y(.+)$/i, '$2a$1'),
-        ))
-      )
+      // if rows[0].Password is start with $2y$, transform it to $2b$
+      if (rows[0].Password.startsWith('$2y$')) {
+        rows[0].Password = rows[0].Password.replace('$2y$', '$2b$');
+      }
+
+      if (!(await compare(password, rows[0].Password)))
         throw new Error('Password not match');
 
       const user = {
         role: 'user',
         userId: TotalAcc[0].Username,
+      };
+      return user;
+    } catch (err) {
+      return undefined;
+    } finally {
+      connection.release();
+    }
+  }
+
+  async userChangePassword(
+    SID: string,
+    password: string,
+  ): Promise<User | undefined> {
+    const connection = await this.pool.getConnection();
+    try {
+      const hashedPassword = await hash(password, 12);
+      const [rows] = await connection.execute(
+        'UPDATE `Login` SET `Password` = ? WHERE `SID` = ?',
+        [hashedPassword, SID],
+      );
+
+      const result = JSON.parse(JSON.stringify(rows));
+      if (result.affectedRows === 0) throw new Error('Password not match');
+
+      const user = {
+        role: 'user',
+        userId: SID,
       };
       return user;
     } catch (err) {

@@ -84,6 +84,12 @@ export class AuthService {
     };
   }
 
+  async changePassword(username, password) {
+    const user = await this.usersService.userChangePassword(username, password);
+    if (!user) throw new UnauthorizedException();
+    return user;
+  }
+
   async changeRole(user) {
     const payload = {
       uuid: this.generateUUID(),

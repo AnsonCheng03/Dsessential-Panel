@@ -11,7 +11,7 @@ export const onRequest: RequestHandler = (event) => {
   if (!session || new Date(session.expires) < new Date()) {
     throw event.redirect(
       302,
-      `/Dsessential/auth?callbackUrl=${event.url.href}`,
+      `/Dsessential/auth?callbackUrl=${event.url.href}`
     );
   }
 };
@@ -40,6 +40,12 @@ export default component$(() => {
 
               // ["Item", "修改密碼", "Features/stuinfo/resetpw.php"],
             ],
+          ],
+          [
+            "List",
+            "帳號管理",
+            "#",
+            [["Item", "重置密碼", "/panel/resetPassword"]],
           ],
         ]
       : [
@@ -74,8 +80,6 @@ export default component$(() => {
               //    ["Item", "學生資料", "#"],
               ["Item", "點名系統", "/panel/attendance"],
               //    ["Item", "時間表", "#"],
-              ["Item", "題目生成", "/panel/questionGenerate"],
-              ["Item", "GPT/Gemini", "/panel/AITools"],
             ],
           ],
 
