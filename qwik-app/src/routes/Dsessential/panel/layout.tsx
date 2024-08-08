@@ -80,8 +80,6 @@ export default component$(() => {
               //    ["Item", "學生資料", "#"],
               ["Item", "點名系統", "/panel/attendance"],
               //    ["Item", "時間表", "#"],
-              ["Item", "題目生成", "/panel/questionGenerate"],
-              ["Item", "GPT/Gemini", "/panel/AITools"],
             ],
           ],
 

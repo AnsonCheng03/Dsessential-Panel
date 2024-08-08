@@ -5,18 +5,12 @@ import {
 import qwikCityPlan from "@qwik-city-plan";
 import { manifest } from "@qwik-client-manifest";
 import render from "./entry.ssr";
-import express, {
-  type Request,
-  type Response,
-  type NextFunction,
-} from "express";
+import express from "express";
 import { fileURLToPath } from "node:url";
 import { join } from "node:path";
 import * as fs from "fs";
 import http from "http";
 import https from "https";
-import { createProxyMiddleware } from "http-proxy-middleware";
-import { createProxyOptions } from "./createProxyOptions";
 import cookieParser from "cookie-parser";
 
 declare global {
@@ -63,97 +57,6 @@ app.use((req, res, next) => {
 // Middleware to parse cookies and JSON bodies
 app.use(cookieParser());
 app.use(express.json());
-
-const validTokens = new Set<string>();
-
-// Middleware to handle token generation and validation
-app.use("/chatgpt", (req: Request, res: Response, next: NextFunction) => {
-  if (req.method === "POST" && req.headers["x-internal-request"] === "true") {
-    const { token } = req.body;
-    if (token) {
-      validTokens.add(token);
-      return res.status(200).send("Token saved");
-    }
-    return res.status(400).send("Invalid request");
-  } else {
-    const authToken = req.query.token as string;
-    if (authToken && validTokens.has(authToken)) {
-      validTokens.delete(authToken); // Remove token after it is used
-      return next();
-    }
-    return res.redirect("/");
-  }
-});
-
-const fetchAndReturn = (url: string) => (req: Request, res: Response) => {
-  http
-    .get(url, (response) => {
-      let data = "";
-
-      // A chunk of data has been received.
-      response.on("data", (chunk) => {
-        data += chunk;
-      });
-
-      // The whole response has been received. Send the result.
-      response.on("end", () => {
-        const contentType = url.endsWith(".js")
-          ? "application/javascript"
-          : "application/json";
-        res.setHeader("Content-Type", contentType);
-        res.send(data);
-      });
-    })
-    .on("error", (err) => {
-      res.status(500).send(`Error fetching ${url} (${err.message})`);
-    });
-};
-
-app.use(
-  "/chatgpt",
-  createProxyMiddleware(
-    createProxyOptions(
-      "http://chatgpt-next-web:3000",
-      undefined,
-      "authjs.session-token"
-    )
-  )
-);
-app.use(
-  "/_next",
-  createProxyMiddleware(
-    createProxyOptions("http://chatgpt-next-web:3000/_next")
-  )
-);
-app.use("/api", (req, res, next) => {
-  if (!req.path.startsWith("/auth")) {
-    createProxyMiddleware(
-      createProxyOptions("http://chatgpt-next-web:3000/api")
-    )(req, res, next);
-  } else {
-    next();
-  }
-});
-
-app.use(
-  "/google-fonts",
-  createProxyMiddleware(
-    createProxyOptions("http://chatgpt-next-web:3000/google-fonts")
-  )
-);
-
-app.use(
-  "/serviceWorkerRegister.js",
-  fetchAndReturn("http://chatgpt-next-web:3000/serviceWorkerRegister.js")
-);
-app.use(
-  "/serviceWorker.js",
-  fetchAndReturn("http://chatgpt-next-web:3000/serviceWorker.js")
-);
-app.use(
-  "/prompts.json",
-  fetchAndReturn("http://chatgpt-next-web:3000/prompts.json")
-);
 
 // Static asset handlers
 app.use(`/build`, express.static(buildDir, { immutable: true, maxAge: "1y" }));
