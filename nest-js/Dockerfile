@@ -1,5 +1,5 @@
 # Base image
-FROM node:latest
+FROM nikolaik/python-nodejs:latest
 
 # Set Memory limit
 ENV NODE_OPTIONS=--max_old_space_size=2048
